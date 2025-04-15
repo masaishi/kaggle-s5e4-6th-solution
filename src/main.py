@@ -20,7 +20,7 @@ wandb.login(key=os.getenv("WANDB_API_KEY"))
 wandb_run = wandb.init(project="playground-series-s5e4", config=asdict(cfg))
 
 df_train, df_test, df_sub, y_train, df_desc, before_encode_len = get_dfs()
-print(df_train.columns[before_encode_len:])
+print(df_train.columns[before_encode_len - 2 :])
 print(df_train.columns)
 print(df_train)
 print(df_desc)
