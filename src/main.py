@@ -20,6 +20,7 @@ wandb.login(key=os.getenv("WANDB_API_KEY"))
 wandb_run = wandb.init(project="playground-series-s5e4", config=asdict(cfg))
 
 df_train, df_test, df_sub, y_train, df_desc, before_encode_len = get_dfs()
+print(df_train.columns[before_encode_len:])
 print(df_train.columns)
 print(df_train)
 print(df_desc)
@@ -36,7 +37,7 @@ X_train, X_valid, y_train, y_valid = train_test_split(
 X_test = df_test[X.columns].copy()
 
 # # Target encoding if needed
-# encoded_columns = df_train.columns[cfg.encoded_columns_start:]
+# encoded_columns = df_train.columns[before_encode_len:]
 # encoder = TargetEncoder(random_state=cfg.random_state)
 
 # X_train[encoded_columns] = encoder.fit_transform(X_train[encoded_columns], y_train)
