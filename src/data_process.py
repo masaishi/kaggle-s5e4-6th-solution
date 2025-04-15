@@ -1,6 +1,10 @@
+import gc
+from itertools import combinations
+
 import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_squared_error
+from tqdm import tqdm
 
 from config import cfg
 
@@ -169,16 +173,56 @@ def feature_eng(df, df_desc=None):
     return df
 
 
+def cols_encode(df):
+    columns_to_encode = [
+        "Episode_Length_minutes",
+        "Episode_Num",
+        "Host_Popularity_percentage",
+        "Number_of_Ads",
+        "Episode_Sentiment",
+        "Publication_Day",
+        "Publication_Time",
+        "Genre",
+        "Guest_Popularity_percentage",
+    ]
+
+    pair_size = [2, 3, 4]
+
+    for r in pair_size:
+        combinations_list = list(combinations(columns_to_encode, r))
+        batch_size = 20
+
+        print("\n pair_size:", r, "\n")
+
+        for i in range(0, len(combinations_list), batch_size):
+            batch = combinations_list[i : i + batch_size]
+
+            for cols in tqdm(batch):
+                new_col_name = "_".join(cols)
+
+                df[new_col_name] = df[list(cols)].astype(str).agg("_".join, axis=1)
+                df[new_col_name] = df[new_col_name].astype("category")
+
+            gc.collect()
+
+            print(
+                f"Memory usage: {df.memory_usage(deep=True).sum() / (1024 * 1024):.2f} MB"
+            )
+            print(f"Total number of columns: {len(df.columns)}")
+
+        print("~" * 19)
+
+
 def get_dfs():
     df_train = pd.read_csv(cfg.train_path, index_col="id")
     df_test = pd.read_csv(cfg.test_path, index_col="id")
     df_sub = pd.read_csv(cfg.sub_path, index_col="id")
 
     is_dev_mode = False
-    # is_dev_mode = True
+    is_dev_mode = True
     if is_dev_mode:
         df_train = df_train.sample(10000, random_state=42)
-        # df_train = df_train.sample(100, random_state=42)
+        df_train = df_train.sample(100, random_state=42)
         df_test = df_test[:10]
         df_sub = df_sub[:10]
 
