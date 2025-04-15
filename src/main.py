@@ -64,7 +64,7 @@ model.fit(
     callbacks=[
         lgb.log_evaluation(cfg.log_eval),
         lgb.early_stopping(cfg.early_stopping),
-        WandbCallback(log_every=10),
+        WandbCallback(log_every=50),
     ],
 )
 
