@@ -103,9 +103,11 @@ def preprocess(df):
     df.loc[df["Number_of_Ads"] > 103.91, "Number_of_Ads"] = 103.91
 
     # Define categorical columns
-    df["Episode_Length_minutes_NaN"] = df["Episode_Length_minutes"].isna().astype(int)
+    df["Episode_Length_minutes_NaN"] = (
+        df["Episode_Length_minutes"].isna().astype(int).astype("category")
+    )
     df["Guest_Popularity_percentage_NaN"] = (
-        df["Guest_Popularity_percentage"].isna().astype(int)
+        df["Guest_Popularity_percentage"].isna().astype(int).astype("category")
     )
 
     # Replacing null values by median
