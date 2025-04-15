@@ -211,6 +211,7 @@ def cols_encode(df):
             print(f"Total number of columns: {len(df.columns)}")
 
         print("~" * 19)
+    return df
 
 
 def get_dfs():
@@ -221,7 +222,7 @@ def get_dfs():
     is_dev_mode = False
     is_dev_mode = True
     if is_dev_mode:
-        df_train = df_train.sample(10000, random_state=42)
+        # df_train = df_train.sample(10000, random_state=42)
         df_train = df_train.sample(100, random_state=42)
         df_test = df_test[:10]
         df_sub = df_sub[:10]
@@ -237,5 +238,10 @@ def get_dfs():
 
     df_train = feature_eng(df_train, df_desc)
     df_test = feature_eng(df_test, df_desc)
+    before_encode_len = len(df_train.columns)
+    print("Length of train columns:", before_encode_len)
 
-    return df_train, df_test, df_sub, y_train, df_desc
+    df_train = cols_encode(df_train)
+    df_test = cols_encode(df_test)
+
+    return df_train, df_test, df_sub, y_train, df_desc, before_encode_len
