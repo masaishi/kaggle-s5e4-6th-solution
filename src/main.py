@@ -6,6 +6,7 @@ from dataclasses import asdict
 import lightgbm as lgb
 from dotenv import load_dotenv
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import TargetEncoder
 
 import wandb
 from config import cfg
@@ -20,8 +21,7 @@ wandb.login(key=os.getenv("WANDB_API_KEY"))
 wandb_run = wandb.init(project="playground-series-s5e4", config=asdict(cfg))
 
 df_train, df_test, df_sub, y_train, df_desc, before_encode_len = get_dfs()
-print(df_train.columns[before_encode_len - 2 :])
-print(df_train.columns)
+print(df_train.columns.to_list())
 print(df_train)
 print(df_desc)
 
@@ -36,13 +36,13 @@ X_train, X_valid, y_train, y_valid = train_test_split(
 
 X_test = df_test[X.columns].copy()
 
-# # Target encoding if needed
-# encoded_columns = df_train.columns[before_encode_len:]
-# encoder = TargetEncoder(random_state=cfg.random_state)
+# Target encoding if needed
+encoded_columns = df_train.columns[before_encode_len:]
+encoder = TargetEncoder(random_state=cfg.random_state)
 
-# X_train[encoded_columns] = encoder.fit_transform(X_train[encoded_columns], y_train)
-# X_valid[encoded_columns] = encoder.transform(X_valid[encoded_columns])
-# X_test[encoded_columns] = encoder.transform(X_test[encoded_columns])
+X_train[encoded_columns] = encoder.fit_transform(X_train[encoded_columns], y_train)
+X_valid[encoded_columns] = encoder.transform(X_valid[encoded_columns])
+X_test[encoded_columns] = encoder.transform(X_test[encoded_columns])
 
 # Initialize the model
 model = lgb.LGBMRegressor(
