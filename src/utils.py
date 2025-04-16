@@ -1,5 +1,3 @@
-import datetime
-
 import git
 
 import wandb
@@ -14,26 +12,20 @@ class WandbCallback:
     def __call__(self, env):
         # This gets called after each iteration
         if self.iteration % self.log_every == 0:
-            # Log metrics to wandb
             metrics = {}
             for dataset_name, eval_name, value, _ in env.evaluation_result_list:
                 metric_name = f"{dataset_name}/{eval_name}"
                 metrics[metric_name] = value
 
-            # Log feature importance if available and requested
+            # Log the metrics to wandb
             if self.log_feature_importance and hasattr(env, "model"):
-                # Get feature names from the model
                 feature_names = env.model.feature_name()
-
-                # Get feature importance (split importance by default)
                 importance = env.model.feature_importance(importance_type="split")
 
-                # Create feature importance dictionary
                 feature_importance = {
                     name: imp for name, imp in zip(feature_names, importance)
                 }
 
-                # Log feature importance table
                 wandb.log(
                     {
                         "feature_importance": wandb.Table(
@@ -51,7 +43,6 @@ class WandbCallback:
                     step=self.iteration,
                 )
 
-                # Log bar chart of top features
                 wandb.log(
                     {
                         "feature_importance_plot": wandb.plot.bar(
@@ -85,7 +76,7 @@ def commit_results(val_score, wandb_run_name):
         repo = git.Repo(search_parent_directories=True)
         # Add all changes
         repo.git.add(".")
-        commit_message = f"Val score: {val_score:.6f} on {datetime.datetime.now().isoformat()} | wandb run: {wandb_run_name}"
+        commit_message = f"Val score: {val_score:.6f} | wandb run: {wandb_run_name}"
         repo.git.commit("-m", commit_message)
 
         commit_id = repo.head.object.hexsha

@@ -129,21 +129,21 @@ def preprocess(df):
 
 
 def feature_eng(df, df_desc=None):
-    # Better capture cyclical nature of day and time
-    df["Day_sin"] = np.sin(2 * np.pi * df["Publication_Day"] / 7)
-    df["Day_cos"] = np.cos(2 * np.pi * df["Publication_Day"] / 7)
-    df["Time_sin"] = np.sin(2 * np.pi * df["Publication_Time"] / 4)
-    df["Time_cos"] = np.cos(2 * np.pi * df["Publication_Time"] / 4)
+    # # Better capture cyclical nature of day and time
+    # df["Day_sin"] = np.sin(2 * np.pi * df["Publication_Day"] / 7)
+    # df["Day_cos"] = np.cos(2 * np.pi * df["Publication_Day"] / 7)
+    # df["Time_sin"] = np.sin(2 * np.pi * df["Publication_Time"] / 4)
+    # df["Time_cos"] = np.cos(2 * np.pi * df["Publication_Time"] / 4)
 
-    # Higher frequency sinusoidal features for day and time
-    df["Day_sin2"] = np.sin(4 * np.pi * df["Publication_Day"] / 7)
-    df["Day_cos2"] = np.cos(4 * np.pi * df["Publication_Day"] / 7)
-    df["Time_sin2"] = np.sin(4 * np.pi * df["Publication_Time"] / 24)
-    df["Time_cos2"] = np.cos(4 * np.pi * df["Publication_Time"] / 24)
+    # # Higher frequency sinusoidal features for day and time
+    # df["Day_sin2"] = np.sin(4 * np.pi * df["Publication_Day"] / 7)
+    # df["Day_cos2"] = np.cos(4 * np.pi * df["Publication_Day"] / 7)
+    # df["Time_sin2"] = np.sin(4 * np.pi * df["Publication_Time"] / 24)
+    # df["Time_cos2"] = np.cos(4 * np.pi * df["Publication_Time"] / 24)
 
-    df["Length_per_Ads"] = (
-        df["Episode_Length_minutes"] / (df["Number_of_Ads"] + 1)
-    ).fillna(0)
+    # df["Length_per_Ads"] = (
+    #     df["Episode_Length_minutes"] / (df["Number_of_Ads"] + 1)
+    # ).fillna(0)
 
     # groups = [
     #     "Podcast_Name",
