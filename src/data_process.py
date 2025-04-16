@@ -118,12 +118,8 @@ def preprocess(df):
     )
 
     # Replacing null values by median
-    df["Episode_Length_minutes"].fillna(
-        df["Episode_Length_minutes"].median(), inplace=True
-    )
-    df["Guest_Popularity_percentage"].fillna(
-        df["Guest_Popularity_percentage"].median(), inplace=True
-    )
+    df["Episode_Length_minutes"].fillna(-1, inplace=True)
+    df["Guest_Popularity_percentage"].fillna(-1, inplace=True)
 
     return df
 
@@ -141,9 +137,9 @@ def feature_eng(df, df_desc=None):
     df["Time_sin2"] = np.sin(4 * np.pi * df["Publication_Time"] / 24)
     df["Time_cos2"] = np.cos(4 * np.pi * df["Publication_Time"] / 24)
 
-    # df["Length_per_Ads"] = (
-    #     df["Episode_Length_minutes"] / (df["Number_of_Ads"] + 1)
-    # ).fillna(0)
+    df["Length_per_Ads"] = (
+        df["Episode_Length_minutes"] / (df["Number_of_Ads"] + 1)
+    ).fillna(0)
 
     # groups = [
     #     "Podcast_Name",
