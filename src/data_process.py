@@ -221,6 +221,7 @@ def get_dfs():
     df_train = pd.read_csv(cfg.train_path, index_col="id")
     df_test = pd.read_csv(cfg.test_path, index_col="id")
     df_sub = pd.read_csv(cfg.sub_path, index_col="id")
+    df_podcast = pd.read_csv(cfg.podcast_path, index_col="id")
 
     is_dev_mode = False
     # is_dev_mode = True

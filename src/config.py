@@ -7,6 +7,7 @@ class CFG:
     train_path: Path = Path("./data/train.csv")
     test_path: Path = Path("./data/test.csv")
     sub_path: Path = Path("./data/sample_submission.csv")
+    podcast_path: Path = Path("./data/podcast_dataset.csv")
 
     num_fold: int = 5
     dev_mode: bool = False
