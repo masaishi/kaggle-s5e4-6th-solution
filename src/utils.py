@@ -6,9 +6,10 @@ import wandb
 
 
 class WandbCallback:
-    def __init__(self, log_every=50):
+    def __init__(self, log_every=50, log_feature_importance=True):
         self.log_every = log_every
         self.iteration = 0
+        self.log_feature_importance = log_feature_importance
 
     def __call__(self, env):
         # This gets called after each iteration
@@ -18,6 +19,60 @@ class WandbCallback:
             for dataset_name, eval_name, value, _ in env.evaluation_result_list:
                 metric_name = f"{dataset_name}/{eval_name}"
                 metrics[metric_name] = value
+
+            # Log feature importance if available and requested
+            if self.log_feature_importance and hasattr(env, "model"):
+                # Get feature names from the model
+                feature_names = env.model.feature_name()
+
+                # Get feature importance (split importance by default)
+                importance = env.model.feature_importance(importance_type="split")
+
+                # Create feature importance dictionary
+                feature_importance = {
+                    name: imp for name, imp in zip(feature_names, importance)
+                }
+
+                # Log feature importance table
+                wandb.log(
+                    {
+                        "feature_importance": wandb.Table(
+                            data=[
+                                [k, v]
+                                for k, v in sorted(
+                                    feature_importance.items(),
+                                    key=lambda x: x[1],
+                                    reverse=True,
+                                )
+                            ],
+                            columns=["feature", "importance"],
+                        )
+                    },
+                    step=self.iteration,
+                )
+
+                # Log bar chart of top features
+                wandb.log(
+                    {
+                        "feature_importance_plot": wandb.plot.bar(
+                            wandb.Table(
+                                data=[
+                                    [k, v]
+                                    for k, v in sorted(
+                                        feature_importance.items(),
+                                        key=lambda x: x[1],
+                                        reverse=True,
+                                    )[:10]
+                                ],
+                                columns=["feature", "importance"],
+                            ),
+                            "feature",
+                            "importance",
+                            title="Top Feature Importance",
+                        )
+                    },
+                    step=self.iteration,
+                )
 
             wandb.log(metrics, step=self.iteration)
 

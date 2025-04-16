@@ -4,6 +4,9 @@ from itertools import combinations
 import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split
+
+# from sklearn.preprocessing import TargetEncoder
 from tqdm import tqdm
 
 from config import cfg
@@ -220,33 +223,68 @@ def cols_encode(df):
 def get_dfs():
     df_train = pd.read_csv(cfg.train_path, index_col="id")
     df_test = pd.read_csv(cfg.test_path, index_col="id")
-    df_sub = pd.read_csv(cfg.sub_path, index_col="id")
-    df_podcast = pd.read_csv(cfg.podcast_path, index_col="id")
-
-    is_dev_mode = False
-    # is_dev_mode = True
-    if is_dev_mode:
-        # df_train = df_train.sample(10000, random_state=42)
-        df_train = df_train.sample(100, random_state=42)
-        df_test = df_test[:10]
-        df_sub = df_sub[:10]
-
-    df_train = preprocess(df_train)
-    df_test = preprocess(df_test)
 
     target_col = "Listening_Time_minutes"
     y_train = df_train[target_col].copy()
     df_train = df_train.drop(columns=[target_col])
 
-    df_desc = df_train.describe()
+    # Split to df_train and df_val
+    X_train, X_valid, y_train, y_valid = train_test_split(
+        df_train,
+        y_train,
+        test_size=0.2,  # 20% for validation
+        random_state=42,
+    )
+    X_test = df_test.copy()
 
-    df_train = feature_eng(df_train, df_desc)
-    df_test = feature_eng(df_test, df_desc)
+    # Merge with df_podcast
+    df_pltpd = pd.read_csv(cfg.pltpd_path)
+    df_pltpd = df_pltpd.dropna(subset=["Listening_Time_minutes"])
+    df_pltpd = df_pltpd.reset_index(drop=True)
+    df_pltpd.index = df_pltpd.index + 1000000
+    y_train = pd.concat(
+        [y_train, df_pltpd["Listening_Time_minutes"]], axis=0
+    ).reset_index(drop=True)
+    df_pltpd = df_pltpd.drop(columns=["Listening_Time_minutes"])
+    X_train = pd.concat([X_train, df_pltpd], axis=0)
 
-    before_encode_len = len(df_train.columns)
+    # # Sample 100 fors X_train and y_train
+    # X_train = X_train.sample(100, random_state=42)
+    # y_train = y_train.sample(100, random_state=42)
+
+    X_train = preprocess(X_train)
+    X_valid = preprocess(X_valid)
+    X_test = preprocess(X_test)
+
+    X_desc = X_train.describe()
+    X_train = feature_eng(X_train, X_desc)
+    X_valid = feature_eng(X_valid, X_desc)
+    X_test = feature_eng(X_test, X_desc)
+
+    before_encode_len = len(X_train.columns)
     print("Length of train columns:", before_encode_len)
 
-    df_train = cols_encode(df_train)
-    df_test = cols_encode(df_test)
+    # X_train = cols_encode(X_train)
+    # X_valid = cols_encode(X_valid)
+    # X_test = cols_encode(X_test)
 
-    return df_train, df_test, df_sub, y_train, df_desc, before_encode_len
+    # X_test = X_test[X_train.columns].copy()
+
+    # print(X_train.shape, y_train.shape, X_valid.shape, y_valid.shape)
+
+    # # Target encoding
+    # print("Before encoding columns:", before_encode_len)
+    # encoded_columns = X_train.columns[before_encode_len:]
+    # encoder = TargetEncoder(random_state=cfg.random_state)
+
+    # X_train[encoded_columns] = encoder.fit_transform(X_train[encoded_columns], y_train)
+    # X_valid[encoded_columns] = encoder.transform(X_valid[encoded_columns])
+    # X_test[encoded_columns] = encoder.transform(X_test[encoded_columns])
+
+    return {
+        "X_train": X_train,
+        "y_train": y_train,
+        "X_valid": X_valid,
+        "y_valid": y_valid,
+        "X_test": X_test,
+    }
