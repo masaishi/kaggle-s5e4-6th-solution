@@ -178,19 +178,19 @@ def cols_encode(df):
         "Podcast_Name",
         "Episode_Num",
         "Episode_Length_minutes",
-        "Genre",
+        # "Genre",
         "Host_Popularity_percentage",
         "Guest_Popularity_percentage",
         "Publication_Day",
         "Publication_Time",
         "Number_of_Ads",
-        "Episode_Sentiment",
+        # "Episode_Sentiment",
         "Episode_Length_minutes_NaN",
         "Guest_Popularity_percentage_NaN",
-        "Podcast_Name_Episode_Num_norm",
+        # "Podcast_Name_Episode_Num_norm",
     ]
 
-    pair_size = [2, 3]
+    pair_size = [2, 3, 4]
 
     for r in pair_size:
         combinations_list = list(combinations(columns_to_encode, r))
@@ -202,8 +202,7 @@ def cols_encode(df):
             batch = combinations_list[i : i + batch_size]
 
             for cols in tqdm(batch):
-                new_col_name = "_".join(cols)
-
+                new_col_name = "colen_" + "_".join(cols)
                 df[new_col_name] = df[list(cols)].astype(str).agg("_".join, axis=1)
                 df[new_col_name] = df[new_col_name].astype("category")
 
@@ -241,9 +240,8 @@ def get_dfs():
     df_desc = df_train.describe()
 
     df_train = feature_eng(df_train, df_desc)
-    df_train.to_csv("./data/fe_train.csv", index=False)
     df_test = feature_eng(df_test, df_desc)
-    df_test.to_csv("./data/fe_test.csv", index=False)
+
     before_encode_len = len(df_train.columns)
     print("Length of train columns:", before_encode_len)
 
