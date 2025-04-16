@@ -220,7 +220,7 @@ def get_dfs():
     df_sub = pd.read_csv(cfg.sub_path, index_col="id")
 
     is_dev_mode = False
-    is_dev_mode = True
+    # is_dev_mode = True
     if is_dev_mode:
         # df_train = df_train.sample(10000, random_state=42)
         df_train = df_train.sample(100, random_state=42)
