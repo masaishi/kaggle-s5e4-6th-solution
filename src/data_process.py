@@ -109,13 +109,13 @@ def preprocess(df):
     df.loc[df["Episode_Length_minutes"] > 121.0, "Episode_Length_minutes"] = 121.0
     df.loc[df["Number_of_Ads"] > 103.91, "Number_of_Ads"] = 103.91
 
-    # # Define categorical columns
-    # df["Episode_Length_minutes_NaN"] = (
-    #     df["Episode_Length_minutes"].isna().astype(int).astype("category")
-    # )
-    # df["Guest_Popularity_percentage_NaN"] = (
-    #     df["Guest_Popularity_percentage"].isna().astype(int).astype("category")
-    # )
+    # Define categorical columns
+    df["Episode_Length_minutes_NaN"] = (
+        df["Episode_Length_minutes"].isna().astype(int).astype("category")
+    )
+    df["Guest_Popularity_percentage_NaN"] = (
+        df["Guest_Popularity_percentage"].isna().astype(int).astype("category")
+    )
 
     # Replacing null values by median
     df["Episode_Length_minutes"].fillna(
@@ -144,6 +144,12 @@ def feature_eng(df, df_desc=None):
     df["Length_per_Ads"] = (
         df["Episode_Length_minutes"] / (df["Number_of_Ads"] + 1)
     ).fillna(0)
+    df["Length_per_Host"] = (
+        df["Episode_Length_minutes"] / (df["Host_Popularity_percentage"] + 1)
+    ).fillna(0)
+    # df["Length_per_Guest"] = (
+    #     df["Episode_Length_minutes"] / (df["Guest_Popularity_percentage"] + 1)
+    # ).fillna(0)
 
     # groups = [
     #     "Podcast_Name",
