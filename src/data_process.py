@@ -118,8 +118,12 @@ def preprocess(df):
     )
 
     # Replacing null values by median
-    df["Episode_Length_minutes"].fillna(-1, inplace=True)
-    df["Guest_Popularity_percentage"].fillna(-1, inplace=True)
+    df["Episode_Length_minutes"].fillna(
+        df["Episode_Length_minutes"].median(), inplace=True
+    )
+    df["Guest_Popularity_percentage"].fillna(
+        df["Guest_Popularity_percentage"].median(), inplace=True
+    )
 
     return df
 
