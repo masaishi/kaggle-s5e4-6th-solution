@@ -145,26 +145,26 @@ def feature_eng(df, df_desc=None):
         df["Episode_Length_minutes"] / (df["Number_of_Ads"] + 1)
     ).fillna(0)
 
-    groups = [
-        "Podcast_Name",
-        "Episode_Length_minutes_NaN",
-        "Guest_Popularity_percentage_NaN",
-        "Publication_Day",
-        "Publication_Time",
-        "Genre",
-    ]
-    for group in groups:
-        numeric_cols = [
-            "Episode_Num",
-            "Episode_Length_minutes",
-            "Number_of_Ads",
-            "Host_Popularity_percentage",
-            "Guest_Popularity_percentage",
-        ]
-        for col in numeric_cols:
-            df[f"{group}_{col}_norm"] = df.groupby(group)[col].transform(
-                lambda x: (x - x.min()) / (x.max() - x.min() + 1e-8)
-            )
+    # groups = [
+    #     "Podcast_Name",
+    #     "Episode_Length_minutes_NaN",
+    #     "Guest_Popularity_percentage_NaN",
+    #     "Publication_Day",
+    #     "Publication_Time",
+    #     "Genre",
+    # ]
+    # for group in groups:
+    #     numeric_cols = [
+    #         "Episode_Num",
+    #         "Episode_Length_minutes",
+    #         "Number_of_Ads",
+    #         "Host_Popularity_percentage",
+    #         "Guest_Popularity_percentage",
+    #     ]
+    #     for col in numeric_cols:
+    #         df[f"{group}_{col}_norm"] = df.groupby(group)[col].transform(
+    #             lambda x: (x - x.min()) / (x.max() - x.min() + 1e-8)
+    #         )
 
     df["Podcast_Name"] = df["Podcast_Name"].astype("category")
     df["Genre"] = df["Genre"].astype("category")
