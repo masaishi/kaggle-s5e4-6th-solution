@@ -17,7 +17,7 @@ class CFG:
     max_depth: int = -1
     num_leaves: int = 1024
     colsample_bytree: float = 0.7
-    learning_rate: float = 0.04
+    learning_rate: float = 0.1
 
     objective: str = "l2"
     metric: str = "rmse"
