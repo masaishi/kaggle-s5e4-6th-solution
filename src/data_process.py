@@ -141,9 +141,9 @@ def feature_eng(df, df_desc=None):
     df["Time_sin2"] = np.sin(4 * np.pi * df["Publication_Time"] / 24)
     df["Time_cos2"] = np.cos(4 * np.pi * df["Publication_Time"] / 24)
 
-    # df["Length_per_Ads"] = (
-    #     df["Episode_Length_minutes"] / (df["Number_of_Ads"] + 1)
-    # ).fillna(0)
+    df["Length_per_Ads"] = (
+        df["Episode_Length_minutes"] / (df["Number_of_Ads"] + 1)
+    ).fillna(0)
 
     # groups = [
     #     "Podcast_Name",
