@@ -175,18 +175,22 @@ def feature_eng(df, df_desc=None):
 
 def cols_encode(df):
     columns_to_encode = [
-        "Episode_Length_minutes",
+        "Podcast_Name",
         "Episode_Num",
+        "Episode_Length_minutes",
+        "Genre",
         "Host_Popularity_percentage",
-        "Number_of_Ads",
-        "Episode_Sentiment",
+        "Guest_Popularity_percentage",
         "Publication_Day",
         "Publication_Time",
-        "Genre",
-        "Guest_Popularity_percentage",
+        "Number_of_Ads",
+        "Episode_Sentiment",
+        "Episode_Length_minutes_NaN",
+        "Guest_Popularity_percentage_NaN",
+        "Podcast_Name_Episode_Num_norm",
     ]
 
-    pair_size = [2, 3, 4]
+    pair_size = [2, 3]
 
     for r in pair_size:
         combinations_list = list(combinations(columns_to_encode, r))
@@ -210,7 +214,7 @@ def cols_encode(df):
             )
             print(f"Total number of columns: {len(df.columns)}")
 
-        print("~" * 19)
+        print("=" * 20)
     return df
 
 
@@ -237,7 +241,9 @@ def get_dfs():
     df_desc = df_train.describe()
 
     df_train = feature_eng(df_train, df_desc)
+    df_train.to_csv("./data/fe_train.csv", index=False)
     df_test = feature_eng(df_test, df_desc)
+    df_test.to_csv("./data/fe_test.csv", index=False)
     before_encode_len = len(df_train.columns)
     print("Length of train columns:", before_encode_len)
 
