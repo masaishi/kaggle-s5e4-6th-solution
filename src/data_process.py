@@ -147,9 +147,9 @@ def feature_eng(df, df_desc=None):
     df["Length_per_Host"] = (
         df["Episode_Length_minutes"] / (df["Host_Popularity_percentage"] + 1)
     ).fillna(0)
-    # df["Length_per_Guest"] = (
-    #     df["Episode_Length_minutes"] / (df["Guest_Popularity_percentage"] + 1)
-    # ).fillna(0)
+    df["Length_per_Guest"] = (
+        df["Episode_Length_minutes"] / (df["Guest_Popularity_percentage"] + 1)
+    ).fillna(0)
 
     # groups = [
     #     "Podcast_Name",
