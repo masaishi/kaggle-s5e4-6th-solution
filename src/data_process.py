@@ -151,6 +151,18 @@ def feature_eng(df, df_desc=None):
         df["Episode_Length_minutes"] / (df["Guest_Popularity_percentage"] + 1)
     ).fillna(0)
 
+    # Make exp with using df_desc std
+    df["Episode_Length_minutes"] = np.log1p(
+        df["Episode_Length_minutes"] / df_desc["Episode_Length_minutes"]["std"]
+    )
+    df["Host_Popularity_percentage"] = np.log1p(
+        df["Host_Popularity_percentage"] / df_desc["Host_Popularity_percentage"]["std"]
+    )
+    df["Guest_Popularity_percentage"] = np.log1p(
+        df["Guest_Popularity_percentage"]
+        / df_desc["Guest_Popularity_percentage"]["std"]
+    )
+
     # groups = [
     #     "Podcast_Name",
     #     "Episode_Length_minutes_NaN",
@@ -226,7 +238,7 @@ def cols_encode(df):
     return df
 
 
-def get_dfs():
+def get_dfs(cfg=cfg):
     df_train = pd.read_csv(cfg.train_path, index_col="id")
     df_test = pd.read_csv(cfg.test_path, index_col="id")
 
