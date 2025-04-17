@@ -162,6 +162,11 @@ def cols_encode(df):
         "Episode_Sentiment",
         "Genre",
         "Number_of_Ads",
+        # "Length_per_Ads",
+        # "Length_per_Host",
+        # "Length_per_Guest",
+        # "Episode_Length_minutes_NaN",
+        # "Guest_Popularity_percentage_NaN",
     ]
 
     pair_size = [2, 3]
