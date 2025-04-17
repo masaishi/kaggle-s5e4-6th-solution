@@ -128,6 +128,15 @@ def preprocess(df):
     return df
 
 
+def normalize_and_log_transform(df, column_name, desc_df):
+    col_min = desc_df[column_name]["min"]
+    col_max = desc_df[column_name]["max"]
+    col_std = desc_df[column_name]["std"]
+
+    normalized_values = (df[column_name] - col_min) / (col_max - col_min)
+    return np.log1p(normalized_values / col_std)
+
+
 def feature_eng(df, df_desc=None):
     # Better capture cyclical nature of day and time
     df["Day_sin"] = np.sin(2 * np.pi * df["Publication_Day"] / 7)
@@ -151,16 +160,15 @@ def feature_eng(df, df_desc=None):
         df["Episode_Length_minutes"] / (df["Guest_Popularity_percentage"] + 1)
     ).fillna(0)
 
-    # Make exp with using df_desc std
-    df["Episode_Length_minutes"] = np.log1p(
-        df["Episode_Length_minutes"] / df_desc["Episode_Length_minutes"]["std"]
+    # Make log transformation with normalization considering min, max, and std
+    df["Episode_Length_minutes_log"] = normalize_and_log_transform(
+        df, "Episode_Length_minutes", df_desc
     )
-    df["Host_Popularity_percentage"] = np.log1p(
-        df["Host_Popularity_percentage"] / df_desc["Host_Popularity_percentage"]["std"]
+    df["Host_Popularity_percentage_log"] = normalize_and_log_transform(
+        df, "Host_Popularity_percentage", df_desc
     )
-    df["Guest_Popularity_percentage"] = np.log1p(
-        df["Guest_Popularity_percentage"]
-        / df_desc["Guest_Popularity_percentage"]["std"]
+    df["Guest_Popularity_percentage_log"] = normalize_and_log_transform(
+        df, "Guest_Popularity_percentage", df_desc
     )
 
     # groups = [
