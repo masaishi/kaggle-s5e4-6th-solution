@@ -128,15 +128,6 @@ def preprocess(df):
     return df
 
 
-def normalize_and_log_transform(df, column_name, desc_df):
-    col_min = desc_df[column_name]["min"]
-    col_max = desc_df[column_name]["max"]
-    col_std = desc_df[column_name]["std"]
-
-    normalized_values = (df[column_name] - col_min) / (col_max - col_min)
-    return np.log1p(normalized_values / col_std)
-
-
 def feature_eng(df, df_desc=None):
     # Better capture cyclical nature of day and time
     df["Day_sin"] = np.sin(2 * np.pi * df["Publication_Day"] / 7)
@@ -159,17 +150,6 @@ def feature_eng(df, df_desc=None):
     df["Length_per_Guest"] = (
         df["Episode_Length_minutes"] / (df["Guest_Popularity_percentage"] + 1)
     ).fillna(0)
-
-    # Make log transformation with normalization considering min, max, and std
-    df["Episode_Length_minutes_log"] = normalize_and_log_transform(
-        df, "Episode_Length_minutes", df_desc
-    )
-    df["Host_Popularity_percentage_log"] = normalize_and_log_transform(
-        df, "Host_Popularity_percentage", df_desc
-    )
-    df["Guest_Popularity_percentage_log"] = normalize_and_log_transform(
-        df, "Guest_Popularity_percentage", df_desc
-    )
 
     # groups = [
     #     "Podcast_Name",
@@ -203,20 +183,18 @@ def feature_eng(df, df_desc=None):
 
 
 def cols_encode(df):
+    # Order of importance
     columns_to_encode = [
-        "Podcast_Name",
-        "Episode_Num",
-        "Episode_Length_minutes",
-        # "Genre",
         "Host_Popularity_percentage",
         "Guest_Popularity_percentage",
-        "Publication_Day",
-        "Publication_Time",
-        "Number_of_Ads",
-        # "Episode_Sentiment",
-        "Episode_Length_minutes_NaN",
-        "Guest_Popularity_percentage_NaN",
-        # "Podcast_Name_Episode_Num_norm",
+        "Episode_Length_minutes",
+        "Episode_Num",
+        "Podcast_Name",
+        "Episode_Sentiment",
+        "Day_sin",
+        "Day_cos",
+        "Time_sin",
+        "Time_cos",
     ]
 
     pair_size = [2, 3, 4]
@@ -290,22 +268,24 @@ def get_dfs(cfg=cfg):
     before_encode_len = len(X_train.columns)
     print("Length of train columns:", before_encode_len)
 
-    # X_train = cols_encode(X_train)
-    # X_valid = cols_encode(X_valid)
-    # X_test = cols_encode(X_test)
+    X_train = cols_encode(X_train)
+    X_valid = cols_encode(X_valid)
+    X_test = cols_encode(X_test)
 
-    # X_test = X_test[X_train.columns].copy()
+    X_test = X_test[X_train.columns].copy()
 
-    # print(X_train.shape, y_train.shape, X_valid.shape, y_valid.shape)
+    print(X_train.shape, y_train.shape, X_valid.shape, y_valid.shape)
 
-    # # Target encoding
-    # print("Before encoding columns:", before_encode_len)
-    # encoded_columns = X_train.columns[before_encode_len:]
-    # encoder = TargetEncoder(random_state=cfg.random_state)
+    # Target encoding
+    print("Before encoding columns:", before_encode_len)
+    encoded_columns = X_train.columns[before_encode_len:]
+    from sklearn.preprocessing import TargetEncoder
 
-    # X_train[encoded_columns] = encoder.fit_transform(X_train[encoded_columns], y_train)
-    # X_valid[encoded_columns] = encoder.transform(X_valid[encoded_columns])
-    # X_test[encoded_columns] = encoder.transform(X_test[encoded_columns])
+    encoder = TargetEncoder(random_state=cfg.random_state)
+
+    X_train[encoded_columns] = encoder.fit_transform(X_train[encoded_columns], y_train)
+    X_valid[encoded_columns] = encoder.transform(X_valid[encoded_columns])
+    X_test[encoded_columns] = encoder.transform(X_test[encoded_columns])
 
     return {
         "X_train": X_train,
