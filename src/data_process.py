@@ -135,9 +135,6 @@ def feature_eng(df, df_desc=None):
     df["Length_per_Host"] = (df["Episode_Length_minutes"] / (df["Host_Popularity_percentage"] + 1)).fillna(0)
     df["Length_per_Guest"] = (df["Episode_Length_minutes"] / (df["Guest_Popularity_percentage"] + 1)).fillna(0)
 
-    # df["Podcast_Avg_Length"] = df.groupby("Podcast_Name")["Episode_Length_minutes"].transform("mean")
-    df["Podcast_Avg_Ads"] = df.groupby("Podcast_Name")["Number_of_Ads"].transform("mean")
-
     df["Podcast_Name"] = df["Podcast_Name"].astype("category")
     df["Genre"] = df["Genre"].astype("category")
     df["Publication_Day"] = df["Publication_Day"].astype("category")
@@ -241,13 +238,14 @@ def get_dfs(cfg=cfg):
     # # Target encoding
     # print("Before encoding columns:", before_encode_len)
     # encoded_columns = X_train.columns[before_encode_len:]
-    # from sklearn.preprocessing import TargetEncoder
 
-    # encoder = TargetEncoder(random_state=cfg.random_state)
+    from sklearn.preprocessing import TargetEncoder
 
-    # X_train[encoded_columns] = encoder.fit_transform(X_train[encoded_columns], y_train)
-    # X_valid[encoded_columns] = encoder.transform(X_valid[encoded_columns])
-    # X_test[encoded_columns] = encoder.transform(X_test[encoded_columns])
+    encoder = TargetEncoder(random_state=cfg.random_state)
+    encoded_columns = X_train.select_dtypes(include=["category"]).columns.tolist()
+    X_train[encoded_columns] = encoder.fit_transform(X_train[encoded_columns], y_train)
+    X_valid[encoded_columns] = encoder.transform(X_valid[encoded_columns])
+    X_test[encoded_columns] = encoder.transform(X_test[encoded_columns])
 
     return {
         "X_train": X_train,
