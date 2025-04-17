@@ -153,13 +153,15 @@ def cols_encode(df):
         "Episode_Length_minutes",
         "Episode_Num",
         "Podcast_Name",
+        "Publication_Day",
+        "Publication_Time",
         "Day_sin",
         "Day_cos",
         "Time_sin",
         "Time_cos",
-        # "Episode_Sentiment",
-        # "Genre",
-        # "Number_of_Ads",
+        "Episode_Sentiment",
+        "Genre",
+        "Number_of_Ads",
     ]
 
     pair_size = [2, 3]
