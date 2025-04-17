@@ -94,9 +94,7 @@ re_dict["sent_dict"] = {"Negative": 0, "Neutral": 1, "Positive": 2}
 
 
 def preprocess(df):
-    df["Episode_Num"] = (
-        df["Episode_Title"].str[8:].astype(int)
-    )  # Convert to int before log transform
+    df["Episode_Num"] = df["Episode_Title"].str[8:].astype(int)  # Convert to int before log transform
     df = df.drop(columns=["Episode_Title"])
 
     # Convert categorical variables
@@ -110,20 +108,12 @@ def preprocess(df):
     df.loc[df["Number_of_Ads"] > 103.91, "Number_of_Ads"] = 103.91
 
     # Define categorical columns
-    df["Episode_Length_minutes_NaN"] = (
-        df["Episode_Length_minutes"].isna().astype(int).astype("category")
-    )
-    df["Guest_Popularity_percentage_NaN"] = (
-        df["Guest_Popularity_percentage"].isna().astype(int).astype("category")
-    )
+    df["Episode_Length_minutes_NaN"] = df["Episode_Length_minutes"].isna().astype(int).astype("category")
+    df["Guest_Popularity_percentage_NaN"] = df["Guest_Popularity_percentage"].isna().astype(int).astype("category")
 
     # Replacing null values by median
-    df["Episode_Length_minutes"].fillna(
-        df["Episode_Length_minutes"].median(), inplace=True
-    )
-    df["Guest_Popularity_percentage"].fillna(
-        df["Guest_Popularity_percentage"].median(), inplace=True
-    )
+    df["Episode_Length_minutes"].fillna(df["Episode_Length_minutes"].median(), inplace=True)
+    df["Guest_Popularity_percentage"].fillna(df["Guest_Popularity_percentage"].median(), inplace=True)
 
     return df
 
@@ -141,20 +131,12 @@ def feature_eng(df, df_desc=None):
     df["Time_sin2"] = np.sin(4 * np.pi * df["Publication_Time"] / 24)
     df["Time_cos2"] = np.cos(4 * np.pi * df["Publication_Time"] / 24)
 
-    df["Length_per_Ads"] = (
-        df["Episode_Length_minutes"] / (df["Number_of_Ads"] + 1)
-    ).fillna(0)
-    df["Length_per_Host"] = (
-        df["Episode_Length_minutes"] / (df["Host_Popularity_percentage"] + 1)
-    ).fillna(0)
-    df["Length_per_Guest"] = (
-        df["Episode_Length_minutes"] / (df["Guest_Popularity_percentage"] + 1)
-    ).fillna(0)
+    df["Length_per_Ads"] = (df["Episode_Length_minutes"] / (df["Number_of_Ads"] + 1)).fillna(0)
+    df["Length_per_Host"] = (df["Episode_Length_minutes"] / (df["Host_Popularity_percentage"] + 1)).fillna(0)
+    df["Length_per_Guest"] = (df["Episode_Length_minutes"] / (df["Guest_Popularity_percentage"] + 1)).fillna(0)
 
-    df["Sentiment_Host_Interaction"] = (
-        df["Episode_Sentiment"] * df["Host_Popularity_percentage"]
-    )
-    # df['Sentiment_Guest_Interaction'] = df['Episode_Sentiment'] * df['Guest_Popularity_percentage']
+    df["Podcast_Avg_Length"] = df.groupby("Podcast_Name")["Episode_Length_minutes"].transform("mean")
+    # df['Podcast_Avg_Ads'] = df.groupby('Podcast_Name')['Number_of_Ads'].transform('mean')
 
     df["Podcast_Name"] = df["Podcast_Name"].astype("category")
     df["Genre"] = df["Genre"].astype("category")
@@ -199,9 +181,7 @@ def cols_encode(df):
 
             gc.collect()
 
-            print(
-                f"Memory usage: {df.memory_usage(deep=True).sum() / (1024 * 1024):.2f} MB"
-            )
+            print(f"Memory usage: {df.memory_usage(deep=True).sum() / (1024 * 1024):.2f} MB")
             print(f"Total number of columns: {len(df.columns)}")
 
         print("=" * 20)
@@ -230,9 +210,7 @@ def get_dfs(cfg=cfg):
     df_pltpd = df_pltpd.dropna(subset=["Listening_Time_minutes"])
     df_pltpd = df_pltpd.reset_index(drop=True)
     df_pltpd.index = df_pltpd.index + 1000000
-    y_train = pd.concat(
-        [y_train, df_pltpd["Listening_Time_minutes"]], axis=0
-    ).reset_index(drop=True)
+    y_train = pd.concat([y_train, df_pltpd["Listening_Time_minutes"]], axis=0).reset_index(drop=True)
     df_pltpd = df_pltpd.drop(columns=["Listening_Time_minutes"])
     X_train = pd.concat([X_train, df_pltpd], axis=0)
 

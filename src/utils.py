@@ -22,9 +22,7 @@ class WandbCallback:
                 feature_names = env.model.feature_name()
                 importance = env.model.feature_importance(importance_type="split")
 
-                feature_importance = {
-                    name: imp for name, imp in zip(feature_names, importance)
-                }
+                feature_importance = {name: imp for name, imp in zip(feature_names, importance)}
 
                 wandb.log(
                     {
