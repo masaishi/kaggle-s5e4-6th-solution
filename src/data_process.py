@@ -162,9 +162,9 @@ def feature_eng(df, df_desc=None):
     for group in groups:
         numeric_cols = [
             "Episode_Num",
-            "Episode_Length_minutes",
-            "Host_Popularity_percentage",
-            "Guest_Popularity_percentage",
+            # "Episode_Length_minutes",
+            # "Host_Popularity_percentage",
+            # "Guest_Popularity_percentage",
         ]
         for col in numeric_cols:
             df[f"{group}_{col}_norm"] = df.groupby(group)[col].transform(
