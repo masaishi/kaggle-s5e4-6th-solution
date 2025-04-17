@@ -153,14 +153,16 @@ def cols_encode(df):
         "Episode_Length_minutes",
         "Episode_Num",
         "Podcast_Name",
-        "Episode_Sentiment",
         "Day_sin",
         "Day_cos",
         "Time_sin",
         "Time_cos",
+        # "Episode_Sentiment",
+        # "Genre",
+        # "Number_of_Ads",
     ]
 
-    pair_size = [2, 3, 4]
+    pair_size = [2, 3]
 
     for r in pair_size:
         combinations_list = list(combinations(columns_to_encode, r))
