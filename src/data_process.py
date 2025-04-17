@@ -153,17 +153,16 @@ def feature_eng(df, df_desc=None):
 
     groups = [
         "Podcast_Name",
-        "Episode_Length_minutes_NaN",
-        "Guest_Popularity_percentage_NaN",
-        "Publication_Day",
-        "Publication_Time",
-        "Genre",
+        # "Episode_Length_minutes_NaN",
+        # "Guest_Popularity_percentage_NaN",
+        # "Publication_Day",
+        # "Publication_Time",
+        # "Genre",
     ]
     for group in groups:
         numeric_cols = [
             "Episode_Num",
             "Episode_Length_minutes",
-            "Number_of_Ads",
             "Host_Popularity_percentage",
             "Guest_Popularity_percentage",
         ]
