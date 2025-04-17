@@ -224,25 +224,24 @@ def get_dfs(cfg=cfg):
     X_valid = feature_eng(X_valid, X_desc)
     X_test = feature_eng(X_test, X_desc)
 
-    # before_encode_len = len(X_train.columns)
-    # print("Length of train columns:", before_encode_len)
+    before_encode_len = len(X_train.columns)
+    print("Length of train columns:", before_encode_len)
 
-    # X_train = cols_encode(X_train)
-    # X_valid = cols_encode(X_valid)
-    # X_test = cols_encode(X_test)
+    X_train = cols_encode(X_train)
+    X_valid = cols_encode(X_valid)
+    X_test = cols_encode(X_test)
 
-    # X_test = X_test[X_train.columns].copy()
+    X_test = X_test[X_train.columns].copy()
 
-    # print(X_train.shape, y_train.shape, X_valid.shape, y_valid.shape)
+    print(X_train.shape, y_train.shape, X_valid.shape, y_valid.shape)
 
-    # # Target encoding
-    # print("Before encoding columns:", before_encode_len)
-    # encoded_columns = X_train.columns[before_encode_len:]
+    # Target encoding
+    print("Before encoding columns:", before_encode_len)
+    encoded_columns = X_train.columns[before_encode_len:]
 
     from sklearn.preprocessing import TargetEncoder
 
     encoder = TargetEncoder(random_state=cfg.random_state)
-    encoded_columns = X_train.select_dtypes(include=["category"]).columns.tolist()
     X_train[encoded_columns] = encoder.fit_transform(X_train[encoded_columns], y_train)
     X_valid[encoded_columns] = encoder.transform(X_valid[encoded_columns])
     X_test[encoded_columns] = encoder.transform(X_test[encoded_columns])
