@@ -150,12 +150,10 @@ def feature_eng(df, df_desc=None):
     df["Length_per_Guest"] = (
         df["Episode_Length_minutes"] / (df["Guest_Popularity_percentage"] + 1)
     ).fillna(0)
-    df["Host_per_Ads"] = (
-        df["Host_Popularity_percentage"] / (df["Number_of_Ads"] + 1)
-    ).fillna(0)
-    df["Guest_per_Ads"] = (
-        df["Guest_Popularity_percentage"] / (df["Number_of_Ads"] + 1)
-    ).fillna(0)
+
+    df["Total_Popularity"] = (
+        df["Host_Popularity_percentage"] + df["Guest_Popularity_percentage"]
+    )
 
     df["Podcast_Name"] = df["Podcast_Name"].astype("category")
     df["Genre"] = df["Genre"].astype("category")
