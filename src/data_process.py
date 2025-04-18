@@ -153,23 +153,16 @@ def cols_encode(df):
         "Episode_Length_minutes",
         "Episode_Num",
         "Podcast_Name",
-        # "Publication_Day",
+        "Publication_Day",
         "Publication_Time",
-        "Day_sin",
-        "Day_cos",
-        # "Time_sin",
-        # "Time_cos",
         "Episode_Sentiment",
         "Genre",
         "Number_of_Ads",
-        # "Length_per_Ads",
-        # "Length_per_Host",
-        # "Length_per_Guest",
-        # "Episode_Length_minutes_NaN",
-        # "Guest_Popularity_percentage_NaN",
+        "Episode_Length_minutes_NaN",
+        "Guest_Popularity_percentage_NaN",
     ]
 
-    pair_size = [2, 3]
+    pair_size = [2]
 
     for r in pair_size:
         combinations_list = list(combinations(columns_to_encode, r))
@@ -191,6 +184,40 @@ def cols_encode(df):
             print(f"Total number of columns: {len(df.columns)}")
 
         print("=" * 20)
+
+    columns_to_encode = [
+        "Host_Popularity_percentage",
+        "Guest_Popularity_percentage",
+        "Episode_Length_minutes",
+        "Episode_Num",
+        "Podcast_Name",
+        "Publication_Day",
+        "Guest_Popularity_percentage_NaN",
+    ]
+
+    pair_size = [3, 4]
+
+    for r in pair_size:
+        combinations_list = list(combinations(columns_to_encode, r))
+        batch_size = 20
+
+        print("\n pair_size:", r, "\n")
+
+        for i in range(0, len(combinations_list), batch_size):
+            batch = combinations_list[i : i + batch_size]
+
+            for cols in tqdm(batch):
+                new_col_name = "colen_" + "_".join(cols)
+                df[new_col_name] = df[list(cols)].astype(str).agg("_".join, axis=1)
+                df[new_col_name] = df[new_col_name].astype("category")
+
+            gc.collect()
+
+            print(f"Memory usage: {df.memory_usage(deep=True).sum() / (1024 * 1024):.2f} MB")
+            print(f"Total number of columns: {len(df.columns)}")
+
+        print("=" * 20)
+
     return df
 
 

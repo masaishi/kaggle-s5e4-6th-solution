@@ -9,6 +9,8 @@ class CFG:
     sub_path: Path = Path("./data/sample_submission.csv")
     pltpd_path: Path = Path("./data/podcast_dataset.csv")
 
+    model_path: Path = Path("./model/lgbm_model.txt")
+
     num_fold: int = 5
     dev_mode: bool = False
 
