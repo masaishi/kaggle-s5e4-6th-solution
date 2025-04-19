@@ -135,10 +135,10 @@ def feature_eng(df, df_train):
     df["Length_per_Host"] = (df["Episode_Length_minutes"] / (df["Host_Popularity_percentage"] + 1)).fillna(0)
     df["Length_per_Guest"] = (df["Episode_Length_minutes"] / (df["Guest_Popularity_percentage"] + 1)).fillna(0)
 
-    pwg_mean = df_train.groupby(["Podcast_Name", "Host_Popularity_percentage", "Guest_Popularity_percentage"])[["Listening_Time_minutes"]].mean()
+    pwg_mean = df_train.groupby(["Podcast_Name", "Host_Popularity_percentage"])[["Listening_Time_minutes"]].mean()
     pwg_mean_dict = pwg_mean["Listening_Time_minutes"].to_dict()
     df["Podcast_Host_Guest_mean_Listening_Time"] = df[["Podcast_Name", "Host_Popularity_percentage", "Guest_Popularity_percentage"]].apply(
-        lambda x: pwg_mean_dict.get((x["Podcast_Name"], x["Host_Popularity_percentage"], x["Guest_Popularity_percentage"]), -1), axis=1
+        lambda x: pwg_mean_dict.get((x["Podcast_Name"], x["Host_Popularity_percentage"]), pwg_mean["Listening_Time_minutes"].mean()), axis=1
     )
 
     df["Podcast_Name"] = df["Podcast_Name"].astype("category")
