@@ -118,7 +118,7 @@ def preprocess(df):
     return df
 
 
-def feature_eng(df, df_desc=None):
+def feature_eng(df, df_train):
     # Better capture cyclical nature of day and time
     df["Day_sin"] = np.sin(2 * np.pi * df["Publication_Day"] / 7)
     df["Day_cos"] = np.cos(2 * np.pi * df["Publication_Day"] / 7)
@@ -134,6 +134,9 @@ def feature_eng(df, df_desc=None):
     df["Length_per_Ads"] = (df["Episode_Length_minutes"] / (df["Number_of_Ads"] + 1)).fillna(0)
     df["Length_per_Host"] = (df["Episode_Length_minutes"] / (df["Host_Popularity_percentage"] + 1)).fillna(0)
     df["Length_per_Guest"] = (df["Episode_Length_minutes"] / (df["Guest_Popularity_percentage"] + 1)).fillna(0)
+
+    # podcast_mean = df_train.groupby("Podcast_Name").mean()
+    # df["Podcast_mean_Listening_Time_minutes"] = df["Podcast_Name"].map(podcast_mean["Listening_Time_minutes"])
 
     df["Podcast_Name"] = df["Podcast_Name"].astype("category")
     df["Genre"] = df["Genre"].astype("category")
@@ -163,41 +166,6 @@ def cols_encode(df):
     ]
 
     pair_size = [2, 3]
-
-    for r in pair_size:
-        combinations_list = list(combinations(columns_to_encode, r))
-        batch_size = 20
-
-        print("\n pair_size:", r, "\n")
-
-        for i in range(0, len(combinations_list), batch_size):
-            batch = combinations_list[i : i + batch_size]
-
-            for cols in tqdm(batch):
-                new_col_name = "colen_" + "_".join(cols)
-                df[new_col_name] = df[list(cols)].astype(str).agg("_".join, axis=1)
-                df[new_col_name] = df[new_col_name].astype("category")
-
-            gc.collect()
-
-            print(f"Memory usage: {df.memory_usage(deep=True).sum() / (1024 * 1024):.2f} MB")
-            print(f"Total number of columns: {len(df.columns)}")
-
-        print("=" * 20)
-
-    columns_to_encode = [
-        "Host_Popularity_percentage",
-        "Guest_Popularity_percentage",
-        "Episode_Length_minutes",
-        "Episode_Num",
-        "Podcast_Name",
-        "Publication_Day",
-        # "Publication_Time",
-        "Episode_Length_minutes_NaN",
-        "Guest_Popularity_percentage_NaN",
-    ]
-
-    pair_size = [4]
 
     for r in pair_size:
         combinations_list = list(combinations(columns_to_encode, r))
@@ -260,31 +228,32 @@ def get_dfs(cfg=cfg):
     X_desc = X_train.describe()
     # H_group = X_train.groupby("Host_Popularity_percentage")
 
-    X_train = feature_eng(X_train, X_desc)
-    X_valid = feature_eng(X_valid, X_desc)
-    X_test = feature_eng(X_test, X_desc)
+    df_train = pd.concat([X_train, y_train], axis=1)
+    X_train = feature_eng(X_train, df_train)
+    X_valid = feature_eng(X_valid, df_train)
+    X_test = feature_eng(X_test, df_train)
 
-    before_encode_len = len(X_train.columns)
-    print("Length of train columns:", before_encode_len)
+    # before_encode_len = len(X_train.columns)
+    # print("Length of train columns:", before_encode_len)
 
-    X_train = cols_encode(X_train)
-    X_valid = cols_encode(X_valid)
-    X_test = cols_encode(X_test)
+    # X_train = cols_encode(X_train)
+    # X_valid = cols_encode(X_valid)
+    # X_test = cols_encode(X_test)
 
-    X_test = X_test[X_train.columns].copy()
+    # X_test = X_test[X_train.columns].copy()
 
-    print(X_train.shape, y_train.shape, X_valid.shape, y_valid.shape)
+    # print(X_train.shape, y_train.shape, X_valid.shape, y_valid.shape)
 
-    # Target encoding
-    print("Before encoding columns:", before_encode_len)
-    encoded_columns = X_train.columns[before_encode_len:]
+    # # Target encoding
+    # print("Before encoding columns:", before_encode_len)
+    # encoded_columns = X_train.columns[before_encode_len:]
 
-    from sklearn.preprocessing import TargetEncoder
+    # from sklearn.preprocessing import TargetEncoder
 
-    encoder = TargetEncoder(random_state=cfg.random_state)
-    X_train[encoded_columns] = encoder.fit_transform(X_train[encoded_columns], y_train)
-    X_valid[encoded_columns] = encoder.transform(X_valid[encoded_columns])
-    X_test[encoded_columns] = encoder.transform(X_test[encoded_columns])
+    # encoder = TargetEncoder(random_state=cfg.random_state)
+    # X_train[encoded_columns] = encoder.fit_transform(X_train[encoded_columns], y_train)
+    # X_valid[encoded_columns] = encoder.transform(X_valid[encoded_columns])
+    # X_test[encoded_columns] = encoder.transform(X_test[encoded_columns])
 
     return {
         "X_train": X_train,
