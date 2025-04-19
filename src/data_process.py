@@ -140,6 +140,9 @@ def feature_eng(df, df_train):
     df["Podcast_Host_Guest_mean_Listening_Time"] = df[["Podcast_Name", "Host_Popularity_percentage", "Guest_Popularity_percentage"]].apply(
         lambda x: pwg_mean_dict.get((x["Podcast_Name"], x["Host_Popularity_percentage"]), pwg_mean["Listening_Time_minutes"].mean()), axis=1
     )
+    df["Podcast_Host_Guest_combination_exists"] = df.apply(
+        lambda row: 1 if (row["Podcast_Name"], row["Host_Popularity_percentage"], row["Guest_Popularity_percentage"]) in pwg_mean_dict else 0, axis=1
+    )
 
     df["Podcast_Name"] = df["Podcast_Name"].astype("category")
     df["Genre"] = df["Genre"].astype("category")
