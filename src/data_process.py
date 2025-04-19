@@ -135,8 +135,8 @@ def feature_eng(df, df_train):
     df["Length_per_Host"] = (df["Episode_Length_minutes"] / (df["Host_Popularity_percentage"] + 1)).fillna(0)
     df["Length_per_Guest"] = (df["Episode_Length_minutes"] / (df["Guest_Popularity_percentage"] + 1)).fillna(0)
 
-    # podcast_mean = df_train.groupby("Podcast_Name").mean()
-    # df["Podcast_mean_Listening_Time_minutes"] = df["Podcast_Name"].map(podcast_mean["Listening_Time_minutes"])
+    podcast_mean = df_train.groupby("Podcast_Name")[["Listening_Time_minutes"]].mean()
+    df["Podcast_mean_Listening_Time_minutes"] = df["Podcast_Name"].map(podcast_mean["Listening_Time_minutes"])
 
     df["Podcast_Name"] = df["Podcast_Name"].astype("category")
     df["Genre"] = df["Genre"].astype("category")
