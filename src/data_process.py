@@ -156,7 +156,7 @@ def cols_encode(df):
         "Publication_Day",
         "Publication_Time",
         # "Episode_Sentiment",
-        "Genre",
+        # "Genre",
         "Number_of_Ads",
         "Episode_Length_minutes_NaN",
         "Guest_Popularity_percentage_NaN",
