@@ -155,9 +155,9 @@ def cols_encode(df):
         "Podcast_Name",
         "Publication_Day",
         "Publication_Time",
-        "Episode_Sentiment",
+        # "Episode_Sentiment",
         "Genre",
-        "Length_per_Ads",
+        "Number_of_Ads",
         "Episode_Length_minutes_NaN",
         "Guest_Popularity_percentage_NaN",
     ]
@@ -223,7 +223,7 @@ def get_dfs(cfg=cfg):
     X_test = preprocess(X_test)
 
     X_desc = X_train.describe()
-    H_group = X_train.groupby("Host_Popularity_percentage")
+    # H_group = X_train.groupby("Host_Popularity_percentage")
 
     X_train = feature_eng(X_train, X_desc)
     X_valid = feature_eng(X_valid, X_desc)
