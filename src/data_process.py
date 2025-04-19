@@ -135,23 +135,30 @@ def feature_eng(df, df_train):
     df["Length_per_Host"] = (df["Episode_Length_minutes"] / (df["Host_Popularity_percentage"] + 1)).fillna(0)
     df["Length_per_Guest"] = (df["Episode_Length_minutes"] / (df["Guest_Popularity_percentage"] + 1)).fillna(0)
 
-    pwg_mean = df_train.groupby(["Podcast_Name", "Host_Popularity_percentage"])[["Listening_Time_minutes"]].mean()
-    pwg_mean_dict = pwg_mean["Listening_Time_minutes"].to_dict()
-    df["Podcast_Host_Guest_mean_Listening_Time"] = df[["Podcast_Name", "Host_Popularity_percentage"]].apply(
-        lambda x: pwg_mean_dict.get((x["Podcast_Name"], x["Host_Popularity_percentage"]), pwg_mean["Listening_Time_minutes"].mean()), axis=1
-    )
-    df["Podcast_Host_Guest_mean_Host_Popularity"] = df[["Podcast_Name", "Host_Popularity_percentage"]].apply(
-        lambda x: pwg_mean_dict.get((x["Podcast_Name"], x["Host_Popularity_percentage"]), pwg_mean["Listening_Time_minutes"].mean()), axis=1
-    )
-    df["Podcast_Host_Guest_mean_Guest_Popularity"] = df[["Podcast_Name", "Guest_Popularity_percentage"]].apply(
-        lambda x: pwg_mean_dict.get((x["Podcast_Name"], x["Guest_Popularity_percentage"]), pwg_mean["Listening_Time_minutes"].mean()), axis=1
-    )
-    df["Podcast_Host_Guest_mean_Episode_Length"] = df[["Podcast_Name", "Episode_Length_minutes"]].apply(
-        lambda x: pwg_mean_dict.get((x["Podcast_Name"], x["Episode_Length_minutes"]), pwg_mean["Listening_Time_minutes"].mean()), axis=1
-    )
-    df["Podcast_Host_Guest_combination_exists"] = df.apply(
-        lambda row: 1 if (row["Podcast_Name"], row["Host_Popularity_percentage"]) in pwg_mean_dict else 0, axis=1
-    )
+    # df["ELen_Int"] = np.floor( df["Episode_Length_minutes"] )
+    # df["ELen_Dec"] = df["Episode_Length_minutes"] - df["ELen_Int"]
+
+    # mean_columns = ["Listening_Time_minutes", "Episode_Length_minutes", "Host_Popularity_percentage", "Guest_Popularity_percentage"]
+    # pwg_mean = df_train.groupby(["Podcast_Name", "Host_Popularity_percentage"])[mean_columns].mean()
+    # pwg_mean_dict = pwg_mean["Listening_Time_minutes"].to_dict()
+    # # df["Podcast_Host_Guest_mean_Listening_Time"] = df[["Podcast_Name", "Host_Popularity_percentage"]].apply(
+    # #     lambda x: pwg_mean_dict.get((x["Podcast_Name"], x["Host_Popularity_percentage"]), pwg_mean["Listening_Time_minutes"].mean()), axis=1
+    # # )
+    # df["Podcast_Host_Guest_mean_diff_Host_Popularity"] = df["Host_Popularity_percentage"]
+    # df["Podcast_Host_Guest_mean_diff_Host_Popularity"] -= df[["Podcast_Name", "Host_Popularity_percentage"]].apply(
+    #     lambda x: pwg_mean_dict.get((x["Podcast_Name"], x["Host_Popularity_percentage"]), pwg_mean["Listening_Time_minutes"].mean()), axis=1
+    # )
+    # df["Podcast_Host_Guest_mean_diff_Guest_Popularity"] = df["Guest_Popularity_percentage"]
+    # df["Podcast_Host_Guest_mean_diff_Guest_Popularity"] = df[["Podcast_Name", "Guest_Popularity_percentage"]].apply(
+    #     lambda x: pwg_mean_dict.get((x["Podcast_Name"], x["Guest_Popularity_percentage"]), pwg_mean["Listening_Time_minutes"].mean()), axis=1
+    # )
+    # df["Podcast_Host_Guest_mean_diff_Episode_Length"] = df["Episode_Length_minutes"]
+    # df["Podcast_Host_Guest_mean_diff_Episode_Length"] = df[["Podcast_Name", "Episode_Length_minutes"]].apply(
+    #     lambda x: pwg_mean_dict.get((x["Podcast_Name"], x["Episode_Length_minutes"]), pwg_mean["Listening_Time_minutes"].mean()), axis=1
+    # )
+    # df["Podcast_Host_Guest_combination_exists"] = df.apply(
+    #     lambda row: 1 if (row["Podcast_Name"], row["Host_Popularity_percentage"]) in pwg_mean_dict else 0, axis=1
+    # )
 
     df["Podcast_Name"] = df["Podcast_Name"].astype("category")
     df["Genre"] = df["Genre"].astype("category")
@@ -159,6 +166,18 @@ def feature_eng(df, df_train):
     df["Publication_Time"] = df["Publication_Time"].astype("category")
     df["Episode_Sentiment"] = df["Episode_Sentiment"].astype("category")
     df["Episode_Num"] = df["Episode_Num"].astype("category")
+
+    return df
+
+
+def downcast_dtypes(df):
+    float_cols = df.select_dtypes(include=["float64"]).columns
+    int_cols = df.select_dtypes(include=["int64"]).columns
+
+    for col in float_cols:
+        df[col] = df[col].astype("float32")
+    for col in int_cols:
+        df[col] = df[col].astype("int32")
 
     return df
 
@@ -245,27 +264,32 @@ def get_dfs(cfg=cfg):
     X_valid = feature_eng(X_valid, df_train)
     X_test = feature_eng(X_test, df_train)
 
-    before_encode_len = len(X_train.columns)
-    print("Length of train columns:", before_encode_len)
+    # Downcast dtypes
+    X_train = downcast_dtypes(X_train)
+    X_valid = downcast_dtypes(X_valid)
+    X_test = downcast_dtypes(X_test)
 
-    X_train = cols_encode(X_train)
-    X_valid = cols_encode(X_valid)
-    X_test = cols_encode(X_test)
+    # before_encode_len = len(X_train.columns)
+    # print("Length of train columns:", before_encode_len)
 
-    X_test = X_test[X_train.columns].copy()
+    # X_train = cols_encode(X_train)
+    # X_valid = cols_encode(X_valid)
+    # X_test = cols_encode(X_test)
 
-    print(X_train.shape, y_train.shape, X_valid.shape, y_valid.shape)
+    # X_test = X_test[X_train.columns].copy()
 
-    # Target encoding
-    print("Before encoding columns:", before_encode_len)
-    encoded_columns = X_train.columns[before_encode_len:]
+    # print(X_train.shape, y_train.shape, X_valid.shape, y_valid.shape)
 
-    from sklearn.preprocessing import TargetEncoder
+    # # Target encoding
+    # print("Before encoding columns:", before_encode_len)
+    # encoded_columns = X_train.columns[before_encode_len:]
 
-    encoder = TargetEncoder(random_state=cfg.random_state)
-    X_train[encoded_columns] = encoder.fit_transform(X_train[encoded_columns], y_train)
-    X_valid[encoded_columns] = encoder.transform(X_valid[encoded_columns])
-    X_test[encoded_columns] = encoder.transform(X_test[encoded_columns])
+    # from sklearn.preprocessing import TargetEncoder
+
+    # encoder = TargetEncoder(random_state=cfg.random_state)
+    # X_train[encoded_columns] = encoder.fit_transform(X_train[encoded_columns], y_train)
+    # X_valid[encoded_columns] = encoder.transform(X_valid[encoded_columns])
+    # X_test[encoded_columns] = encoder.transform(X_test[encoded_columns])
 
     return {
         "X_train": X_train,
