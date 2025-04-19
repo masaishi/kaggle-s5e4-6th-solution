@@ -140,6 +140,15 @@ def feature_eng(df, df_train):
     df["Podcast_Host_Guest_mean_Listening_Time"] = df[["Podcast_Name", "Host_Popularity_percentage"]].apply(
         lambda x: pwg_mean_dict.get((x["Podcast_Name"], x["Host_Popularity_percentage"]), pwg_mean["Listening_Time_minutes"].mean()), axis=1
     )
+    df["Podcast_Host_Guest_mean_Host_Popularity"] = df[["Podcast_Name", "Host_Popularity_percentage"]].apply(
+        lambda x: pwg_mean_dict.get((x["Podcast_Name"], x["Host_Popularity_percentage"]), pwg_mean["Listening_Time_minutes"].mean()), axis=1
+    )
+    df["Podcast_Host_Guest_mean_Guest_Popularity"] = df[["Podcast_Name", "Guest_Popularity_percentage"]].apply(
+        lambda x: pwg_mean_dict.get((x["Podcast_Name"], x["Guest_Popularity_percentage"]), pwg_mean["Listening_Time_minutes"].mean()), axis=1
+    )
+    df["Podcast_Host_Guest_mean_Episode_Length"] = df[["Podcast_Name", "Episode_Length_minutes"]].apply(
+        lambda x: pwg_mean_dict.get((x["Podcast_Name"], x["Episode_Length_minutes"]), pwg_mean["Listening_Time_minutes"].mean()), axis=1
+    )
     df["Podcast_Host_Guest_combination_exists"] = df.apply(
         lambda row: 1 if (row["Podcast_Name"], row["Host_Popularity_percentage"]) in pwg_mean_dict else 0, axis=1
     )
