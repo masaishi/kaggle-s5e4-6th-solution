@@ -151,15 +151,14 @@ def feature_eng(df, df_train):
     # diff = (df["Host_Popularity_percentage"] - df_train["Host_Popularity_percentage"].median()) / 100
     # df["Host_Popularity_percentage_diff_squared"] = np.sign(diff) * (diff**2)
 
-    # mean_columns = ["Listening_Time_minutes", "Episode_Length_minutes", "Host_Popularity_percentage", "Guest_Popularity_percentage"]
-    # pwg_mean = df_train.groupby(["Podcast_Name", "Host_Popularity_percentage"])[mean_columns].mean()
+    # columns = ["Host_Popularity_percentage", "Listening_Time_minutes", "Episode_Length_minutes", "Guest_Popularity_percentage"]
+    # pwg_mean = df_train.groupby(["Podcast_Name", "Host_Popularity_percentage"])[columns].agg(["mean"]).reset_index()
     # pwg_mean_dict = pwg_mean["Listening_Time_minutes"].to_dict()
-    # # df["Podcast_Host_Guest_mean_Listening_Time"] = df[["Podcast_Name", "Host_Popularity_percentage"]].apply(
-    # #     lambda x: pwg_mean_dict.get((x["Podcast_Name"], x["Host_Popularity_percentage"]), pwg_mean["Listening_Time_minutes"].mean()), axis=1
-    # # )
-    # df["Podcast_Host_Guest_mean_diff_Host_Popularity"] = df["Host_Popularity_percentage"]
-    # df["Podcast_Host_Guest_mean_diff_Host_Popularity"] -= df[["Podcast_Name", "Host_Popularity_percentage"]].apply(
+    # df["Podcast_Host_Guest_mean_Listening_Time"] = df[["Podcast_Name", "Host_Popularity_percentage"]].apply(
     #     lambda x: pwg_mean_dict.get((x["Podcast_Name"], x["Host_Popularity_percentage"]), pwg_mean["Listening_Time_minutes"].mean()), axis=1
+    # )
+    # df["Podcast_Host_Guest_mean_diff_Host_Popularity"] = df[["Podcast_Name", "Host_Popularity_percentage"]].apply(
+    #     lambda x: pwg_mean_dict.get((x["Podcast_Name"], x["Host_Popularity_percentage"]), pwg_mean["Host_Popularity_percentage"].mean()), axis=1
     # )
     # df["Podcast_Host_Guest_mean_diff_Guest_Popularity"] = df["Guest_Popularity_percentage"]
     # df["Podcast_Host_Guest_mean_diff_Guest_Popularity"] = df[["Podcast_Name", "Guest_Popularity_percentage"]].apply(
