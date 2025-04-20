@@ -144,14 +144,8 @@ def feature_eng(df, df_train):
     df["Sentiment_Multiplier"] = np.where(df["Episode_Sentiment"] == "Positive", 0.75, 0.717)
     df["Expected_Listening_Time_Sentiment"] = df["Episode_Length_minutes"] * df["Sentiment_Multiplier"]
 
-    premium_genres = [0, 3]
-    df["Genre_Premium"] = df["Genre"].isin(premium_genres).astype(int)
-    df["Genre_Multiplier"] = np.where(df["Genre"].isin(premium_genres), 0.75, 0.72)
-    df["Expected_Listening_Time_Genre"] = df["Episode_Length_minutes"] * df["Genre_Multiplier"]
-
-    # ad_rates = {0: 0.785, 1: 0.750, 2: 0.708, 3: 0.670}
-    # df["Expected_Ratio"] = df["Number_of_Ads"].map(ad_rates).fillna(0.67) * (df["Sentiment_Multiplier"] / 0.728) * (df["Genre_Multiplier"] / 0.728)
-    # df["Expected_Listening_Time_Combined"] = df["Episode_Length_minutes"] * df["Expected_Ratio"]
+    df["Episode_Length_squared"] = df["Episode_Length_minutes"] ** 2
+    # df["Episode_Length_sqrt"] = np.sqrt(df["Episode_Length_minutes"])
 
     # mean_columns = ["Listening_Time_minutes", "Episode_Length_minutes", "Host_Popularity_percentage", "Guest_Popularity_percentage"]
     # pwg_mean = df_train.groupby(["Podcast_Name", "Host_Popularity_percentage"])[mean_columns].mean()
