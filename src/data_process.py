@@ -145,7 +145,7 @@ def feature_eng(df, df_train):
     df["Expected_Listening_Time_Sentiment"] = df["Episode_Length_minutes"] * df["Sentiment_Multiplier"]
 
     df["Episode_Length_squared"] = df["Episode_Length_minutes"] ** 2
-    # df["Episode_Length_sqrt"] = np.sqrt(df["Episode_Length_minutes"])
+    df["Host_Popularity_percentage_squared"] = df["Host_Popularity_percentage"] ** 2
 
     # mean_columns = ["Listening_Time_minutes", "Episode_Length_minutes", "Host_Popularity_percentage", "Guest_Popularity_percentage"]
     # pwg_mean = df_train.groupby(["Podcast_Name", "Host_Popularity_percentage"])[mean_columns].mean()
