@@ -138,9 +138,9 @@ def feature_eng(df, df_train):
     df["ELen_Int"] = np.floor(df["Episode_Length_minutes"])
     df["ELen_Dec"] = df["Episode_Length_minutes"] - df["ELen_Int"]
 
-    ad_rates = {0: 0.785, 1: 0.750, 2: 0.708, 3: 0.670}
-    df["Ad_Penalty"] = df["Number_of_Ads"].map(ad_rates).fillna(0.67)  # Default to worst case
-    df["Expected_Listening_Time_Ads"] = df["Episode_Length_minutes"] * df["Ad_Penalty"]
+    df["Is_Positive_Sentiment"] = (df["Episode_Sentiment"] == "Positive").astype(int)
+    df["Sentiment_Multiplier"] = np.where(df["Episode_Sentiment"] == "Positive", 0.75, 0.717)
+    df["Expected_Listening_Time_Sentiment"] = df["Episode_Length_minutes"] * df["Sentiment_Multiplier"]
 
     # mean_columns = ["Listening_Time_minutes", "Episode_Length_minutes", "Host_Popularity_percentage", "Guest_Popularity_percentage"]
     # pwg_mean = df_train.groupby(["Podcast_Name", "Host_Popularity_percentage"])[mean_columns].mean()
