@@ -277,10 +277,10 @@ def get_dfs(cfg=cfg):
     X_valid = feature_eng(X_valid, df_train)
     X_test = feature_eng(X_test, df_train)
 
-    # Downcast dtypes
-    X_train = downcast_dtypes(X_train)
-    X_valid = downcast_dtypes(X_valid)
-    X_test = downcast_dtypes(X_test)
+    # # Downcast dtypes
+    # X_train = downcast_dtypes(X_train)
+    # X_valid = downcast_dtypes(X_valid)
+    # X_test = downcast_dtypes(X_test)
 
     before_encode_len = len(X_train.columns)
     print("Length of train columns:", before_encode_len)
