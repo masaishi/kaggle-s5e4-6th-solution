@@ -50,6 +50,7 @@ model.fit(
 # Calculate validation score
 val_score = model.best_score_["valid_1"][cfg.metric]
 print(f"Validation score: {val_score}")
+wandb.log({"best_val_score": val_score})
 
 # AFTER validation score, commit the results and get commit info
 git_info = commit_results(val_score, wandb_run.name)
