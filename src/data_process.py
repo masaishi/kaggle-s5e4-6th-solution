@@ -93,7 +93,7 @@ re_dict["time_dict"] = {"Morning": 10, "Afternoon": 14, "Evening": 17, "Night": 
 re_dict["sent_dict"] = {"Negative": 0, "Neutral": 1, "Positive": 2}
 
 
-def preprocess(df):
+def preprocess(df, df_train=None):
     df["Episode_Num"] = df["Episode_Title"].str[8:].astype(int)  # Convert to int before log transform
     df = df.drop(columns=["Episode_Title"])
 
@@ -113,9 +113,11 @@ def preprocess(df):
     df["Number_of_Ads_NaN"] = df["Number_of_Ads"].isna().astype(int).astype("category")
 
     # Replacing null values by median
-    df["Episode_Length_minutes"].fillna(df["Episode_Length_minutes"].median(), inplace=True)
-    df["Guest_Popularity_percentage"].fillna(df["Guest_Popularity_percentage"].median(), inplace=True)
-    df["Number_of_Ads"].fillna(df["Number_of_Ads"].median(), inplace=True)
+    if df_train is None:
+        df_train = df.copy()
+    df["Episode_Length_minutes"].fillna(df_train["Episode_Length_minutes"].median(), inplace=True)
+    df["Guest_Popularity_percentage"].fillna(df_train["Guest_Popularity_percentage"].median(), inplace=True)
+    df["Number_of_Ads"].fillna(df_train["Number_of_Ads"].median(), inplace=True)
 
     return df
 
@@ -145,7 +147,9 @@ def feature_eng(df, df_train):
     df["Expected_Listening_Time_Sentiment"] = df["Episode_Length_minutes"] * df["Sentiment_Multiplier"]
 
     df["Episode_Length_squared"] = df["Episode_Length_minutes"] ** 2
-    # df["Host_Popularity_percentage_squared"] = df["Host_Popularity_percentage"] ** 2
+
+    # diff = (df["Host_Popularity_percentage"] - df_train["Host_Popularity_percentage"].median()) / 100
+    # df["Host_Popularity_percentage_diff_squared"] = np.sign(diff) * (diff**2)
 
     # mean_columns = ["Listening_Time_minutes", "Episode_Length_minutes", "Host_Popularity_percentage", "Guest_Popularity_percentage"]
     # pwg_mean = df_train.groupby(["Podcast_Name", "Host_Popularity_percentage"])[mean_columns].mean()
@@ -265,8 +269,8 @@ def get_dfs(cfg=cfg):
     # y_train = y_train.sample(100, random_state=42)
 
     X_train = preprocess(X_train)
-    X_valid = preprocess(X_valid)
-    X_test = preprocess(X_test)
+    X_valid = preprocess(X_valid, X_train)
+    X_test = preprocess(X_test, X_train)
 
     df_train = pd.concat([X_train, y_train], axis=1)
     X_train = feature_eng(X_train, df_train)
