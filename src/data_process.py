@@ -135,8 +135,8 @@ def feature_eng(df, df_train):
     df["Length_per_Host"] = (df["Episode_Length_minutes"] / (df["Host_Popularity_percentage"] + 1)).fillna(0)
     df["Length_per_Guest"] = (df["Episode_Length_minutes"] / (df["Guest_Popularity_percentage"] + 1)).fillna(0)
 
-    # df["ELen_Int"] = np.floor( df["Episode_Length_minutes"] )
-    # df["ELen_Dec"] = df["Episode_Length_minutes"] - df["ELen_Int"]
+    df["ELen_Int"] = np.floor(df["Episode_Length_minutes"])
+    df["ELen_Dec"] = df["Episode_Length_minutes"] - df["ELen_Int"]
 
     # mean_columns = ["Listening_Time_minutes", "Episode_Length_minutes", "Host_Popularity_percentage", "Guest_Popularity_percentage"]
     # pwg_mean = df_train.groupby(["Podcast_Name", "Host_Popularity_percentage"])[mean_columns].mean()
