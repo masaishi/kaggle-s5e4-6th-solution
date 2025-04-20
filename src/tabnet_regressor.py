@@ -1,4 +1,3 @@
-# tabnet_regressor.py
 import gc
 import os
 import warnings
@@ -7,7 +6,7 @@ import numpy as np
 import torch
 from pytorch_tabnet.callbacks import Callback
 from pytorch_tabnet.tab_model import TabNetRegressor
-from sklearn.preprocessing import OrdinalEncoder
+from sklearn.preprocessing import LabelEncoder
 
 import wandb
 from data_process import get_dfs
@@ -37,23 +36,30 @@ def train_tabnet_model():
     dfs = get_dfs()
     X_train, y_train, X_valid, y_valid, X_test = dfs.values()
     print(X_train.shape, y_train.shape, X_valid.shape, y_valid.shape, X_test.shape)
+    print(X_train.head())
 
     # Identify categorical columns
-    cat_cols_idx = [i for i, dtype in enumerate(X_train.dtypes) if dtype == "object" or dtype == "category"]
+    cat_cols = [col for col in X_train.columns if X_train[col].dtype == "object" or X_train[col].dtype == "category"]
+
+    # Get indices of categorical columns
+    cat_cols_idx = [i for i, col in enumerate(X_train.columns) if col in cat_cols]
+
+    # Preprocess categorical features with LabelEncoder
+    # This ensures categorical values are converted to integers starting from 0
+    label_encoders = {}
+
+    for col in cat_cols:
+        le = LabelEncoder()
+        # Fit on train and transform train, valid, and test
+        X_train[col] = le.fit_transform(X_train[col].astype(str))
+        X_valid[col] = le.transform(X_valid[col].astype(str))
+        if col in X_test.columns:  # Ensure column exists in test data
+            X_test[col] = le.transform(X_test[col].astype(str))
+        label_encoders[col] = le
 
     # Convert DataFrames to numpy for processing
     X_train_values = X_train.values.copy()
     X_valid_values = X_valid.values.copy()
-
-    # Process categorical features with scikit-learn
-    if cat_cols_idx:
-        encoders = {}
-        for idx in cat_cols_idx:
-            # Create and fit encoder for each categorical column
-            encoder = OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=-1)
-            X_train_values[:, idx] = encoder.fit_transform(X_train_values[:, idx].reshape(-1, 1)).flatten()
-            X_valid_values[:, idx] = encoder.transform(X_valid_values[:, idx].reshape(-1, 1)).flatten()
-            encoders[idx] = encoder
 
     # Reshape target variables to 2D as required by TabNetRegressor
     y_train_values = y_train.values.reshape(-1, 1) if hasattr(y_train, "values") else np.array(y_train).reshape(-1, 1)
@@ -65,16 +71,22 @@ def train_tabnet_model():
     config = {"learning_rate": 2e-2, "n_iter": 200, "early_stopping": 10, "metric": "rmse", "n_d": 64, "n_a": 64, "n_steps": 5}
     wandb_run = wandb.init(project="playground-series-s5e4", config=config)
 
-    # Since we've pre-encoded the categorical features, we don't need TabNet to handle them
-    # We'll pass empty lists for categorical indices and dimensions
+    # Now that we've encoded the categorical features properly, we can pass them to TabNet
+    # Calculate cat_dims from the encoded data (number of unique values for each categorical feature)
+    cat_dims = []
+    for i, col in enumerate(X_train.columns):
+        if i in cat_cols_idx:
+            cat_dims.append(len(label_encoders[col].classes_))
+
+    # Set up model with proper categorical indices and dimensions
     model = TabNetRegressor(
         n_d=64,
         n_a=64,
         n_steps=5,
         gamma=1.5,
-        cat_idxs=[],  # We've already encoded categoricals
-        cat_dims=[],  # We've already encoded categoricals
-        optimizer_fn=torch.optim.Adam,
+        cat_idxs=cat_cols_idx,
+        cat_dims=cat_dims,
+        optimizer_fn=torch.optim.AdamW,
         optimizer_params={"lr": 2e-2},
         scheduler_fn=torch.optim.lr_scheduler.StepLR,
         scheduler_params={"step_size": 10, "gamma": 0.9},
