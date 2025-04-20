@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 import wandb
 from config import cfg
 from data_process import get_dfs
-from utils import WandbCallback, commit_results
+from utils import commit_results
 
 warnings.filterwarnings("ignore")
 warnings.simplefilter("ignore")
