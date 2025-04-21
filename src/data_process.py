@@ -15,57 +15,6 @@ def calc_rmse(y_true, y_pred):
     return rmse
 
 
-class FastPolarsTargetEncoder:
-    def __init__(self, smoothing=1.0):
-        self.smoothing = smoothing
-        self.target_mean = None
-        self.encoding_dfs = {}
-
-    def fit(self, df, feature_cols, target_col):
-        # Convert target_col to polars Series if it's not already
-        if not isinstance(target_col, pl.Series):
-            target_col = pl.Series(target_col)
-
-        # Calculate overall target mean
-        self.target_mean = target_col.mean()
-
-        # Encode each feature column
-        for col in feature_cols:
-            # Create temporary dataframe with the feature and target
-            temp_df = pl.DataFrame({col: df[col], "target": target_col})
-
-            # Calculate statistics for each category
-            encoding_df = temp_df.group_by(col).agg(pl.col("target").mean().alias("category_mean"), pl.col("target").count().alias("category_count"))
-
-            # Apply smoothing
-            encoding_df = encoding_df.with_columns(
-                ((pl.col("category_count") * pl.col("category_mean") + self.smoothing * self.target_mean) / (pl.col("category_count") + self.smoothing)).alias(
-                    "encoded_value"
-                )
-            )
-
-            # Store encoding mapping for this feature
-            self.encoding_dfs[col] = encoding_df.select([col, "encoded_value"])
-
-        return self
-
-    def transform(self, df, feature_cols):
-        result_df = df.clone()
-
-        # Apply encoding for each feature
-        for col in feature_cols:
-            # Join with encoding dataframe
-            result_df = result_df.join(self.encoding_dfs[col], on=col, how="left")
-
-            # Fill nulls with global mean for unseen categories
-            result_df = result_df.with_columns(pl.col("encoded_value").fill_null(self.target_mean).alias(f"{col}_encoded"))
-
-            # Drop temporary column
-            result_df = result_df.drop("encoded_value")
-
-        return result_df
-
-
 re_dict = {}
 re_dict["podc_dict"] = {
     "Mystery Matters": 0,
@@ -310,36 +259,116 @@ def cols_encode(df):
         "Length_per_Ads",
     ]
 
-    pair_size = [3]
+    # pair_size = [3]
 
-    # Pure polars implementation for combinations
-    for r in pair_size:
-        combinations_list = list(combinations(columns_to_encode, r))
-        batch_size = 20
+    # # Pure polars implementation for combinations
+    # for r in pair_size:
+    #     combinations_list = list(combinations(columns_to_encode, r))
+    #     batch_size = 20
 
-        print("\n pair_size:", r, "\n")
+    #     print("\n pair_size:", r, "\n")
 
-        for i in range(0, len(combinations_list), batch_size):
-            batch = combinations_list[i : i + batch_size]
+    #     for i in range(0, len(combinations_list), batch_size):
+    #         batch = combinations_list[i : i + batch_size]
 
-            for cols in tqdm(batch):
-                new_col_name = "colen_" + "_".join(cols)
-                concat_expr = pl.col(cols[0]).cast(pl.Utf8)
+    #         for cols in tqdm(batch):
+    #             new_col_name = "colen_" + "_".join(cols)
+    #             concat_expr = pl.col(cols[0]).cast(pl.Utf8)
 
-                for col_name in cols[1:]:
-                    concat_expr = concat_expr + "_" + pl.col(col_name).cast(pl.Utf8)
+    #             for col_name in cols[1:]:
+    #                 concat_expr = concat_expr + "_" + pl.col(col_name).cast(pl.Utf8)
 
-                df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))
+    #             df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))
 
-            gc.collect()
+    #         gc.collect()
 
-            mem_usage = sum(df.estimated_size() for col in df.columns) / (1024 * 1024)
-            print(f"Memory usage: {mem_usage:.2f} MB")
-            print(f"Total number of columns: {len(df.columns)}")
+    #         mem_usage = sum(df.estimated_size() for col in df.columns) / (1024 * 1024)
+    #         print(f"Memory usage: {mem_usage:.2f} MB")
+    #         print(f"Total number of columns: {len(df.columns)}")
 
-        print("=" * 20)
+    #     print("=" * 20)
 
     return df
+
+
+class FastPolarsTargetEncoder:
+    def __init__(self, smoothing=1.0):
+        self.smoothing = smoothing
+        self.target_mean = None
+        self.encoding_stats = {}
+        self.column_types = {}
+
+    def fit(self, df, feature_cols, target_col):
+        if not isinstance(target_col, pl.Series):
+            target_col = pl.Series(target_col)
+
+        self.target_mean = target_col.mean()
+
+        for col in feature_cols:
+            # Store original column type for later use
+            self.column_types[col] = df[col].dtype
+
+            # Extract feature values and target as lists to avoid expression issues
+            feature_values = df[col].to_list()
+            target_values = target_col.to_list()
+
+            # Create DataFrame with consistent types
+            temp_df = pl.DataFrame({"feature": feature_values, "target": target_values})
+
+            # Calculate statistics
+            stats_df = temp_df.group_by("feature").agg(pl.col("target").sum().alias("sum"), pl.col("target").count().alias("count"))
+
+            # Store the encoding stats with type information
+            self.encoding_stats[col] = stats_df
+
+        return self
+
+    def transform(self, df, feature_cols):
+        result_df = df.clone()
+
+        for col in feature_cols:
+            # Get original column type
+            orig_type = self.column_types.get(col, None)
+
+            # Extract feature values as a list to avoid type issues
+            feature_values = df[col].to_list()
+
+            # Create DataFrame with row indices
+            temp_df = pl.DataFrame({"feature": feature_values, "row_idx": list(range(len(df)))})
+
+            # Get encoding stats
+            stats_df = self.encoding_stats[col]
+
+            # Create a mapping dictionary for faster lookup
+            stats_dict = {}
+            for row in stats_df.iter_rows(named=True):
+                feature_val = row["feature"]
+                sum_val = row["sum"]
+                count_val = row["count"]
+                stats_dict[feature_val] = (sum_val, count_val)
+
+            # Calculate encoded values
+            encoded_values = []
+            for feature_val in feature_values:
+                if feature_val in stats_dict:
+                    sum_val, count_val = stats_dict[feature_val]
+
+                    if count_val <= 1:
+                        encoded_val = self.target_mean
+                    else:
+                        encoded_val = sum_val / count_val
+
+                    # Apply smoothing
+                    encoded_val = (encoded_val * count_val + self.smoothing * self.target_mean) / (count_val + self.smoothing)
+                else:
+                    encoded_val = self.target_mean
+
+                encoded_values.append(float(encoded_val))
+
+            # Add encoded values to result DataFrame
+            result_df = result_df.with_columns(pl.Series(name=f"{col}_encoded", values=encoded_values).cast(pl_f_type))
+
+        return result_df
 
 
 def get_dfs(cfg=cfg):
