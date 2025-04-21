@@ -131,7 +131,6 @@ def preprocess(df, df_train=None):
     df = df.with_columns(
         pl.col("Episode_Length_minutes").is_null().cast(pl.Utf8).cast(pl.Categorical).alias("Episode_Length_minutes_NaN"),
         pl.col("Guest_Popularity_percentage").is_null().cast(pl.Utf8).cast(pl.Categorical).alias("Guest_Popularity_percentage_NaN"),
-        pl.col("Number_of_Ads").is_null().cast(pl.Utf8).cast(pl.Categorical).alias("Number_of_Ads_NaN"),
     )
 
     # Fill NA values with median
@@ -202,8 +201,8 @@ def cols_encode(df):
         "Publication_Day",
         "Publication_Time",
         # "Episode_Sentiment",
-        # "Genre",
-        # "Number_of_Ads",
+        "Genre",
+        "Number_of_Ads",
         "Episode_Length_minutes_NaN",
         "Guest_Popularity_percentage_NaN",
         "HPperc_Int",
@@ -294,6 +293,7 @@ def cols_encode(df):
 def get_dfs(cfg=cfg):
     # Read CSV files using polars
     df_train = pl.read_csv(cfg.train_path)
+    df_train = df_train.filter(pl.col("Number_of_Ads").is_not_null())
     df_test = pl.read_csv(cfg.test_path)
 
     df_train = df_train.drop("id")
