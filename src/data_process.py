@@ -298,7 +298,7 @@ def get_dfs(cfg=cfg):
         "ELen_Dec",
         "Length_per_Ads",
     ]
-    pair_size = [2, 3, 4]
+    pair_size = [2, 3]
     combinations_list = get_combinations(X_train, columns_to_encode, pair_size)
     print("Combinations list length:", len(combinations_list))
     print("Combinations list:", combinations_list)
