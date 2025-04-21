@@ -190,7 +190,7 @@ def feature_eng(df, df_train):
     return df
 
 
-def get_combinations(df, columns_to_encode, pair_sizes, min_threshold=0.1, max_threshold=0.9):
+def get_combinations(df, columns_to_encode, pair_sizes, min_threshold=0.8, max_threshold=0.85):
     filtered_combinations = []
     for r in pair_sizes:
         combinations_list = list(combinations(columns_to_encode, r))
@@ -292,7 +292,7 @@ def get_dfs(cfg=cfg):
         "ELen_Dec",
         "Length_per_Ads",
     ]
-    pair_size = [2]
+    pair_size = [2, 3]
     combinations_list = get_combinations(X_train, columns_to_encode, pair_size)
     print("Combinations list length:", len(combinations_list))
     print("Combinations list:", combinations_list)
