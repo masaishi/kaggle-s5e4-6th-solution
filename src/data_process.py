@@ -250,6 +250,8 @@ def cols_encode(df):
         "Podcast_Name",
         "Publication_Day",
         "Publication_Time",
+        "Genre",
+        "Number_of_Ads",
         "Episode_Length_minutes_NaN",
         "Guest_Popularity_percentage_NaN",
         "HPperc_Int",

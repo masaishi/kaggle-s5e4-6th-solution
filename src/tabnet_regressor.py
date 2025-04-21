@@ -40,14 +40,9 @@ def train_tabnet_model():
 
     # Identify categorical columns
     cat_cols = [col for col in X_train.columns if X_train[col].dtype == "object" or X_train[col].dtype == "category"]
-
-    # Get indices of categorical columns
     cat_cols_idx = [i for i, col in enumerate(X_train.columns) if col in cat_cols]
 
-    # Preprocess categorical features with LabelEncoder
-    # This ensures categorical values are converted to integers starting from 0
     label_encoders = {}
-
     for col in cat_cols:
         le = LabelEncoder()
         # Fit on train and transform train, valid, and test
