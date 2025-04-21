@@ -18,7 +18,7 @@ class CFG:
     n_iter: int = 10000
     max_depth: int = -1
     num_leaves: int = 1024
-    colsample_bytree: float = 0.7
+    colsample_bytree: float = 0.5
     learning_rate: float = 0.04
 
     objective: str = "l2"

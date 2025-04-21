@@ -324,12 +324,6 @@ def get_dfs(cfg=cfg):
     X_train = pl.concat([X_train, df_pltpd], how="vertical")
     y_train = pl.concat([y_train, y_train_pltpd], how="vertical")
 
-    # # Sample 100 for X_train and y_train (commented out as in original)
-    # if you need to sample:
-    # indices = np.random.RandomState(42).choice(len(X_train), 100, replace=False)
-    # X_train = X_train.select(pl.lit(indices).filter(pl.all()))
-    # y_train = y_train.filter(pl.lit(indices))
-
     # Preprocess dataframes
     X_train = preprocess(X_train)
     X_valid = preprocess(X_valid, X_train)
