@@ -2,11 +2,9 @@ import gc
 from itertools import combinations
 
 import numpy as np
-import pandas as pd
+import polars as pl
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
-
-# from sklearn.preprocessing import TargetEncoder
 from tqdm import tqdm
 
 from config import cfg
@@ -93,103 +91,102 @@ re_dict["time_dict"] = {"Morning": 10, "Afternoon": 14, "Evening": 17, "Night": 
 re_dict["sent_dict"] = {"Negative": 0, "Neutral": 1, "Positive": 2}
 
 
+pl_i_type = pl.Int32
+pl_f_type = pl.Float32
+
+
+def cast_numeric_dtypes(df):
+    float_cols = [col for col in df.columns if df.schema[col] == pl.Float64 or df.schema[col] == pl.Float32]
+    int_cols = [col for col in df.columns if df.schema[col] == pl.Int64 or df.schema[col] == pl.Int32]
+
+    if float_cols:
+        df = df.with_columns([pl.col(col).cast(pl_f_type) for col in float_cols])
+    if int_cols:
+        df = df.with_columns([pl.col(col).cast(pl_i_type) for col in int_cols])
+
+    return df
+
+
 def preprocess(df, df_train=None):
-    df["Episode_Num"] = df["Episode_Title"].str[8:].astype(int)  # Convert to int before log transform
-    df = df.drop(columns=["Episode_Title"])
+    df = cast_numeric_dtypes(df)
+    df = df.with_columns(pl.col("Episode_Title").str.slice(8).cast(pl.Int32).alias("Episode_Num")).drop("Episode_Title")
 
-    # Convert categorical variables
-    df["Genre"] = df["Genre"].replace(re_dict["genr_dict"])
-    df["Podcast_Name"] = df["Podcast_Name"].replace(re_dict["podc_dict"])
-    df["Publication_Day"] = df["Publication_Day"].replace(re_dict["week_dict"])
-    df["Publication_Time"] = df["Publication_Time"].replace(re_dict["time_dict"])
-    df["Episode_Sentiment"] = df["Episode_Sentiment"].replace(re_dict["sent_dict"])
+    # Convert categorical variables using mapping
+    for col, mapping in [
+        ("Genre", re_dict["genr_dict"]),
+        ("Podcast_Name", re_dict["podc_dict"]),
+        ("Publication_Day", re_dict["week_dict"]),
+        ("Publication_Time", re_dict["time_dict"]),
+        ("Episode_Sentiment", re_dict["sent_dict"]),
+    ]:
+        df = df.with_columns(pl.col(col).replace(mapping).alias(col))
 
-    df.loc[df["Episode_Length_minutes"] > 121.0, "Episode_Length_minutes"] = 121.0
-    df.loc[df["Number_of_Ads"] > 103.91, "Number_of_Ads"] = 103.91
+    # Cap extreme values
+    df = df.with_columns(
+        pl.when(pl.col("Episode_Length_minutes") > 121.0).then(121.0).otherwise(pl.col("Episode_Length_minutes")).alias("Episode_Length_minutes"),
+        pl.when(pl.col("Number_of_Ads") > 103.91).then(103.91).otherwise(pl.col("Number_of_Ads")).alias("Number_of_Ads"),
+    )
 
-    # Define categorical columns
-    df["Episode_Length_minutes_NaN"] = df["Episode_Length_minutes"].isna().astype(int).astype("category")
-    df["Guest_Popularity_percentage_NaN"] = df["Guest_Popularity_percentage"].isna().astype(int).astype("category")
-    df["Number_of_Ads_NaN"] = df["Number_of_Ads"].isna().astype(int).astype("category")
+    # Create NaN indicator columns
+    df = df.with_columns(
+        pl.col("Episode_Length_minutes").is_null().cast(pl.Utf8).cast(pl.Categorical).alias("Episode_Length_minutes_NaN"),
+        pl.col("Guest_Popularity_percentage").is_null().cast(pl.Utf8).cast(pl.Categorical).alias("Guest_Popularity_percentage_NaN"),
+        pl.col("Number_of_Ads").is_null().cast(pl.Utf8).cast(pl.Categorical).alias("Number_of_Ads_NaN"),
+    )
 
-    # Replacing null values by median
+    # Fill NA values with median
     if df_train is None:
-        df_train = df.copy()
-    df["Episode_Length_minutes"].fillna(df_train["Episode_Length_minutes"].median(), inplace=True)
-    df["Guest_Popularity_percentage"].fillna(df_train["Guest_Popularity_percentage"].median(), inplace=True)
-    df["Number_of_Ads"].fillna(df_train["Number_of_Ads"].median(), inplace=True)
+        df_train = df.clone()
+
+    e_median = df_train.select(pl.col("Episode_Length_minutes").median()).item()
+    g_median = df_train.select(pl.col("Guest_Popularity_percentage").median()).item()
+    n_median = df_train.select(pl.col("Number_of_Ads").median()).item()
+
+    df = df.with_columns(
+        pl.col("Episode_Length_minutes").fill_null(e_median),
+        pl.col("Guest_Popularity_percentage").fill_null(g_median),
+        pl.col("Number_of_Ads").fill_null(n_median),
+    )
 
     return df
 
 
 def feature_eng(df, df_train):
-    # Better capture cyclical nature of day and time
-    df["Day_sin"] = np.sin(2 * np.pi * df["Publication_Day"] / 7)
-    df["Day_cos"] = np.cos(2 * np.pi * df["Publication_Day"] / 7)
-    df["Time_sin"] = np.sin(2 * np.pi * df["Publication_Time"] / 4)
-    df["Time_cos"] = np.cos(2 * np.pi * df["Publication_Time"] / 4)
+    # Cyclical features for day and time
+    df = df.with_columns(
+        # Day features
+        pl.col("Publication_Day").cast(pl_f_type).mul(2 * np.pi / 7).sin().alias("Day_sin"),
+        pl.col("Publication_Day").cast(pl_f_type).mul(2 * np.pi / 7).cos().alias("Day_cos"),
+        pl.col("Publication_Day").cast(pl_f_type).mul(4 * np.pi / 7).sin().alias("Day_sin2"),
+        pl.col("Publication_Day").cast(pl_f_type).mul(4 * np.pi / 7).cos().alias("Day_cos2"),
+        # Time features
+        pl.col("Publication_Time").cast(pl_f_type).mul(2 * np.pi / 4).sin().alias("Time_sin"),
+        pl.col("Publication_Time").cast(pl_f_type).mul(2 * np.pi / 4).cos().alias("Time_cos"),
+        pl.col("Publication_Time").cast(pl_f_type).mul(4 * np.pi / 24).sin().alias("Time_sin2"),
+        pl.col("Publication_Time").cast(pl_f_type).mul(4 * np.pi / 24).cos().alias("Time_cos2"),
+        # Ratio features
+        (pl.col("Episode_Length_minutes") / (pl.col("Number_of_Ads") + 1)).fill_null(0).alias("Length_per_Ads"),
+        (pl.col("Episode_Length_minutes") / (pl.col("Host_Popularity_percentage") + 1)).fill_null(0).alias("Length_per_Host"),
+        (pl.col("Episode_Length_minutes") / (pl.col("Guest_Popularity_percentage") + 1)).fill_null(0).alias("Length_per_Guest"),
+        # Episode length features
+        pl.col("Episode_Length_minutes").floor().alias("ELen_Int"),
+        (pl.col("Episode_Length_minutes") - pl.col("Episode_Length_minutes").floor()).alias("ELen_Dec"),
+        pl.col("Host_Popularity_percentage").floor().alias("HPperc_Int"),
+        (pl.col("Host_Popularity_percentage") - pl.col("Host_Popularity_percentage").floor()).alias("HPperc_Dec"),
+        # Sentiment features
+        (pl.col("Episode_Sentiment") == "2").cast(pl.Int8).alias("Is_Positive_Sentiment"),
+        pl.when(pl.col("Episode_Sentiment") == "2").then(0.75).otherwise(0.717).cast(pl_f_type).alias("Sentiment_Multiplier"),
+        # Squared features
+        (pl.col("Episode_Length_minutes") ** 2).alias("Episode_Length_squared"),
+        (pl.col("Episode_Length_minutes") ** 3).alias("Episode_Length_squared2"),
+    )
 
-    # Higher frequency sinusoidal features for day and time
-    df["Day_sin2"] = np.sin(4 * np.pi * df["Publication_Day"] / 7)
-    df["Day_cos2"] = np.cos(4 * np.pi * df["Publication_Day"] / 7)
-    df["Time_sin2"] = np.sin(4 * np.pi * df["Publication_Time"] / 24)
-    df["Time_cos2"] = np.cos(4 * np.pi * df["Publication_Time"] / 24)
+    # Add expected listening time based on sentiment
+    df = df.with_columns((pl.col("Episode_Length_minutes") * pl.col("Sentiment_Multiplier")).alias("Expected_Listening_Time_Sentiment"))
 
-    df["Length_per_Ads"] = (df["Episode_Length_minutes"] / (df["Number_of_Ads"] + 1)).fillna(0)
-    df["Length_per_Host"] = (df["Episode_Length_minutes"] / (df["Host_Popularity_percentage"] + 1)).fillna(0)
-    df["Length_per_Guest"] = (df["Episode_Length_minutes"] / (df["Guest_Popularity_percentage"] + 1)).fillna(0)
-
-    df["ELen_Int"] = np.floor(df["Episode_Length_minutes"])
-    df["ELen_Dec"] = df["Episode_Length_minutes"] - df["ELen_Int"]
-
-    df["Is_Positive_Sentiment"] = (df["Episode_Sentiment"] == "Positive").astype(int)
-    df["Sentiment_Multiplier"] = np.where(df["Episode_Sentiment"] == "Positive", 0.75, 0.717)
-    df["Expected_Listening_Time_Sentiment"] = df["Episode_Length_minutes"] * df["Sentiment_Multiplier"]
-
-    df["Episode_Length_squared"] = df["Episode_Length_minutes"] ** 2
-
-    # diff = (df["Host_Popularity_percentage"] - df_train["Host_Popularity_percentage"].median()) / 100
-    # df["Host_Popularity_percentage_diff_squared"] = np.sign(diff) * (diff**2)
-
-    # columns = ["Host_Popularity_percentage", "Listening_Time_minutes", "Episode_Length_minutes", "Guest_Popularity_percentage"]
-    # pwg_mean = df_train.groupby(["Podcast_Name", "Host_Popularity_percentage"])[columns].agg(["mean"]).reset_index()
-    # pwg_mean_dict = pwg_mean["Listening_Time_minutes"].to_dict()
-    # df["Podcast_Host_Guest_mean_Listening_Time"] = df[["Podcast_Name", "Host_Popularity_percentage"]].apply(
-    #     lambda x: pwg_mean_dict.get((x["Podcast_Name"], x["Host_Popularity_percentage"]), pwg_mean["Listening_Time_minutes"].mean()), axis=1
-    # )
-    # df["Podcast_Host_Guest_mean_diff_Host_Popularity"] = df[["Podcast_Name", "Host_Popularity_percentage"]].apply(
-    #     lambda x: pwg_mean_dict.get((x["Podcast_Name"], x["Host_Popularity_percentage"]), pwg_mean["Host_Popularity_percentage"].mean()), axis=1
-    # )
-    # df["Podcast_Host_Guest_mean_diff_Guest_Popularity"] = df["Guest_Popularity_percentage"]
-    # df["Podcast_Host_Guest_mean_diff_Guest_Popularity"] = df[["Podcast_Name", "Guest_Popularity_percentage"]].apply(
-    #     lambda x: pwg_mean_dict.get((x["Podcast_Name"], x["Guest_Popularity_percentage"]), pwg_mean["Listening_Time_minutes"].mean()), axis=1
-    # )
-    # df["Podcast_Host_Guest_mean_diff_Episode_Length"] = df["Episode_Length_minutes"]
-    # df["Podcast_Host_Guest_mean_diff_Episode_Length"] = df[["Podcast_Name", "Episode_Length_minutes"]].apply(
-    #     lambda x: pwg_mean_dict.get((x["Podcast_Name"], x["Episode_Length_minutes"]), pwg_mean["Listening_Time_minutes"].mean()), axis=1
-    # )
-    # df["Podcast_Host_Guest_combination_exists"] = df.apply(
-    #     lambda row: 1 if (row["Podcast_Name"], row["Host_Popularity_percentage"]) in pwg_mean_dict else 0, axis=1
-    # )
-
-    df["Podcast_Name"] = df["Podcast_Name"].astype("category")
-    df["Genre"] = df["Genre"].astype("category")
-    df["Publication_Day"] = df["Publication_Day"].astype("category")
-    df["Publication_Time"] = df["Publication_Time"].astype("category")
-    df["Episode_Sentiment"] = df["Episode_Sentiment"].astype("category")
-    df["Episode_Num"] = df["Episode_Num"].astype("category")
-
-    return df
-
-
-def downcast_dtypes(df):
-    float_cols = df.select_dtypes(include=["float64"]).columns
-    int_cols = df.select_dtypes(include=["int64"]).columns
-
-    for col in float_cols:
-        df[col] = df[col].astype("float32")
-    for col in int_cols:
-        df[col] = df[col].astype("int32")
+    # Convert columns to categorical
+    for col in ["Podcast_Name", "Genre", "Publication_Day", "Publication_Time", "Episode_Sentiment", "Episode_Num"]:
+        df = df.with_columns(pl.col(col).cast(pl.Utf8).cast(pl.Categorical))
 
     return df
 
@@ -213,6 +210,7 @@ def cols_encode(df):
 
     pair_size = [2, 3]
 
+    # Pure polars implementation for combinations
     for r in pair_size:
         combinations_list = list(combinations(columns_to_encode, r))
         batch_size = 20
@@ -223,13 +221,24 @@ def cols_encode(df):
             batch = combinations_list[i : i + batch_size]
 
             for cols in tqdm(batch):
+                # Create a concatenated string column using polars
                 new_col_name = "colen_" + "_".join(cols)
-                df[new_col_name] = df[list(cols)].astype(str).agg("_".join, axis=1)
-                df[new_col_name] = df[new_col_name].astype("category")
+
+                # Start with the first column converted to string
+                concat_expr = pl.col(cols[0]).cast(pl.Utf8)
+
+                # Concatenate remaining columns
+                for col_name in cols[1:]:
+                    concat_expr = concat_expr + "_" + pl.col(col_name).cast(pl.Utf8)
+
+                # Add the new column
+                df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))
 
             gc.collect()
 
-            print(f"Memory usage: {df.memory_usage(deep=True).sum() / (1024 * 1024):.2f} MB")
+            # Calculate memory usage
+            mem_usage = sum(df.estimated_size() for col in df.columns) / (1024 * 1024)
+            print(f"Memory usage: {mem_usage:.2f} MB")
             print(f"Total number of columns: {len(df.columns)}")
 
         print("=" * 20)
@@ -238,75 +247,90 @@ def cols_encode(df):
 
 
 def get_dfs(cfg=cfg):
-    df_train = pd.read_csv(cfg.train_path, index_col="id")
-    df_test = pd.read_csv(cfg.test_path, index_col="id")
+    # Read CSV files using polars
+    df_train = pl.read_csv(cfg.train_path)
+    df_test = pl.read_csv(cfg.test_path)
+
+    df_train = df_train.drop("id")
+    df_test = df_test.drop("id")
 
     target_col = "Listening_Time_minutes"
-    y_train = df_train[target_col].copy()
-    df_train = df_train.drop(columns=[target_col])
+    y_train = df_train[target_col]
+    df_train = df_train.drop(target_col)
 
-    # Split to df_train and df_val
+    # Do train/test split on numpy arrays
     X_train, X_valid, y_train, y_valid = train_test_split(
         df_train,
         y_train,
         test_size=0.2,  # 20% for validation
         random_state=42,
     )
-    X_test = df_test.copy()
 
     # Merge with df_podcast
-    df_pltpd = pd.read_csv(cfg.pltpd_path)
-    df_pltpd = df_pltpd.dropna(subset=["Listening_Time_minutes"])
-    df_pltpd = df_pltpd.reset_index(drop=True)
-    df_pltpd.index = df_pltpd.index + 1000000
-    y_train = pd.concat([y_train, df_pltpd["Listening_Time_minutes"]], axis=0).reset_index(drop=True)
-    df_pltpd = df_pltpd.drop(columns=["Listening_Time_minutes"])
-    X_train = pd.concat([X_train, df_pltpd], axis=0)
+    df_pltpd = pl.read_csv(cfg.pltpd_path)
+    df_pltpd = df_pltpd.filter(pl.col("Listening_Time_minutes").is_not_null())
 
-    # # Sample 100 fors X_train and y_train
-    # X_train = X_train.sample(100, random_state=42)
-    # y_train = y_train.sample(100, random_state=42)
+    # Extract target column and prepare for concatenation
+    y_train_pltpd = df_pltpd["Listening_Time_minutes"]
+    df_pltpd = df_pltpd.drop("Listening_Time_minutes")
+    df_pltpd = df_pltpd.with_columns(pl.col("Number_of_Ads").cast(pl.Float64))
 
+    # Now concatenate with matching schemas
+    X_train = pl.concat([X_train, df_pltpd], how="vertical")
+    y_train = pl.concat([y_train, y_train_pltpd], how="vertical")
+
+    # # Sample 100 for X_train and y_train (commented out as in original)
+    # if you need to sample:
+    # indices = np.random.RandomState(42).choice(len(X_train), 100, replace=False)
+    # X_train = X_train.select(pl.lit(indices).filter(pl.all()))
+    # y_train = y_train.filter(pl.lit(indices))
+
+    # Preprocess dataframes
     X_train = preprocess(X_train)
     X_valid = preprocess(X_valid)
-    X_test = preprocess(X_test)
 
-    df_train = pd.concat([X_train, y_train], axis=1)
+    # Create combined df_train for feature engineering
+    df_train = X_train.with_columns(y_train.alias("Listening_Time_minutes"))
+
+    # Feature engineering
     X_train = feature_eng(X_train, df_train)
     X_valid = feature_eng(X_valid, df_train)
-    X_test = feature_eng(X_test, df_train)
 
-    # # Downcast dtypes
+    # # Downcast dtypes (commented out as in original)
     # X_train = downcast_dtypes(X_train)
     # X_valid = downcast_dtypes(X_valid)
-    # X_test = downcast_dtypes(X_test)
 
+    # # Encode columns (commented out as in original)
     # before_encode_len = len(X_train.columns)
+    # encoded_columns = X_train.columns[before_encode_len:]
     # print("Length of train columns:", before_encode_len)
-
+    #
     # X_train = cols_encode(X_train)
     # X_valid = cols_encode(X_valid)
-    # X_test = cols_encode(X_test)
-
-    # X_test = X_test[X_train.columns].copy()
-
-    # print(X_train.shape, y_train.shape, X_valid.shape, y_valid.shape)
-
-    # # Target encoding
-    # print("Before encoding columns:", before_encode_len)
-    # encoded_columns = X_train.columns[before_encode_len:]
-
+    #
     # from sklearn.preprocessing import TargetEncoder
-
+    #
+    # # Convert to numpy arrays for sklearn
+    # X_train_encoded_np = X_train.select(encoded_columns).to_numpy()
+    # X_valid_encoded_np = X_valid.select(encoded_columns).to_numpy()
+    # y_train = y_train.to_numpy()
+    #
+    # # Fit and transform
     # encoder = TargetEncoder(random_state=cfg.random_state)
-    # X_train[encoded_columns] = encoder.fit_transform(X_train[encoded_columns], y_train)
-    # X_valid[encoded_columns] = encoder.transform(X_valid[encoded_columns])
-    # X_test[encoded_columns] = encoder.transform(X_test[encoded_columns])
+    # X_train_encoded_np = encoder.fit_transform(X_train_encoded_np, y_train)
+    # X_valid_encoded_np = encoder.transform(X_valid_encoded_np)
+    #
+    # # Convert encoded numpy arrays back to polars
+    # X_train_encoded = pl.DataFrame(X_train_encoded_np, schema=encoded_columns)
+    # X_valid_encoded = pl.DataFrame(X_valid_encoded_np, schema=encoded_columns)
+    #
+    # # Replace the encoded columns
+    # X_train = X_train.drop(encoded_columns).hstack(X_train_encoded)
+    # X_valid = X_valid.drop(encoded_columns).hstack(X_valid_encoded)
 
     return {
         "X_train": X_train,
         "y_train": y_train,
         "X_valid": X_valid,
         "y_valid": y_valid,
-        "X_test": X_test,
     }

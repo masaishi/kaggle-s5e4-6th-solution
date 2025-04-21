@@ -1,10 +1,7 @@
 import gc
-import os
 import warnings
-from dataclasses import asdict
 
 import lightgbm as lgb
-from dotenv import load_dotenv
 
 import wandb
 from config import cfg
@@ -81,13 +78,20 @@ class WandbCallback:
         return False
 
 
-load_dotenv()
-wandb.login(key=os.getenv("WANDB_API_KEY"))
-wandb_run = wandb.init(project="playground-series-s5e4", config=asdict(cfg))
+# load_dotenv()
+# wandb.login(key=os.getenv("WANDB_API_KEY"))
+# wandb_run = wandb.init(project="playground-series-s5e4", config=asdict(cfg))
 
 dfs = get_dfs()
-X_train, y_train, X_valid, y_valid, X_test = dfs.values()
-print(X_train.shape, y_train.shape, X_valid.shape, y_valid.shape, X_test.shape)
+X_train, y_train, X_valid, y_valid = dfs.values()
+X_train = X_train.to_pandas()
+y_train = y_train.to_pandas()
+X_valid = X_valid.to_pandas()
+y_valid = y_valid.to_pandas()
+
+print(X_train.shape, y_train.shape, X_valid.shape, y_valid.shape)
+print(X_train.dtypes)
+print(X_train.head())
 
 # Initialize the model
 model = lgb.LGBMRegressor(
@@ -110,7 +114,7 @@ model.fit(
     callbacks=[
         lgb.log_evaluation(cfg.log_eval),
         lgb.early_stopping(cfg.early_stopping),
-        WandbCallback(log_every=50),
+        # WandbCallback(log_every=50),
     ],
 )
 
@@ -121,6 +125,7 @@ wandb.summary["best_val_score"] = val_score
 wandb.log({"best_val_score": val_score})
 
 # AFTER validation score, commit the results and get commit info
+wandb_run = {"name": ""}
 git_info = commit_results(val_score, wandb_run.name)
 wandb.config.update(git_info)
 
