@@ -287,7 +287,7 @@ def get_dfs(cfg=cfg):
 
     # Preprocess dataframes
     X_train = preprocess(X_train)
-    X_valid = preprocess(X_valid)
+    X_valid = preprocess(X_valid, X_train)
 
     # Create combined df_train for feature engineering
     df_train = X_train.with_columns(y_train.alias("Listening_Time_minutes"))
@@ -296,37 +296,25 @@ def get_dfs(cfg=cfg):
     X_train = feature_eng(X_train, df_train)
     X_valid = feature_eng(X_valid, df_train)
 
-    # # Downcast dtypes (commented out as in original)
-    # X_train = downcast_dtypes(X_train)
-    # X_valid = downcast_dtypes(X_valid)
-
-    # # Encode columns (commented out as in original)
     # before_encode_len = len(X_train.columns)
-    # encoded_columns = X_train.columns[before_encode_len:]
-    # print("Length of train columns:", before_encode_len)
-    #
     # X_train = cols_encode(X_train)
     # X_valid = cols_encode(X_valid)
-    #
+
+    # encoded_columns = X_train.columns[before_encode_len:]
+    # print("Length of train columns:", before_encode_len)
+
     # from sklearn.preprocessing import TargetEncoder
-    #
-    # # Convert to numpy arrays for sklearn
-    # X_train_encoded_np = X_train.select(encoded_columns).to_numpy()
-    # X_valid_encoded_np = X_valid.select(encoded_columns).to_numpy()
-    # y_train = y_train.to_numpy()
-    #
-    # # Fit and transform
+
     # encoder = TargetEncoder(random_state=cfg.random_state)
-    # X_train_encoded_np = encoder.fit_transform(X_train_encoded_np, y_train)
-    # X_valid_encoded_np = encoder.transform(X_valid_encoded_np)
-    #
-    # # Convert encoded numpy arrays back to polars
-    # X_train_encoded = pl.DataFrame(X_train_encoded_np, schema=encoded_columns)
-    # X_valid_encoded = pl.DataFrame(X_valid_encoded_np, schema=encoded_columns)
-    #
-    # # Replace the encoded columns
-    # X_train = X_train.drop(encoded_columns).hstack(X_train_encoded)
-    # X_valid = X_valid.drop(encoded_columns).hstack(X_valid_encoded)
+    # X_train_encoded = encoder.fit_transform(X_train[encoded_columns], y_train)
+    # X_valid_encoded = encoder.transform(X_valid[encoded_columns])
+
+    # encoded_train_df = pl.DataFrame({col: X_train_encoded[:, i] for i, col in enumerate(encoded_columns)})
+    # encoded_valid_df = pl.DataFrame({col: X_valid_encoded[:, i] for i, col in enumerate(encoded_columns)})
+    # X_train = X_train.drop(encoded_columns)
+    # X_valid = X_valid.drop(encoded_columns)
+    # X_train = X_train.hstack(encoded_train_df)
+    # X_valid = X_valid.hstack(encoded_valid_df)
 
     return {
         "X_train": X_train,

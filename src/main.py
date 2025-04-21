@@ -1,7 +1,10 @@
 import gc
+import os
 import warnings
+from dataclasses import asdict
 
 import lightgbm as lgb
+from dotenv import load_dotenv
 
 import wandb
 from config import cfg
@@ -78,9 +81,9 @@ class WandbCallback:
         return False
 
 
-# load_dotenv()
-# wandb.login(key=os.getenv("WANDB_API_KEY"))
-# wandb_run = wandb.init(project="playground-series-s5e4", config=asdict(cfg))
+load_dotenv()
+wandb.login(key=os.getenv("WANDB_API_KEY"))
+wandb_run = wandb.init(project="playground-series-s5e4", config=asdict(cfg))
 
 dfs = get_dfs()
 X_train, y_train, X_valid, y_valid = dfs.values()
@@ -114,7 +117,7 @@ model.fit(
     callbacks=[
         lgb.log_evaluation(cfg.log_eval),
         lgb.early_stopping(cfg.early_stopping),
-        # WandbCallback(log_every=50),
+        WandbCallback(log_every=50),
     ],
 )
 
@@ -125,7 +128,6 @@ wandb.summary["best_val_score"] = val_score
 wandb.log({"best_val_score": val_score})
 
 # AFTER validation score, commit the results and get commit info
-wandb_run = {"name": ""}
 git_info = commit_results(val_score, wandb_run.name)
 wandb.config.update(git_info)
 
