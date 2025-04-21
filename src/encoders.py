@@ -133,3 +133,165 @@ class PolarsTargetEncoder:
             result = result.drop("encoded_value")
 
         return result
+
+
+class LOOTargetEncoder:
+    """Leave-One-Out Target Encoder for Polars DataFrames.
+
+    Encodes categorical features based on the mean target value for each category,
+    excluding the current row when encoding to prevent data leakage.
+    Includes optional smoothing to blend with the global mean.
+    """
+
+    def __init__(
+        self,
+        cat_columns: Optional[List[str]] = None,
+        smooth: Union[str, float] = 10.0,
+    ):
+        """
+        Parameters
+        ----------
+        cat_columns : list of str or None, default=None
+            List of categorical column names to encode. If None, all string and categorical
+            columns will be encoded.
+
+        smooth : float, default=10.0
+            Smoothing parameter that controls blending between the category mean and the global mean.
+            Higher values put more weight on the global mean.
+        """
+        self.cat_columns = cat_columns
+        self.smooth = smooth
+        self.global_mean = None
+        self.category_stats = {}
+        self.target_column = None
+        self.is_fitted = False
+
+    def fit(self, df: pl.DataFrame, target: Union[str, pl.Series]) -> "LOOTargetEncoder":
+        """Calculate global stats needed for the LOO encoding."""
+        # Handle target as either column name or Series
+        if isinstance(target, str):
+            self.target_column = target
+            target_values = df[target]
+        else:
+            self.target_column = "_target"
+            target_values = target
+            # Add target to df if it's a Series
+            if len(df) == len(target_values):
+                df = df.with_columns(pl.lit(target_values).alias(self.target_column))
+            else:
+                raise ValueError("Target Series length does not match DataFrame length")
+
+        # Store global target mean
+        self.global_mean = target_values.mean()
+
+        # Identify categorical columns if not specified
+        if self.cat_columns is None:
+            self.cat_columns = [
+                col
+                for col in df.columns
+                if col != self.target_column and (df[col].dtype == pl.Categorical or df[col].dtype == pl.String or df[col].dtype == pl.Object)
+            ]
+
+        # Calculate target sums and counts per category for LOO calculation
+        for col in self.cat_columns:
+            category_stats = df.group_by(col).agg([pl.sum(self.target_column).alias("sum"), pl.count(self.target_column).alias("count")])
+
+            self.category_stats[col] = category_stats
+
+        self.is_fitted = True
+        return self
+
+    def transform(self, df: pl.DataFrame, target: Optional[Union[str, pl.Series]] = None) -> pl.DataFrame:
+        """Transform categories to their leave-one-out target encodings."""
+        if not self.is_fitted:
+            raise ValueError("Encoder must be fitted before transform")
+
+        # Clone the DataFrame to avoid modifying the original
+        result = df.clone()
+
+        # Handle target data if provided
+        if target is not None:
+            if isinstance(target, str):
+                target_column = target
+                has_target = True
+            else:  # It's a Series
+                target_column = "_transform_target"
+                result = result.with_columns(pl.lit(target).alias(target_column))
+                has_target = True
+        else:
+            has_target = False
+            target_column = None
+
+        # Process each categorical column
+        for col in self.cat_columns:
+            if col not in df.columns:
+                continue
+
+            # Get the category statistics
+            cat_stats = self.category_stats[col]
+
+            if has_target:
+                # Leave-one-out encoding when target is available
+                # Add category stats to result
+                result = result.join(cat_stats, on=col, how="left")
+
+                # Calculate LOO encoding
+                smooth = float(self.smooth)
+                global_mean = self.global_mean
+
+                # Fixed expression for leave-one-out calculation
+                result = result.with_columns(
+                    [
+                        (
+                            # Numerator: Adjusted sum times adjusted count + smooth * global_mean
+                            (
+                                (pl.col("sum") - pl.col(target_column))
+                                * pl.when(pl.col("count") > 1).then(1.0 / (pl.col("count") - 1)).otherwise(0.0)
+                                * (pl.col("count") - 1)
+                                + smooth * global_mean
+                            )
+                            /
+                            # Denominator: Adjusted count + smooth
+                            pl.when(pl.col("count") > 1).then(pl.col("count") - 1 + smooth).otherwise(smooth)
+                        ).alias(f"{col}_encoded")
+                    ]
+                )
+
+                # Handle edge case where count = 1 (single instance of category)
+                result = result.with_columns(
+                    [pl.when(pl.col("count") <= 1).then(pl.lit(global_mean)).otherwise(pl.col(f"{col}_encoded")).alias(f"{col}_encoded")]
+                )
+
+                # Drop temporary columns
+                result = result.drop(["sum", "count"])
+
+            else:
+                # Regular encoding when no target is available (for new data)
+                # Pre-calculate the encoded values (using the fitted stats)
+                encoded_values = cat_stats.with_columns(
+                    [
+                        (
+                            (pl.col("sum") / pl.col("count") * pl.col("count") + float(self.smooth) * self.global_mean) / (pl.col("count") + float(self.smooth))
+                        ).alias("encoded_value")
+                    ]
+                )
+
+                # Join with the encoded values
+                result = result.join(encoded_values.select([col, "encoded_value"]), on=col, how="left")
+
+                # Fill missing categories with global mean
+                result = result.with_columns([pl.col("encoded_value").fill_null(self.global_mean).alias(f"{col}_encoded")])
+
+                # Drop temporary column
+                result = result.drop("encoded_value")
+
+        # Remove added target column if we added it
+        if has_target and isinstance(target, pl.Series):
+            result = result.drop(target_column)
+
+        return result
+
+    def fit_transform(self, df: pl.DataFrame, target: Union[str, pl.Series]) -> pl.DataFrame:
+        """Fit the encoder and transform the input data."""
+        self.fit(df, target)
+        return self.transform(df, target)

@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
 from config import cfg
+from encoders import LOOTargetEncoder
 
 
 def calc_rmse(y_true, y_pred):
@@ -312,9 +313,7 @@ def get_dfs(cfg=cfg):
     encoded_columns = X_train.columns[before_encode_len:]
     print("Length of train columns:", before_encode_len)
 
-    from sklearn.preprocessing import TargetEncoder
-
-    encoder = TargetEncoder(random_state=cfg.random_state)
+    encoder = LOOTargetEncoder()
     X_train_encoded = encoder.fit_transform(X_train[encoded_columns], y_train)
     X_valid_encoded = encoder.transform(X_valid[encoded_columns])
 
