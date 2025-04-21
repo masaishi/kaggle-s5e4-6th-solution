@@ -190,18 +190,24 @@ def feature_eng(df, df_train):
     return df
 
 
-def get_combinations(df, columns_to_encode, pair_sizes, min_threshold=0.8, max_threshold=0.85):
-    filtered_combinations = []
+def get_combinations(df, columns_to_encode, pair_sizes, steps=100):
+    result = {}
+    df_length = len(df)
+
+    target_ratios = [i / steps for i in range(1, steps + 1)]
+
+    all_combinations = []
     for r in pair_sizes:
-        combinations_list = list(combinations(columns_to_encode, r))
-        for cols in list(combinations_list):
+        for cols in combinations(columns_to_encode, r):
             group_counts = len(df.group_by(cols).count())
-            if group_counts < len(df) * min_threshold or group_counts > len(df) * max_threshold:
-                combinations_list.remove(cols)
+            ratio = group_counts / df_length
+            all_combinations.append((cols, ratio))
 
-        filtered_combinations.extend(combinations_list)
+    for target in target_ratios:
+        closest_combination = min(all_combinations, key=lambda x: abs(x[1] - target))
+        result[target] = closest_combination[0]
 
-    return filtered_combinations
+    return list(set(result.values()))
 
 
 def cols_encode(df, combinations_list):
