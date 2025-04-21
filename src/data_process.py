@@ -190,102 +190,39 @@ def feature_eng(df, df_train):
     return df
 
 
-def cols_encode(df):
-    # Order of importance
-    columns_to_encode = [
-        "Host_Popularity_percentage",
-        "Guest_Popularity_percentage",
-        "Episode_Length_minutes",
-        "Episode_Num",
-        "Podcast_Name",
-        "Publication_Day",
-        "Publication_Time",
-        # "Episode_Sentiment",
-        "Genre",
-        "Number_of_Ads",
-        "Episode_Length_minutes_NaN",
-        "Guest_Popularity_percentage_NaN",
-        "HPperc_Int",
-        "HPperc_Dec",
-        "ELen_Int",
-        "ELen_Dec",
-        "Length_per_Ads",
-    ]
-
-    pair_size = [2]
-
-    # Pure polars implementation for combinations
-    for r in pair_size:
+def get_combinations(df, columns_to_encode, pair_sizes, min_threshold=0.1, max_threshold=0.5):
+    filtered_combinations = []
+    for r in pair_sizes:
         combinations_list = list(combinations(columns_to_encode, r))
-        batch_size = 20
+        for cols in list(combinations_list):
+            group_counts = len(df.group_by(cols).count())
+            if group_counts < len(df) * min_threshold or group_counts > len(df) * max_threshold:
+                combinations_list.remove(cols)
 
-        print("\n pair_size:", r, "\n")
+        filtered_combinations.extend(combinations_list)
 
-        for i in range(0, len(combinations_list), batch_size):
-            batch = combinations_list[i : i + batch_size]
+    return filtered_combinations
 
-            for cols in tqdm(batch):
-                new_col_name = "colen_" + "_".join(cols)
-                concat_expr = pl.col(cols[0]).cast(pl.Utf8)
 
-                for col_name in cols[1:]:
-                    concat_expr = concat_expr + "_" + pl.col(col_name).cast(pl.Utf8)
+def cols_encode(df, combinations_list):
+    batch_size = 20
+    for i in range(0, len(combinations_list), batch_size):
+        batch = combinations_list[i : i + batch_size]
 
-                df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))
+        for cols in tqdm(batch):
+            new_col_name = "colen_" + "_".join(cols)
+            concat_expr = pl.col(cols[0]).cast(pl.Utf8)
 
-            gc.collect()
+            for col_name in cols[1:]:
+                concat_expr = concat_expr + "_" + pl.col(col_name).cast(pl.Utf8)
 
-            mem_usage = sum(df.estimated_size() for col in df.columns) / (1024 * 1024)
-            print(f"Memory usage: {mem_usage:.2f} MB")
-            print(f"Total number of columns: {len(df.columns)}")
+            df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))
 
-        print("=" * 20)
+        gc.collect()
 
-    columns_to_encode = [
-        "Host_Popularity_percentage",
-        "Guest_Popularity_percentage",
-        "Episode_Length_minutes",
-        "Episode_Num",
-        "Podcast_Name",
-        "Publication_Day",
-        "Publication_Time",
-        "Episode_Length_minutes_NaN",
-        "Guest_Popularity_percentage_NaN",
-        "HPperc_Int",
-        "HPperc_Dec",
-        "ELen_Int",
-        "ELen_Dec",
-        "Length_per_Ads",
-    ]
-
-    pair_size = [3]
-
-    # Pure polars implementation for combinations
-    for r in pair_size:
-        combinations_list = list(combinations(columns_to_encode, r))
-        batch_size = 20
-
-        print("\n pair_size:", r, "\n")
-
-        for i in range(0, len(combinations_list), batch_size):
-            batch = combinations_list[i : i + batch_size]
-
-            for cols in tqdm(batch):
-                new_col_name = "colen_" + "_".join(cols)
-                concat_expr = pl.col(cols[0]).cast(pl.Utf8)
-
-                for col_name in cols[1:]:
-                    concat_expr = concat_expr + "_" + pl.col(col_name).cast(pl.Utf8)
-
-                df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))
-
-            gc.collect()
-
-            mem_usage = sum(df.estimated_size() for col in df.columns) / (1024 * 1024)
-            print(f"Memory usage: {mem_usage:.2f} MB")
-            print(f"Total number of columns: {len(df.columns)}")
-
-        print("=" * 20)
+        mem_usage = sum(df.estimated_size() for col in df.columns) / (1024 * 1024)
+        print(f"Memory usage: {mem_usage:.2f} MB")
+        print(f"Total number of columns: {len(df.columns)}")
 
     return df
 
@@ -336,8 +273,32 @@ def get_dfs(cfg=cfg):
     X_valid = feature_eng(X_valid, df_train)
 
     before_encode_len = len(X_train.columns)
-    X_train = cols_encode(X_train)
-    X_valid = cols_encode(X_valid)
+    columns_to_encode = [
+        "Host_Popularity_percentage",
+        "Guest_Popularity_percentage",
+        "Episode_Length_minutes",
+        "Episode_Num",
+        "Podcast_Name",
+        "Publication_Day",
+        "Publication_Time",
+        "Episode_Sentiment",
+        "Genre",
+        "Number_of_Ads",
+        "Episode_Length_minutes_NaN",
+        "Guest_Popularity_percentage_NaN",
+        "HPperc_Int",
+        "HPperc_Dec",
+        "ELen_Int",
+        "ELen_Dec",
+        "Length_per_Ads",
+    ]
+    pair_size = [2, 3]
+    combinations_list = get_combinations(X_train, columns_to_encode, pair_size)
+    print("Combinations list length:", len(combinations_list))
+    print("Combinations list:", combinations_list)
+
+    X_train = cols_encode(X_train, combinations_list)
+    X_valid = cols_encode(X_valid, combinations_list)
 
     encoded_columns = X_train.columns[before_encode_len:]
     print("Length of train columns:", before_encode_len)
