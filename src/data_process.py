@@ -190,11 +190,16 @@ def feature_eng(df, df_train):
     return df
 
 
-def get_combinations(df, columns_to_encode, pair_sizes, steps=100):
-    result = {}
+def get_combinations(df, columns_to_encode, pair_sizes):
     df_length = len(df)
 
-    target_ratios = [i / steps for i in range(1, steps + 1)]
+    # Create target ratios with different step sizes for different ranges using np.arange
+    target_ratios = []
+    target_ratios.extend(np.arange(0.05, 0.2, 0.05).tolist())
+    target_ratios.extend(np.arange(0.2, 1.00, 0.01).tolist())
+
+    # Round to avoid floating point precision issues
+    target_ratios = [round(ratio, 2) for ratio in target_ratios]
 
     all_combinations = []
     for r in pair_sizes:
@@ -203,11 +208,12 @@ def get_combinations(df, columns_to_encode, pair_sizes, steps=100):
             ratio = group_counts / df_length
             all_combinations.append((cols, ratio))
 
+    unique_combinations = set()
     for target in target_ratios:
         closest_combination = min(all_combinations, key=lambda x: abs(x[1] - target))
-        result[target] = closest_combination[0]
+        unique_combinations.add(closest_combination[0])
 
-    return list(set(result.values()))
+    return list(unique_combinations)
 
 
 def cols_encode(df, combinations_list):
@@ -298,7 +304,7 @@ def get_dfs(cfg=cfg):
         "ELen_Dec",
         "Length_per_Ads",
     ]
-    pair_size = [2, 3]
+    pair_size = [2, 3, 4]
     combinations_list = get_combinations(X_train, columns_to_encode, pair_size)
     print("Combinations list length:", len(combinations_list))
     print("Combinations list:", combinations_list)
