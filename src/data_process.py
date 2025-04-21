@@ -181,6 +181,15 @@ def feature_eng(df, df_train):
         (pl.col("Episode_Length_minutes") ** 3).alias("Episode_Length_squared2"),
     )
 
+    df = df.with_columns(
+        pl.col("Length_per_Ads").floor().alias("Length_per_Ads_Int"),
+        (pl.col("Length_per_Ads") - pl.col("Length_per_Ads").floor()).alias("Length_per_Ads_Dec"),
+        pl.col("Length_per_Host").floor().alias("Length_per_Host_Int"),
+        (pl.col("Length_per_Host") - pl.col("Length_per_Host").floor()).alias("Length_per_Host_Dec"),
+        pl.col("Length_per_Guest").floor().alias("Length_per_Guest_Int"),
+        (pl.col("Length_per_Guest") - pl.col("Length_per_Guest").floor()).alias("Length_per_Guest_Dec"),
+    )
+
     # Add expected listening time based on sentiment
     df = df.with_columns((pl.col("Episode_Length_minutes") * pl.col("Sentiment_Multiplier")).alias("Expected_Listening_Time_Sentiment"))
 
