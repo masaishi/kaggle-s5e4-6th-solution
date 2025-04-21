@@ -15,6 +15,57 @@ def calc_rmse(y_true, y_pred):
     return rmse
 
 
+class FastPolarsTargetEncoder:
+    def __init__(self, smoothing=1.0):
+        self.smoothing = smoothing
+        self.target_mean = None
+        self.encoding_dfs = {}
+
+    def fit(self, df, feature_cols, target_col):
+        # Convert target_col to polars Series if it's not already
+        if not isinstance(target_col, pl.Series):
+            target_col = pl.Series(target_col)
+
+        # Calculate overall target mean
+        self.target_mean = target_col.mean()
+
+        # Encode each feature column
+        for col in feature_cols:
+            # Create temporary dataframe with the feature and target
+            temp_df = pl.DataFrame({col: df[col], "target": target_col})
+
+            # Calculate statistics for each category
+            encoding_df = temp_df.group_by(col).agg(pl.col("target").mean().alias("category_mean"), pl.col("target").count().alias("category_count"))
+
+            # Apply smoothing
+            encoding_df = encoding_df.with_columns(
+                ((pl.col("category_count") * pl.col("category_mean") + self.smoothing * self.target_mean) / (pl.col("category_count") + self.smoothing)).alias(
+                    "encoded_value"
+                )
+            )
+
+            # Store encoding mapping for this feature
+            self.encoding_dfs[col] = encoding_df.select([col, "encoded_value"])
+
+        return self
+
+    def transform(self, df, feature_cols):
+        result_df = df.clone()
+
+        # Apply encoding for each feature
+        for col in feature_cols:
+            # Join with encoding dataframe
+            result_df = result_df.join(self.encoding_dfs[col], on=col, how="left")
+
+            # Fill nulls with global mean for unseen categories
+            result_df = result_df.with_columns(pl.col("encoded_value").fill_null(self.target_mean).alias(f"{col}_encoded"))
+
+            # Drop temporary column
+            result_df = result_df.drop("encoded_value")
+
+        return result_df
+
+
 re_dict = {}
 re_dict["podc_dict"] = {
     "Mystery Matters": 0,
@@ -324,6 +375,11 @@ def get_dfs(cfg=cfg):
     X_train = pl.concat([X_train, df_pltpd], how="vertical")
     y_train = pl.concat([y_train, y_train_pltpd], how="vertical")
 
+    # Only use this line for debugging with a small sample
+    if hasattr(cfg, "debug") and cfg.debug:
+        X_train = X_train.sample(100)
+        y_train = y_train.sample(100)
+
     # Preprocess dataframes
     X_train = preprocess(X_train)
     X_valid = preprocess(X_valid, X_train)
@@ -342,18 +398,12 @@ def get_dfs(cfg=cfg):
     encoded_columns = X_train.columns[before_encode_len:]
     print("Length of train columns:", before_encode_len)
 
-    from sklearn.preprocessing import TargetEncoder
+    encoder = FastPolarsTargetEncoder(smoothing=1.0)
+    encoder.fit(X_train, encoded_columns, y_train)
 
-    encoder = TargetEncoder(random_state=cfg.random_state)
-    X_train_encoded = encoder.fit_transform(X_train[encoded_columns], y_train)
-    X_valid_encoded = encoder.transform(X_valid[encoded_columns])
-
-    encoded_train_df = pl.DataFrame({col: X_train_encoded[:, i] for i, col in enumerate(encoded_columns)})
-    encoded_valid_df = pl.DataFrame({col: X_valid_encoded[:, i] for i, col in enumerate(encoded_columns)})
-    X_train = X_train.drop(encoded_columns)
-    X_valid = X_valid.drop(encoded_columns)
-    X_train = X_train.hstack(encoded_train_df)
-    X_valid = X_valid.hstack(encoded_valid_df)
+    # Transform the data using the encoder
+    X_train = encoder.transform(X_train, encoded_columns)
+    X_valid = encoder.transform(X_valid, encoded_columns)
 
     return {
         "X_train": X_train,
