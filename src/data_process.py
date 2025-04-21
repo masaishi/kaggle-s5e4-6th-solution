@@ -190,7 +190,7 @@ def feature_eng(df, df_train):
     return df
 
 
-def get_combinations(df, columns_to_encode, pair_sizes, min_threshold=0.1, max_threshold=0.5):
+def get_combinations(df, columns_to_encode, pair_sizes, min_threshold=0.05, max_threshold=0.5):
     filtered_combinations = []
     for r in pair_sizes:
         combinations_list = list(combinations(columns_to_encode, r))
