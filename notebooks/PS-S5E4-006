@@ -3,19 +3,19 @@
   {
    "cell_type": "code",
    "execution_count": 1,
-   "id": "d674b5f1",
+   "id": "3c486c8a",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-04-21T07:26:12.329192Z",
-     "iopub.status.busy": "2025-04-21T07:26:12.328797Z",
-     "iopub.status.idle": "2025-04-21T07:26:22.058168Z",
-     "shell.execute_reply": "2025-04-21T07:26:22.057169Z"
+     "iopub.execute_input": "2025-04-21T10:07:24.966003Z",
+     "iopub.status.busy": "2025-04-21T10:07:24.965765Z",
+     "iopub.status.idle": "2025-04-21T10:07:32.270959Z",
+     "shell.execute_reply": "2025-04-21T10:07:32.270236Z"
     },
     "papermill": {
-     "duration": 9.736536,
-     "end_time": "2025-04-21T07:26:22.060200",
+     "duration": 7.31045,
+     "end_time": "2025-04-21T10:07:32.272418",
      "exception": false,
-     "start_time": "2025-04-21T07:26:12.323664",
+     "start_time": "2025-04-21T10:07:24.961968",
      "status": "completed"
     },
     "tags": []
@@ -25,7 +25,7 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m13.5/13.5 MB\u001b[0m \u001b[31m81.7 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\r\n",
+      "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m13.5/13.5 MB\u001b[0m \u001b[31m93.8 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\r\n",
       "\u001b[?25h\u001b[31mERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\r\n",
       "category-encoders 2.7.0 requires scikit-learn<1.6.0,>=1.0.0, but you have scikit-learn 1.6.1 which is incompatible.\r\n",
       "bigframes 1.36.0 requires rich<14,>=12.4.4, but you have rich 14.0.0 which is incompatible.\u001b[0m\u001b[31m\r\n",
@@ -40,21 +40,21 @@
   {
    "cell_type": "code",
    "execution_count": 2,
-   "id": "3a1a40dc",
+   "id": "25540762",
    "metadata": {
     "_cell_guid": "b1076dfc-b9ad-4769-8c92-a6c4dae69d19",
     "_uuid": "8f2839f25d086af736a60e9eeb907d3b93b6e0e5",
     "execution": {
-     "iopub.execute_input": "2025-04-21T07:26:22.069054Z",
-     "iopub.status.busy": "2025-04-21T07:26:22.068687Z",
-     "iopub.status.idle": "2025-04-21T07:26:22.077631Z",
-     "shell.execute_reply": "2025-04-21T07:26:22.076951Z"
+     "iopub.execute_input": "2025-04-21T10:07:32.279398Z",
+     "iopub.status.busy": "2025-04-21T10:07:32.279139Z",
+     "iopub.status.idle": "2025-04-21T10:07:32.285875Z",
+     "shell.execute_reply": "2025-04-21T10:07:32.285386Z"
     },
     "papermill": {
-     "duration": 0.014975,
-     "end_time": "2025-04-21T07:26:22.079122",
+     "duration": 0.011219,
+     "end_time": "2025-04-21T10:07:32.286819",
      "exception": false,
-     "start_time": "2025-04-21T07:26:22.064147",
+     "start_time": "2025-04-21T10:07:32.275600",
      "status": "completed"
     },
     "tags": []
@@ -72,7 +72,7 @@
     "    sub_path: Path = Path(\"/kaggle/input/playground-series-s5e4/sample_submission.csv\")\n",
     "    pltpd_path: Path = Path(\"/kaggle/input/podcast-listening-time-prediction-dataset/podcast_dataset.csv\")\n",
     "    \n",
-    "    num_fold: int = 2\n",
+    "    num_fold: int = 5\n",
     "    dev_mode: bool = False\n",
     "\n",
     "    # Model parameters\n",
@@ -101,19 +101,19 @@
   {
    "cell_type": "code",
    "execution_count": 3,
-   "id": "af22fcc6",
+   "id": "f4133105",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-04-21T07:26:22.087690Z",
-     "iopub.status.busy": "2025-04-21T07:26:22.087380Z",
-     "iopub.status.idle": "2025-04-21T07:26:26.299851Z",
-     "shell.execute_reply": "2025-04-21T07:26:26.298827Z"
+     "iopub.execute_input": "2025-04-21T10:07:32.292978Z",
+     "iopub.status.busy": "2025-04-21T10:07:32.292785Z",
+     "iopub.status.idle": "2025-04-21T10:07:35.389464Z",
+     "shell.execute_reply": "2025-04-21T10:07:35.388761Z"
     },
     "papermill": {
-     "duration": 4.219144,
-     "end_time": "2025-04-21T07:26:26.301768",
+     "duration": 3.101276,
+     "end_time": "2025-04-21T10:07:35.390750",
      "exception": false,
-     "start_time": "2025-04-21T07:26:22.082624",
+     "start_time": "2025-04-21T10:07:32.289474",
      "status": "completed"
     },
     "tags": []
@@ -365,47 +365,47 @@
     "        \"Host_Popularity_percentage\",\n",
     "        \"Guest_Popularity_percentage\",\n",
     "        \"Episode_Length_minutes\",\n",
-    "        \"Episode_Num\",\n",
+    "        # \"Episode_Num\",\n",
     "        \"Podcast_Name\",\n",
-    "        \"Publication_Day\",\n",
-    "        \"Publication_Time\",\n",
+    "        # \"Publication_Day\",\n",
+    "        # \"Publication_Time\",\n",
     "        \"Episode_Length_minutes_NaN\",\n",
-    "        \"Guest_Popularity_percentage_NaN\",\n",
-    "        \"HPperc_Int\",\n",
-    "        \"HPperc_Dec\",\n",
+    "        # \"Guest_Popularity_percentage_NaN\",\n",
+    "        # \"HPperc_Int\",\n",
+    "        # \"HPperc_Dec\",\n",
     "        \"ELen_Int\",\n",
     "        \"ELen_Dec\",\n",
     "        \"Length_per_Ads\",\n",
     "    ]\n",
     "\n",
-    "    # pair_size = [3]\n",
+    "    pair_size = [3]\n",
     "\n",
-    "    # # Pure polars implementation for combinations\n",
-    "    # for r in pair_size:\n",
-    "    #     combinations_list = list(combinations(columns_to_encode, r))\n",
-    "    #     batch_size = 20\n",
+    "    # Pure polars implementation for combinations\n",
+    "    for r in pair_size:\n",
+    "        combinations_list = list(combinations(columns_to_encode, r))\n",
+    "        batch_size = 20\n",
     "\n",
-    "    #     print(\"\\n pair_size:\", r, \"\\n\")\n",
+    "        print(\"\\n pair_size:\", r, \"\\n\")\n",
     "\n",
-    "    #     for i in range(0, len(combinations_list), batch_size):\n",
-    "    #         batch = combinations_list[i : i + batch_size]\n",
+    "        for i in range(0, len(combinations_list), batch_size):\n",
+    "            batch = combinations_list[i : i + batch_size]\n",
     "\n",
-    "    #         for cols in tqdm(batch):\n",
-    "    #             new_col_name = \"colen_\" + \"_\".join(cols)\n",
-    "    #             concat_expr = pl.col(cols[0]).cast(pl.Utf8)\n",
+    "            for cols in tqdm(batch):\n",
+    "                new_col_name = \"colen_\" + \"_\".join(cols)\n",
+    "                concat_expr = pl.col(cols[0]).cast(pl.Utf8)\n",
     "\n",
-    "    #             for col_name in cols[1:]:\n",
-    "    #                 concat_expr = concat_expr + \"_\" + pl.col(col_name).cast(pl.Utf8)\n",
+    "                for col_name in cols[1:]:\n",
+    "                    concat_expr = concat_expr + \"_\" + pl.col(col_name).cast(pl.Utf8)\n",
     "\n",
-    "    #             df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+    "                df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
     "\n",
-    "    #         gc.collect()\n",
+    "            gc.collect()\n",
     "\n",
-    "    #         mem_usage = sum(df.estimated_size() for col in df.columns) / (1024 * 1024)\n",
-    "    #         print(f\"Memory usage: {mem_usage:.2f} MB\")\n",
-    "    #         print(f\"Total number of columns: {len(df.columns)}\")\n",
+    "            mem_usage = sum(df.estimated_size() for col in df.columns) / (1024 * 1024)\n",
+    "            print(f\"Memory usage: {mem_usage:.2f} MB\")\n",
+    "            print(f\"Total number of columns: {len(df.columns)}\")\n",
     "\n",
-    "    #     print(\"=\" * 20)\n",
+    "        print(\"=\" * 20)\n",
     "\n",
     "    return df\n",
     "\n"
@@ -414,19 +414,19 @@
   {
    "cell_type": "code",
    "execution_count": 4,
-   "id": "953d8ec2",
+   "id": "f3b4e3af",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-04-21T07:26:26.311727Z",
-     "iopub.status.busy": "2025-04-21T07:26:26.311205Z",
-     "iopub.status.idle": "2025-04-21T07:45:41.043775Z",
-     "shell.execute_reply": "2025-04-21T07:45:41.042869Z"
+     "iopub.execute_input": "2025-04-21T10:07:35.397723Z",
+     "iopub.status.busy": "2025-04-21T10:07:35.397395Z",
+     "iopub.status.idle": "2025-04-21T11:26:36.493731Z",
+     "shell.execute_reply": "2025-04-21T11:26:36.493089Z"
     },
     "papermill": {
-     "duration": 1154.739642,
-     "end_time": "2025-04-21T07:45:41.045383",
+     "duration": 4741.101155,
+     "end_time": "2025-04-21T11:26:36.494869",
      "exception": false,
-     "start_time": "2025-04-21T07:26:26.305741",
+     "start_time": "2025-04-21T10:07:35.393714",
      "status": "completed"
     },
     "tags": []
@@ -442,27 +442,27 @@
       "\u001b[34m\u001b[1mwandb\u001b[0m: Currently logged in as: \u001b[33mmasaishi\u001b[0m to \u001b[32mhttps://api.wandb.ai\u001b[0m. Use \u001b[1m`wandb login --relogin`\u001b[0m to force relogin\n",
       "\u001b[34m\u001b[1mwandb\u001b[0m: Using wandb-core as the SDK backend.  Please refer to https://wandb.me/wandb-core for more information.\n",
       "\u001b[34m\u001b[1mwandb\u001b[0m: Tracking run with wandb version 0.19.6\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: Run data is saved locally in \u001b[35m\u001b[1m/kaggle/working/wandb/run-20250421_072635-zjhp1iaj\u001b[0m\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: Run data is saved locally in \u001b[35m\u001b[1m/kaggle/working/wandb/run-20250421_100742-9x6dj8nq\u001b[0m\n",
       "\u001b[34m\u001b[1mwandb\u001b[0m: Run \u001b[1m`wandb offline`\u001b[0m to turn off syncing.\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: Syncing run \u001b[33mzesty-pine-342\u001b[0m\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: Syncing run \u001b[33musual-cherry-361\u001b[0m\n",
       "\u001b[34m\u001b[1mwandb\u001b[0m: ⭐️ View project at \u001b[34m\u001b[4mhttps://wandb.ai/masaishi/playground-series-s5e4\u001b[0m\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: 🚀 View run at \u001b[34m\u001b[4mhttps://wandb.ai/masaishi/playground-series-s5e4/runs/zjhp1iaj\u001b[0m\n"
+      "\u001b[34m\u001b[1mwandb\u001b[0m: 🚀 View run at \u001b[34m\u001b[4mhttps://wandb.ai/masaishi/playground-series-s5e4/runs/9x6dj8nq\u001b[0m\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Training fold 1/2\n"
+      "Training fold 1/5\n"
      ]
     },
     {
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "/tmp/ipykernel_13/2748906699.py:128: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "/tmp/ipykernel_19/1578661316.py:128: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
       "  df = df.with_columns(\n",
-      "/tmp/ipykernel_13/2748906699.py:186: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "/tmp/ipykernel_19/1578661316.py:186: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
       "  df = df.with_columns(pl.col(col).cast(pl.Utf8).cast(pl.Categorical))\n"
      ]
     },
@@ -479,16 +479,16 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_13/2748906699.py:232: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_19/1578661316.py:232: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
       "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
-      "100%|██████████| 20/20 [00:03<00:00,  5.45it/s]\n"
+      "100%|██████████| 20/20 [00:04<00:00,  4.73it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 6175.09 MB\n",
+      "Memory usage: 9212.45 MB\n",
       "Total number of columns: 53\n"
      ]
     },
@@ -496,14 +496,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:03<00:00,  5.98it/s]\n"
+      "100%|██████████| 20/20 [00:03<00:00,  5.32it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 13105.61 MB\n",
+      "Memory usage: 19325.68 MB\n",
       "Total number of columns: 73\n"
      ]
     },
@@ -511,14 +511,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:01<00:00, 14.47it/s]\n"
+      "100%|██████████| 20/20 [00:01<00:00, 10.44it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 20075.46 MB\n",
+      "Memory usage: 29711.36 MB\n",
       "Total number of columns: 93\n"
      ]
     },
@@ -526,14 +526,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:01<00:00, 13.96it/s]\n"
+      "100%|██████████| 20/20 [00:02<00:00,  9.82it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 28484.18 MB\n",
+      "Memory usage: 42263.21 MB\n",
       "Total number of columns: 113\n"
      ]
     },
@@ -541,14 +541,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:01<00:00, 14.72it/s]\n"
+      "100%|██████████| 20/20 [00:01<00:00, 10.42it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 38186.56 MB\n",
+      "Memory usage: 56740.67 MB\n",
       "Total number of columns: 133\n"
      ]
     },
@@ -556,15 +556,66 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:02<00:00,  9.52it/s]\n"
+      "100%|██████████| 20/20 [00:02<00:00,  7.31it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 50779.92 MB\n",
+      "Memory usage: 75365.20 MB\n",
       "Total number of columns: 153\n",
+      "====================\n",
+      "\n",
+      " pair_size: 3 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_19/1578661316.py:278: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+      "100%|██████████| 20/20 [00:10<00:00,  1.92it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 124803.55 MB\n",
+      "Total number of columns: 173\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:08<00:00,  2.46it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 177326.15 MB\n",
+      "Total number of columns: 193\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 16/16 [00:03<00:00,  5.20it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 206753.15 MB\n",
+      "Total number of columns: 209\n",
       "====================\n",
       "\n",
       " pair_size: 2 \n",
@@ -575,14 +626,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:01<00:00, 11.45it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 39.06it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 5526.48 MB\n",
+      "Memory usage: 2347.60 MB\n",
       "Total number of columns: 53\n"
      ]
     },
@@ -590,14 +641,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:01<00:00, 11.12it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 40.22it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 11753.71 MB\n",
+      "Memory usage: 5092.93 MB\n",
       "Total number of columns: 73\n"
      ]
     },
@@ -605,14 +656,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:01<00:00, 18.29it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 57.80it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 17991.73 MB\n",
+      "Memory usage: 7767.44 MB\n",
       "Total number of columns: 93\n"
      ]
     },
@@ -620,14 +671,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:01<00:00, 17.80it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 56.57it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 25512.02 MB\n",
+      "Memory usage: 10959.61 MB\n",
       "Total number of columns: 113\n"
      ]
     },
@@ -635,14 +686,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:01<00:00, 17.34it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 50.24it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 34191.02 MB\n",
+      "Memory usage: 14658.88 MB\n",
       "Total number of columns: 133\n"
      ]
     },
@@ -650,15 +701,64 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:01<00:00, 12.98it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 44.47it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 45491.34 MB\n",
+      "Memory usage: 19632.85 MB\n",
       "Total number of columns: 153\n",
+      "====================\n",
+      "\n",
+      " pair_size: 3 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 22.37it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 32054.36 MB\n",
+      "Total number of columns: 173\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 23.30it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 45736.36 MB\n",
+      "Total number of columns: 193\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 16/16 [00:00<00:00, 30.32it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 54089.73 MB\n",
+      "Total number of columns: 209\n",
       "====================\n"
      ]
     },
@@ -667,9 +767,7 @@
      "output_type": "stream",
      "text": [
       "/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:1408: DataConversionWarning: A column-vector y was passed when a 1d array was expected. Please change the shape of y to (n_samples, ), for example using ravel().\n",
-      "  y = column_or_1d(y, warn=True)\n",
-      "/usr/local/lib/python3.11/dist-packages/lightgbm/engine.py:204: UserWarning: Found `n_iter` in params. Will use it instead of argument\n",
-      "  _log_warning(f\"Found `{alias}` in params. Will use it instead of argument\")\n"
+      "  y = column_or_1d(y, warn=True)\n"
      ]
     },
     {
@@ -677,20 +775,22 @@
      "output_type": "stream",
      "text": [
       "Training until validation scores don't improve for 200 rounds\n",
-      "[100]\tvalid_0's rmse: 12.4581\n",
-      "[200]\tvalid_0's rmse: 12.4348\n",
-      "[300]\tvalid_0's rmse: 12.4376\n",
+      "[100]\ttraining's rmse: 10.1224\tvalid_1's rmse: 12.1829\n",
+      "[200]\ttraining's rmse: 8.93566\tvalid_1's rmse: 12.1557\n",
+      "[300]\ttraining's rmse: 8.12863\tvalid_1's rmse: 12.1517\n",
+      "[400]\ttraining's rmse: 7.48228\tvalid_1's rmse: 12.1517\n",
+      "[500]\ttraining's rmse: 6.93508\tvalid_1's rmse: 12.1545\n",
       "Early stopping, best iteration is:\n",
-      "[192]\tvalid_0's rmse: 12.4343\n"
+      "[362]\ttraining's rmse: 7.70985\tvalid_1's rmse: 12.1508\n"
      ]
     },
     {
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "/tmp/ipykernel_13/2748906699.py:128: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "/tmp/ipykernel_19/1578661316.py:128: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
       "  df = df.with_columns(\n",
-      "/tmp/ipykernel_13/2748906699.py:186: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "/tmp/ipykernel_19/1578661316.py:186: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
       "  df = df.with_columns(pl.col(col).cast(pl.Utf8).cast(pl.Categorical))\n"
      ]
     },
@@ -707,16 +807,16 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_13/2748906699.py:232: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_19/1578661316.py:232: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
       "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
-      "100%|██████████| 20/20 [00:01<00:00, 13.94it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 24.05it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 3782.40 MB\n",
+      "Memory usage: 3782.39 MB\n",
       "Total number of columns: 53\n"
      ]
     },
@@ -724,14 +824,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:01<00:00, 17.44it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 25.58it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 8120.40 MB\n",
+      "Memory usage: 8120.29 MB\n",
       "Total number of columns: 73\n"
      ]
     },
@@ -739,14 +839,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:00<00:00, 38.72it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 50.86it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 12401.66 MB\n",
+      "Memory usage: 12401.53 MB\n",
       "Total number of columns: 93\n"
      ]
     },
@@ -754,14 +854,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:00<00:00, 38.08it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 48.72it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 17545.88 MB\n",
+      "Memory usage: 17545.73 MB\n",
       "Total number of columns: 113\n"
      ]
     },
@@ -769,14 +869,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:00<00:00, 35.83it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 47.29it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 23491.40 MB\n",
+      "Memory usage: 23491.24 MB\n",
       "Total number of columns: 133\n"
      ]
     },
@@ -784,27 +884,78 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:00<00:00, 26.45it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 33.54it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 31324.61 MB\n",
+      "Memory usage: 31324.50 MB\n",
       "Total number of columns: 153\n",
       "====================\n",
-      "Fold 1 validation score: 12.43428602112384\n",
-      "Training fold 2/2\n"
+      "\n",
+      " pair_size: 3 \n",
+      "\n"
      ]
     },
     {
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "/tmp/ipykernel_13/2748906699.py:128: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_19/1578661316.py:278: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+      "100%|██████████| 20/20 [00:01<00:00, 12.53it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 51533.73 MB\n",
+      "Total number of columns: 173\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 14.00it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 73527.64 MB\n",
+      "Total number of columns: 193\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 16/16 [00:00<00:00, 20.95it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 86445.22 MB\n",
+      "Total number of columns: 209\n",
+      "====================\n",
+      "Fold 1 validation score: 12.150776818103196\n",
+      "Training fold 2/5\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/tmp/ipykernel_19/1578661316.py:128: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
       "  df = df.with_columns(\n",
-      "/tmp/ipykernel_13/2748906699.py:186: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "/tmp/ipykernel_19/1578661316.py:186: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
       "  df = df.with_columns(pl.col(col).cast(pl.Utf8).cast(pl.Categorical))\n"
      ]
     },
@@ -821,16 +972,16 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_13/2748906699.py:232: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_19/1578661316.py:232: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
       "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
-      "100%|██████████| 20/20 [00:03<00:00,  5.73it/s]\n"
+      "100%|██████████| 20/20 [00:04<00:00,  4.75it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 6171.66 MB\n",
+      "Memory usage: 9209.11 MB\n",
       "Total number of columns: 53\n"
      ]
     },
@@ -838,14 +989,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:03<00:00,  6.02it/s]\n"
+      "100%|██████████| 20/20 [00:03<00:00,  5.40it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 13099.59 MB\n",
+      "Memory usage: 19316.35 MB\n",
       "Total number of columns: 73\n"
      ]
     },
@@ -853,14 +1004,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:01<00:00, 14.89it/s]\n"
+      "100%|██████████| 20/20 [00:01<00:00, 10.48it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 20067.87 MB\n",
+      "Memory usage: 29698.93 MB\n",
       "Total number of columns: 93\n"
      ]
     },
@@ -868,14 +1019,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:01<00:00, 14.38it/s]\n"
+      "100%|██████████| 20/20 [00:01<00:00, 10.39it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 28475.55 MB\n",
+      "Memory usage: 42247.73 MB\n",
       "Total number of columns: 113\n"
      ]
     },
@@ -883,14 +1034,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:01<00:00, 14.85it/s]\n"
+      "100%|██████████| 20/20 [00:01<00:00, 10.46it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 38176.67 MB\n",
+      "Memory usage: 56722.23 MB\n",
       "Total number of columns: 133\n"
      ]
     },
@@ -898,15 +1049,66 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:02<00:00,  9.76it/s]\n"
+      "100%|██████████| 20/20 [00:02<00:00,  7.28it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 50768.09 MB\n",
+      "Memory usage: 75344.20 MB\n",
       "Total number of columns: 153\n",
+      "====================\n",
+      "\n",
+      " pair_size: 3 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_19/1578661316.py:278: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+      "100%|██████████| 20/20 [00:10<00:00,  1.96it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 124599.91 MB\n",
+      "Total number of columns: 173\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:08<00:00,  2.41it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 176926.16 MB\n",
+      "Total number of columns: 193\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 16/16 [00:03<00:00,  5.02it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 206316.49 MB\n",
+      "Total number of columns: 209\n",
       "====================\n",
       "\n",
       " pair_size: 2 \n",
@@ -917,14 +1119,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:01<00:00, 11.14it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 39.02it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 5527.63 MB\n",
+      "Memory usage: 2345.22 MB\n",
       "Total number of columns: 53\n"
      ]
     },
@@ -932,14 +1134,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:01<00:00, 11.53it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 40.98it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 11754.13 MB\n",
+      "Memory usage: 5086.89 MB\n",
       "Total number of columns: 73\n"
      ]
     },
@@ -947,14 +1149,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:01<00:00, 19.34it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 58.57it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 17992.38 MB\n",
+      "Memory usage: 7760.12 MB\n",
       "Total number of columns: 93\n"
      ]
     },
@@ -962,14 +1164,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:01<00:00, 18.31it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 58.61it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 25512.39 MB\n",
+      "Memory usage: 10951.02 MB\n",
       "Total number of columns: 113\n"
      ]
     },
@@ -977,14 +1179,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:01<00:00, 17.63it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 54.61it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 34191.05 MB\n",
+      "Memory usage: 14649.11 MB\n",
       "Total number of columns: 133\n"
      ]
     },
@@ -992,15 +1194,64 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:01<00:00, 13.66it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 44.60it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 45491.95 MB\n",
+      "Memory usage: 19621.11 MB\n",
       "Total number of columns: 153\n",
+      "====================\n",
+      "\n",
+      " pair_size: 3 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 22.66it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 31985.43 MB\n",
+      "Total number of columns: 173\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 24.44it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 45596.11 MB\n",
+      "Total number of columns: 193\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 16/16 [00:00<00:00, 31.65it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 53940.19 MB\n",
+      "Total number of columns: 209\n",
       "====================\n"
      ]
     },
@@ -1009,9 +1260,7 @@
      "output_type": "stream",
      "text": [
       "/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:1408: DataConversionWarning: A column-vector y was passed when a 1d array was expected. Please change the shape of y to (n_samples, ), for example using ravel().\n",
-      "  y = column_or_1d(y, warn=True)\n",
-      "/usr/local/lib/python3.11/dist-packages/lightgbm/engine.py:204: UserWarning: Found `n_iter` in params. Will use it instead of argument\n",
-      "  _log_warning(f\"Found `{alias}` in params. Will use it instead of argument\")\n"
+      "  y = column_or_1d(y, warn=True)\n"
      ]
     },
     {
@@ -1025,88 +1274,105 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 0 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 0 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 0 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 50 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 50 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 50 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 0 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 0 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 0 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 50 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 50 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 50 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "[100]\tvalid_0's rmse: 12.4229\n"
+      "[100]\ttraining's rmse: 10.1311\tvalid_1's rmse: 12.2051\n"
      ]
     },
     {
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 100 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 100 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 100 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 150 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 150 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 150 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 100 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 100 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 100 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 150 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 150 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 150 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "[200]\tvalid_0's rmse: 12.3983\n"
+      "[200]\ttraining's rmse: 8.92957\tvalid_1's rmse: 12.1745\n"
      ]
     },
     {
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 200 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 200 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 200 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 250 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 250 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 250 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 200 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 200 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 200 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 250 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 250 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 250 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "[300]\tvalid_0's rmse: 12.397\n"
+      "[300]\ttraining's rmse: 8.12961\tvalid_1's rmse: 12.1682\n"
      ]
     },
     {
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 300 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 300 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 300 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 350 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 350 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 350 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 300 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 300 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 300 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 350 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 350 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 350 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "[400]\tvalid_0's rmse: 12.3976\n",
-      "[500]\tvalid_0's rmse: 12.4006\n",
+      "[400]\ttraining's rmse: 7.48057\tvalid_1's rmse: 12.1682\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 400 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 400 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 400 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
       "Early stopping, best iteration is:\n",
-      "[354]\tvalid_0's rmse: 12.3968\n"
+      "[264]\ttraining's rmse: 8.39198\tvalid_1's rmse: 12.1674\n"
      ]
     },
     {
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "/tmp/ipykernel_13/2748906699.py:128: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "/tmp/ipykernel_19/1578661316.py:128: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
       "  df = df.with_columns(\n",
-      "/tmp/ipykernel_13/2748906699.py:186: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 450 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 450 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 450 that is less than the current step 551. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "/tmp/ipykernel_19/1578661316.py:186: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
       "  df = df.with_columns(pl.col(col).cast(pl.Utf8).cast(pl.Categorical))\n"
      ]
     },
@@ -1123,16 +1389,16 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_13/2748906699.py:232: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_19/1578661316.py:232: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
       "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
-      "100%|██████████| 20/20 [00:01<00:00, 17.61it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 24.52it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 3781.51 MB\n",
+      "Memory usage: 3779.62 MB\n",
       "Total number of columns: 53\n"
      ]
     },
@@ -1140,14 +1406,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:01<00:00, 18.62it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 25.57it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 8118.04 MB\n",
+      "Memory usage: 8112.61 MB\n",
       "Total number of columns: 73\n"
      ]
     },
@@ -1155,14 +1421,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:00<00:00, 37.17it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 49.03it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 12398.67 MB\n",
+      "Memory usage: 12391.73 MB\n",
       "Total number of columns: 93\n"
      ]
     },
@@ -1170,14 +1436,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:00<00:00, 36.57it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 49.67it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 17542.25 MB\n",
+      "Memory usage: 17533.81 MB\n",
       "Total number of columns: 113\n"
      ]
     },
@@ -1185,14 +1451,14 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:00<00:00, 35.11it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 45.96it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 23487.15 MB\n",
+      "Memory usage: 23477.23 MB\n",
       "Total number of columns: 133\n"
      ]
     },
@@ -1200,17 +1466,1854 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "100%|██████████| 20/20 [00:00<00:00, 25.98it/s]\n"
+      "100%|██████████| 20/20 [00:00<00:00, 32.75it/s]\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Memory usage: 31319.76 MB\n",
+      "Memory usage: 31308.24 MB\n",
       "Total number of columns: 153\n",
       "====================\n",
-      "Fold 2 validation score: 12.396803676306266\n"
+      "\n",
+      " pair_size: 3 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_19/1578661316.py:278: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+      "100%|██████████| 20/20 [00:01<00:00, 13.01it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 51428.01 MB\n",
+      "Total number of columns: 173\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 11.80it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 73313.30 MB\n",
+      "Total number of columns: 193\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 16/16 [00:00<00:00, 17.19it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 86212.87 MB\n",
+      "Total number of columns: 209\n",
+      "====================\n",
+      "Fold 2 validation score: 12.167394594870826\n",
+      "Training fold 3/5\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/tmp/ipykernel_19/1578661316.py:128: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(\n",
+      "/tmp/ipykernel_19/1578661316.py:186: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(pl.col(col).cast(pl.Utf8).cast(pl.Categorical))\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      " pair_size: 2 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_19/1578661316.py:232: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+      "100%|██████████| 20/20 [00:04<00:00,  4.57it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 9212.20 MB\n",
+      "Total number of columns: 53\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:03<00:00,  5.16it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 19325.02 MB\n",
+      "Total number of columns: 73\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 10.55it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 29710.24 MB\n",
+      "Total number of columns: 93\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 10.22it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 42261.41 MB\n",
+      "Total number of columns: 113\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 10.57it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 56738.24 MB\n",
+      "Total number of columns: 133\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:02<00:00,  7.22it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 75361.69 MB\n",
+      "Total number of columns: 153\n",
+      "====================\n",
+      "\n",
+      " pair_size: 3 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_19/1578661316.py:278: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+      "100%|██████████| 20/20 [00:10<00:00,  1.96it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 124793.94 MB\n",
+      "Total number of columns: 173\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:08<00:00,  2.40it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 177302.35 MB\n",
+      "Total number of columns: 193\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 16/16 [00:03<00:00,  5.06it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 206723.84 MB\n",
+      "Total number of columns: 209\n",
+      "====================\n",
+      "\n",
+      " pair_size: 2 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 39.76it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 2347.96 MB\n",
+      "Total number of columns: 53\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 40.85it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 5093.88 MB\n",
+      "Total number of columns: 73\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 59.91it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 7768.87 MB\n",
+      "Total number of columns: 93\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 58.20it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 10961.33 MB\n",
+      "Total number of columns: 113\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 55.12it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 14661.03 MB\n",
+      "Total number of columns: 133\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 45.81it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 19636.10 MB\n",
+      "Total number of columns: 153\n",
+      "====================\n",
+      "\n",
+      " pair_size: 3 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 22.98it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 32061.72 MB\n",
+      "Total number of columns: 173\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 24.46it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 45747.99 MB\n",
+      "Total number of columns: 193\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 16/16 [00:00<00:00, 30.77it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 54103.01 MB\n",
+      "Total number of columns: 209\n",
+      "====================\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:1408: DataConversionWarning: A column-vector y was passed when a 1d array was expected. Please change the shape of y to (n_samples, ), for example using ravel().\n",
+      "  y = column_or_1d(y, warn=True)\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 0 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Training until validation scores don't improve for 200 rounds\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 0 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 0 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 50 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 50 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 50 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[100]\ttraining's rmse: 10.1245\tvalid_1's rmse: 12.2168\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 100 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 100 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 100 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 150 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 150 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 150 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[200]\ttraining's rmse: 8.93343\tvalid_1's rmse: 12.1897\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 200 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 200 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 200 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 250 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 250 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 250 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[300]\ttraining's rmse: 8.12223\tvalid_1's rmse: 12.1866\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 300 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 300 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 300 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 350 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 350 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 350 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[400]\ttraining's rmse: 7.4627\tvalid_1's rmse: 12.1882\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 400 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 400 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 400 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 450 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 450 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 450 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[500]\ttraining's rmse: 6.9108\tvalid_1's rmse: 12.1908\n",
+      "Early stopping, best iteration is:\n",
+      "[309]\ttraining's rmse: 8.05894\tvalid_1's rmse: 12.1856\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/tmp/ipykernel_19/1578661316.py:128: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 500 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 500 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 500 that is less than the current step 552. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "/tmp/ipykernel_19/1578661316.py:186: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(pl.col(col).cast(pl.Utf8).cast(pl.Categorical))\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      " pair_size: 2 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_19/1578661316.py:232: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+      "100%|██████████| 20/20 [00:00<00:00, 24.61it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 3782.33 MB\n",
+      "Total number of columns: 53\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 25.94it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 8120.15 MB\n",
+      "Total number of columns: 73\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 50.36it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 12401.35 MB\n",
+      "Total number of columns: 93\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 47.22it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 17545.49 MB\n",
+      "Total number of columns: 113\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 44.78it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 23490.95 MB\n",
+      "Total number of columns: 133\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 32.96it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 31324.09 MB\n",
+      "Total number of columns: 153\n",
+      "====================\n",
+      "\n",
+      " pair_size: 3 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_19/1578661316.py:278: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+      "100%|██████████| 20/20 [00:01<00:00, 11.27it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 51533.14 MB\n",
+      "Total number of columns: 173\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 13.21it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 73526.95 MB\n",
+      "Total number of columns: 193\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 16/16 [00:00<00:00, 20.89it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 86444.41 MB\n",
+      "Total number of columns: 209\n",
+      "====================\n",
+      "Fold 3 validation score: 12.18555404286894\n",
+      "Training fold 4/5\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/tmp/ipykernel_19/1578661316.py:128: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(\n",
+      "/tmp/ipykernel_19/1578661316.py:186: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(pl.col(col).cast(pl.Utf8).cast(pl.Categorical))\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      " pair_size: 2 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_19/1578661316.py:232: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+      "100%|██████████| 20/20 [00:04<00:00,  4.47it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 9212.91 MB\n",
+      "Total number of columns: 53\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:03<00:00,  5.19it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 19331.23 MB\n",
+      "Total number of columns: 73\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 10.28it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 29718.47 MB\n",
+      "Total number of columns: 93\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 10.15it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 42272.05 MB\n",
+      "Total number of columns: 113\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 10.45it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 56751.24 MB\n",
+      "Total number of columns: 133\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:02<00:00,  7.27it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 75379.76 MB\n",
+      "Total number of columns: 153\n",
+      "====================\n",
+      "\n",
+      " pair_size: 3 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_19/1578661316.py:278: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+      "100%|██████████| 20/20 [00:10<00:00,  1.86it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 124881.19 MB\n",
+      "Total number of columns: 173\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:08<00:00,  2.33it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 177471.55 MB\n",
+      "Total number of columns: 193\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 16/16 [00:03<00:00,  5.13it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 206911.34 MB\n",
+      "Total number of columns: 209\n",
+      "====================\n",
+      "\n",
+      " pair_size: 2 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 38.92it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 2349.82 MB\n",
+      "Total number of columns: 53\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 40.55it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 5096.10 MB\n",
+      "Total number of columns: 73\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 59.51it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 7771.71 MB\n",
+      "Total number of columns: 93\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 57.11it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 10964.73 MB\n",
+      "Total number of columns: 113\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 53.51it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 14664.72 MB\n",
+      "Total number of columns: 133\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 42.86it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 19640.20 MB\n",
+      "Total number of columns: 153\n",
+      "====================\n",
+      "\n",
+      " pair_size: 3 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 22.66it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 32083.61 MB\n",
+      "Total number of columns: 173\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 24.45it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 45775.58 MB\n",
+      "Total number of columns: 193\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 16/16 [00:00<00:00, 30.75it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 54131.36 MB\n",
+      "Total number of columns: 209\n",
+      "====================\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:1408: DataConversionWarning: A column-vector y was passed when a 1d array was expected. Please change the shape of y to (n_samples, ), for example using ravel().\n",
+      "  y = column_or_1d(y, warn=True)\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Training until validation scores don't improve for 200 rounds\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 0 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 0 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 0 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 50 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 50 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 50 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[100]\ttraining's rmse: 10.1403\tvalid_1's rmse: 12.178\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 100 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 100 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 100 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 150 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 150 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 150 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[200]\ttraining's rmse: 8.94394\tvalid_1's rmse: 12.1415\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 200 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 200 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 200 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 250 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 250 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 250 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[300]\ttraining's rmse: 8.13184\tvalid_1's rmse: 12.1384\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 300 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 300 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 300 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 350 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 350 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 350 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[400]\ttraining's rmse: 7.4831\tvalid_1's rmse: 12.1386\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 400 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 400 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 400 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 450 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 450 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 450 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[500]\ttraining's rmse: 6.94691\tvalid_1's rmse: 12.1417\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 500 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 500 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 500 that is less than the current step 553. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Early stopping, best iteration is:\n",
+      "[333]\ttraining's rmse: 7.90704\tvalid_1's rmse: 12.1355\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/tmp/ipykernel_19/1578661316.py:128: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(\n",
+      "/tmp/ipykernel_19/1578661316.py:186: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(pl.col(col).cast(pl.Utf8).cast(pl.Categorical))\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      " pair_size: 2 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_19/1578661316.py:232: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+      "100%|██████████| 20/20 [00:00<00:00, 24.22it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 3784.66 MB\n",
+      "Total number of columns: 53\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 25.23it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 8125.24 MB\n",
+      "Total number of columns: 73\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 52.59it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 12408.01 MB\n",
+      "Total number of columns: 93\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 48.95it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 17553.73 MB\n",
+      "Total number of columns: 113\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 47.13it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 23500.73 MB\n",
+      "Total number of columns: 133\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 34.23it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 31336.42 MB\n",
+      "Total number of columns: 153\n",
+      "====================\n",
+      "\n",
+      " pair_size: 3 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_19/1578661316.py:278: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+      "100%|██████████| 20/20 [00:01<00:00, 12.52it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 51576.85 MB\n",
+      "Total number of columns: 173\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 13.98it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 73601.30 MB\n",
+      "Total number of columns: 193\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 16/16 [00:00<00:00, 21.71it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 86525.38 MB\n",
+      "Total number of columns: 209\n",
+      "====================\n",
+      "Fold 4 validation score: 12.135471971098205\n",
+      "Training fold 5/5\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/tmp/ipykernel_19/1578661316.py:128: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(\n",
+      "/tmp/ipykernel_19/1578661316.py:186: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(pl.col(col).cast(pl.Utf8).cast(pl.Categorical))\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      " pair_size: 2 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_19/1578661316.py:232: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+      "100%|██████████| 20/20 [00:04<00:00,  4.71it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 9212.34 MB\n",
+      "Total number of columns: 53\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:03<00:00,  5.34it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 19325.70 MB\n",
+      "Total number of columns: 73\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 10.51it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 29711.15 MB\n",
+      "Total number of columns: 93\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:02<00:00,  9.97it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 42263.15 MB\n",
+      "Total number of columns: 113\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 10.37it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 56740.72 MB\n",
+      "Total number of columns: 133\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:02<00:00,  7.27it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 75363.98 MB\n",
+      "Total number of columns: 153\n",
+      "====================\n",
+      "\n",
+      " pair_size: 3 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_19/1578661316.py:278: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+      "100%|██████████| 20/20 [00:10<00:00,  1.89it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 124795.87 MB\n",
+      "Total number of columns: 173\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:08<00:00,  2.39it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 177314.13 MB\n",
+      "Total number of columns: 193\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 16/16 [00:03<00:00,  5.11it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 206740.02 MB\n",
+      "Total number of columns: 209\n",
+      "====================\n",
+      "\n",
+      " pair_size: 2 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 39.51it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 2347.37 MB\n",
+      "Total number of columns: 53\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 40.73it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 5092.56 MB\n",
+      "Total number of columns: 73\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 60.25it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 7767.22 MB\n",
+      "Total number of columns: 93\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 53.92it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 10959.54 MB\n",
+      "Total number of columns: 113\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 54.60it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 14658.61 MB\n",
+      "Total number of columns: 133\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 44.77it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 19632.80 MB\n",
+      "Total number of columns: 153\n",
+      "====================\n",
+      "\n",
+      " pair_size: 3 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 23.00it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 32058.43 MB\n",
+      "Total number of columns: 173\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 24.71it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 45740.74 MB\n",
+      "Total number of columns: 193\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 16/16 [00:00<00:00, 30.85it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 54094.97 MB\n",
+      "Total number of columns: 209\n",
+      "====================\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:1408: DataConversionWarning: A column-vector y was passed when a 1d array was expected. Please change the shape of y to (n_samples, ), for example using ravel().\n",
+      "  y = column_or_1d(y, warn=True)\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Training until validation scores don't improve for 200 rounds\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 0 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 0 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 0 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 50 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 50 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 50 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[100]\ttraining's rmse: 10.1261\tvalid_1's rmse: 12.1613\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 100 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 100 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 100 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 150 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 150 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 150 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[200]\ttraining's rmse: 8.93041\tvalid_1's rmse: 12.1297\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 200 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 200 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 200 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 250 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 250 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 250 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[300]\ttraining's rmse: 8.11597\tvalid_1's rmse: 12.1231\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 300 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 300 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 300 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 350 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 350 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 350 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[400]\ttraining's rmse: 7.46777\tvalid_1's rmse: 12.1208\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 400 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 400 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 400 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 450 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 450 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 450 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[500]\ttraining's rmse: 6.91739\tvalid_1's rmse: 12.1191\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 500 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 500 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 500 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 550 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 550 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 550 that is less than the current step 554. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[600]\ttraining's rmse: 6.45602\tvalid_1's rmse: 12.1219\n",
+      "Early stopping, best iteration is:\n",
+      "[496]\ttraining's rmse: 6.93825\tvalid_1's rmse: 12.119\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/tmp/ipykernel_19/1578661316.py:128: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(\n",
+      "/tmp/ipykernel_19/1578661316.py:186: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(pl.col(col).cast(pl.Utf8).cast(pl.Categorical))\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      " pair_size: 2 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_19/1578661316.py:232: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+      "100%|██████████| 20/20 [00:00<00:00, 24.64it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 3782.33 MB\n",
+      "Total number of columns: 53\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 23.57it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 8120.15 MB\n",
+      "Total number of columns: 73\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 51.08it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 12401.35 MB\n",
+      "Total number of columns: 93\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 49.88it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 17545.49 MB\n",
+      "Total number of columns: 113\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 46.57it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 23490.95 MB\n",
+      "Total number of columns: 133\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 33.01it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 31324.09 MB\n",
+      "Total number of columns: 153\n",
+      "====================\n",
+      "\n",
+      " pair_size: 3 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_19/1578661316.py:278: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+      "100%|██████████| 20/20 [00:01<00:00, 12.82it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 51533.14 MB\n",
+      "Total number of columns: 173\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 14.05it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 73526.95 MB\n",
+      "Total number of columns: 193\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 16/16 [00:00<00:00, 21.74it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 86444.41 MB\n",
+      "Total number of columns: 209\n",
+      "====================\n",
+      "Fold 5 validation score: 12.118993050859121\n"
      ]
     },
     {
@@ -1222,17 +3325,25 @@
       "\u001b[34m\u001b[1mwandb\u001b[0m: Run history:\n",
       "\u001b[34m\u001b[1mwandb\u001b[0m: fold_1_val_score ▁\n",
       "\u001b[34m\u001b[1mwandb\u001b[0m: fold_2_val_score ▁\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m:     valid_0/rmse █▁▁▁▁▁▁▁▁▁▁▁\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: fold_3_val_score ▁\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: fold_4_val_score ▁\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: fold_5_val_score ▁\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m:    training/rmse █▃▂▂▂▂▂▂▁▁▁▁▁▁\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m:     valid_1/rmse █▁▁▁▁▁▁▁▁▁▁▁▁▁\n",
       "\u001b[34m\u001b[1mwandb\u001b[0m: \n",
       "\u001b[34m\u001b[1mwandb\u001b[0m: Run summary:\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: fold_1_val_score 12.43429\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: fold_2_val_score 12.3968\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m:     valid_0/rmse 12.40201\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: fold_1_val_score 12.15078\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: fold_2_val_score 12.16739\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: fold_3_val_score 12.18555\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: fold_4_val_score 12.13547\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: fold_5_val_score 12.11899\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m:    training/rmse 6.24083\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m:     valid_1/rmse 12.12223\n",
       "\u001b[34m\u001b[1mwandb\u001b[0m: \n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: 🚀 View run \u001b[33mzesty-pine-342\u001b[0m at: \u001b[34m\u001b[4mhttps://wandb.ai/masaishi/playground-series-s5e4/runs/zjhp1iaj\u001b[0m\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: 🚀 View run \u001b[33musual-cherry-361\u001b[0m at: \u001b[34m\u001b[4mhttps://wandb.ai/masaishi/playground-series-s5e4/runs/9x6dj8nq\u001b[0m\n",
       "\u001b[34m\u001b[1mwandb\u001b[0m: ⭐️ View project at: \u001b[34m\u001b[4mhttps://wandb.ai/masaishi/playground-series-s5e4\u001b[0m\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: Synced 5 W&B file(s), 40 media file(s), 80 artifact file(s) and 0 other file(s)\n",
-      "\u001b[34m\u001b[1mwandb\u001b[0m: Find logs at: \u001b[35m\u001b[1m./wandb/run-20250421_072635-zjhp1iaj/logs\u001b[0m\n"
+      "\u001b[34m\u001b[1mwandb\u001b[0m: Synced 5 W&B file(s), 116 media file(s), 232 artifact file(s) and 0 other file(s)\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: Find logs at: \u001b[35m\u001b[1m./wandb/run-20250421_100742-9x6dj8nq/logs\u001b[0m\n"
      ]
     },
     {
@@ -1405,7 +3516,7 @@
     "        \n",
     "        model.fit(\n",
     "            X_train_arr, y_train_arr,\n",
-    "            eval_set=[(X_valid_arr, y_valid_arr)],\n",
+    "            eval_set=[(X_train_arr, y_train_arr), (X_valid_arr, y_valid_arr)],\n",
     "            callbacks=[\n",
     "                lgb.log_evaluation(cfg.log_eval),\n",
     "                lgb.early_stopping(cfg.early_stopping),\n",
@@ -1427,7 +3538,7 @@
     "        test_predictions += fold_pred\n",
     "        \n",
     "        # Log fold performance\n",
-    "        val_score = model.best_score_[\"valid_0\"][cfg.metric]\n",
+    "        val_score = model.best_score_[\"valid_1\"][cfg.metric]\n",
     "        print(f\"Fold {fold+1} validation score: {val_score}\")\n",
     "        wandb.log({f\"fold_{fold+1}_val_score\": val_score})\n",
     "        \n",
@@ -1500,19 +3611,19 @@
   {
    "cell_type": "code",
    "execution_count": 5,
-   "id": "3e6d937b",
+   "id": "c9ed5aea",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-04-21T07:45:41.103370Z",
-     "iopub.status.busy": "2025-04-21T07:45:41.102976Z",
-     "iopub.status.idle": "2025-04-21T07:45:41.224563Z",
-     "shell.execute_reply": "2025-04-21T07:45:41.223512Z"
+     "iopub.execute_input": "2025-04-21T11:26:36.647365Z",
+     "iopub.status.busy": "2025-04-21T11:26:36.646731Z",
+     "iopub.status.idle": "2025-04-21T11:26:37.225559Z",
+     "shell.execute_reply": "2025-04-21T11:26:37.224913Z"
     },
     "papermill": {
-     "duration": 0.152395,
-     "end_time": "2025-04-21T07:45:41.226492",
+     "duration": 0.656188,
+     "end_time": "2025-04-21T11:26:37.226667",
      "exception": false,
-     "start_time": "2025-04-21T07:45:41.074097",
+     "start_time": "2025-04-21T11:26:36.570479",
      "status": "completed"
     },
     "tags": []
@@ -1547,27 +3658,27 @@
        "    <tr>\n",
        "      <th>0</th>\n",
        "      <td>750000</td>\n",
-       "      <td>54.593041</td>\n",
+       "      <td>53.845155</td>\n",
        "    </tr>\n",
        "    <tr>\n",
        "      <th>1</th>\n",
        "      <td>750001</td>\n",
-       "      <td>21.846049</td>\n",
+       "      <td>22.668697</td>\n",
        "    </tr>\n",
        "    <tr>\n",
        "      <th>2</th>\n",
        "      <td>750002</td>\n",
-       "      <td>48.651854</td>\n",
+       "      <td>48.362052</td>\n",
        "    </tr>\n",
        "    <tr>\n",
        "      <th>3</th>\n",
        "      <td>750003</td>\n",
-       "      <td>78.579022</td>\n",
+       "      <td>76.824966</td>\n",
        "    </tr>\n",
        "    <tr>\n",
        "      <th>4</th>\n",
        "      <td>750004</td>\n",
-       "      <td>51.499747</td>\n",
+       "      <td>52.015605</td>\n",
        "    </tr>\n",
        "    <tr>\n",
        "      <th>...</th>\n",
@@ -1577,27 +3688,27 @@
        "    <tr>\n",
        "      <th>249995</th>\n",
        "      <td>999995</td>\n",
-       "      <td>11.023805</td>\n",
+       "      <td>10.481044</td>\n",
        "    </tr>\n",
        "    <tr>\n",
        "      <th>249996</th>\n",
        "      <td>999996</td>\n",
-       "      <td>54.818624</td>\n",
+       "      <td>54.837017</td>\n",
        "    </tr>\n",
        "    <tr>\n",
        "      <th>249997</th>\n",
        "      <td>999997</td>\n",
-       "      <td>6.658399</td>\n",
+       "      <td>5.999391</td>\n",
        "    </tr>\n",
        "    <tr>\n",
        "      <th>249998</th>\n",
        "      <td>999998</td>\n",
-       "      <td>74.935553</td>\n",
+       "      <td>75.180534</td>\n",
        "    </tr>\n",
        "    <tr>\n",
        "      <th>249999</th>\n",
        "      <td>999999</td>\n",
-       "      <td>57.644219</td>\n",
+       "      <td>58.158694</td>\n",
        "    </tr>\n",
        "  </tbody>\n",
        "</table>\n",
@@ -1606,17 +3717,17 @@
       ],
       "text/plain": [
        "            id  Listening_Time_minutes\n",
-       "0       750000               54.593041\n",
-       "1       750001               21.846049\n",
-       "2       750002               48.651854\n",
-       "3       750003               78.579022\n",
-       "4       750004               51.499747\n",
+       "0       750000               53.845155\n",
+       "1       750001               22.668697\n",
+       "2       750002               48.362052\n",
+       "3       750003               76.824966\n",
+       "4       750004               52.015605\n",
        "...        ...                     ...\n",
-       "249995  999995               11.023805\n",
-       "249996  999996               54.818624\n",
-       "249997  999997                6.658399\n",
-       "249998  999998               74.935553\n",
-       "249999  999999               57.644219\n",
+       "249995  999995               10.481044\n",
+       "249996  999996               54.837017\n",
+       "249997  999997                5.999391\n",
+       "249998  999998               75.180534\n",
+       "249999  999999               58.158694\n",
        "\n",
        "[250000 rows x 2 columns]"
       ]
@@ -1636,25 +3747,26 @@
     "\n",
     "df_subm = pd.read_csv(cfg.sub_path)\n",
     "df_subm[\"Listening_Time_minutes\"] = test_preds / cfg.num_fold\n",
+    "df_subm.to_csv('raw_submission.csv', index=False)\n",
     "df_subm"
    ]
   },
   {
    "cell_type": "code",
    "execution_count": 6,
-   "id": "8099edb3",
+   "id": "27b37b6d",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-04-21T07:45:41.286210Z",
-     "iopub.status.busy": "2025-04-21T07:45:41.285819Z",
-     "iopub.status.idle": "2025-04-21T07:45:42.865679Z",
-     "shell.execute_reply": "2025-04-21T07:45:42.864559Z"
+     "iopub.execute_input": "2025-04-21T11:26:37.389356Z",
+     "iopub.status.busy": "2025-04-21T11:26:37.388969Z",
+     "iopub.status.idle": "2025-04-21T11:26:38.624107Z",
+     "shell.execute_reply": "2025-04-21T11:26:38.623537Z"
     },
     "papermill": {
-     "duration": 1.610291,
-     "end_time": "2025-04-21T07:45:42.867471",
+     "duration": 1.316083,
+     "end_time": "2025-04-21T11:26:38.625522",
      "exception": false,
-     "start_time": "2025-04-21T07:45:41.257180",
+     "start_time": "2025-04-21T11:26:37.309439",
      "status": "completed"
     },
     "tags": []
@@ -1676,19 +3788,19 @@
   {
    "cell_type": "code",
    "execution_count": 7,
-   "id": "77f3c2c4",
+   "id": "71bc0497",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-04-21T07:45:42.936040Z",
-     "iopub.status.busy": "2025-04-21T07:45:42.935662Z",
-     "iopub.status.idle": "2025-04-21T07:45:42.984485Z",
-     "shell.execute_reply": "2025-04-21T07:45:42.983530Z"
+     "iopub.execute_input": "2025-04-21T11:26:38.776680Z",
+     "iopub.status.busy": "2025-04-21T11:26:38.776076Z",
+     "iopub.status.idle": "2025-04-21T11:26:38.813451Z",
+     "shell.execute_reply": "2025-04-21T11:26:38.812667Z"
     },
     "papermill": {
-     "duration": 0.079786,
-     "end_time": "2025-04-21T07:45:42.986326",
+     "duration": 0.11406,
+     "end_time": "2025-04-21T11:26:38.814566",
      "exception": false,
-     "start_time": "2025-04-21T07:45:42.906540",
+     "start_time": "2025-04-21T11:26:38.700506",
      "status": "completed"
     },
     "tags": []
@@ -1795,7 +3907,7 @@
        "    <tr>\n",
        "      <th>37939</th>\n",
        "      <td>787939</td>\n",
-       "      <td>56.745907</td>\n",
+       "      <td>63.382886</td>\n",
        "    </tr>\n",
        "  </tbody>\n",
        "</table>\n",
@@ -1803,7 +3915,7 @@
       ],
       "text/plain": [
        "           id  Listening_Time_minutes\n",
-       "37939  787939               56.745907"
+       "37939  787939               63.382886"
       ]
      },
      "metadata": {},
@@ -1869,19 +3981,19 @@
   {
    "cell_type": "code",
    "execution_count": 8,
-   "id": "1b6d2d67",
+   "id": "88073f40",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-04-21T07:45:43.045580Z",
-     "iopub.status.busy": "2025-04-21T07:45:43.045214Z",
-     "iopub.status.idle": "2025-04-21T07:45:43.605143Z",
-     "shell.execute_reply": "2025-04-21T07:45:43.604256Z"
+     "iopub.execute_input": "2025-04-21T11:26:38.965487Z",
+     "iopub.status.busy": "2025-04-21T11:26:38.965161Z",
+     "iopub.status.idle": "2025-04-21T11:26:39.382850Z",
+     "shell.execute_reply": "2025-04-21T11:26:39.382251Z"
     },
     "papermill": {
-     "duration": 0.590851,
-     "end_time": "2025-04-21T07:45:43.606587",
+     "duration": 0.494493,
+     "end_time": "2025-04-21T11:26:39.384014",
      "exception": false,
-     "start_time": "2025-04-21T07:45:43.015736",
+     "start_time": "2025-04-21T11:26:38.889521",
      "status": "completed"
     },
     "tags": []
@@ -1916,27 +4028,27 @@
        "    <tr>\n",
        "      <th>51</th>\n",
        "      <td>750051</td>\n",
-       "      <td>18.470409</td>\n",
+       "      <td>18.552194</td>\n",
        "    </tr>\n",
        "    <tr>\n",
        "      <th>52</th>\n",
        "      <td>750052</td>\n",
-       "      <td>53.885558</td>\n",
+       "      <td>59.376488</td>\n",
        "    </tr>\n",
        "    <tr>\n",
        "      <th>227</th>\n",
        "      <td>750227</td>\n",
-       "      <td>63.817438</td>\n",
+       "      <td>62.806197</td>\n",
        "    </tr>\n",
        "    <tr>\n",
        "      <th>243</th>\n",
        "      <td>750243</td>\n",
-       "      <td>39.447936</td>\n",
+       "      <td>24.547198</td>\n",
        "    </tr>\n",
        "    <tr>\n",
        "      <th>312</th>\n",
        "      <td>750312</td>\n",
-       "      <td>49.488448</td>\n",
+       "      <td>45.444251</td>\n",
        "    </tr>\n",
        "    <tr>\n",
        "      <th>...</th>\n",
@@ -1946,27 +4058,27 @@
        "    <tr>\n",
        "      <th>249802</th>\n",
        "      <td>999802</td>\n",
-       "      <td>37.015107</td>\n",
+       "      <td>37.610411</td>\n",
        "    </tr>\n",
        "    <tr>\n",
        "      <th>249832</th>\n",
        "      <td>999832</td>\n",
-       "      <td>86.043035</td>\n",
+       "      <td>87.554219</td>\n",
        "    </tr>\n",
        "    <tr>\n",
        "      <th>249841</th>\n",
        "      <td>999841</td>\n",
-       "      <td>19.981496</td>\n",
+       "      <td>20.366437</td>\n",
        "    </tr>\n",
        "    <tr>\n",
        "      <th>249854</th>\n",
        "      <td>999854</td>\n",
-       "      <td>80.335338</td>\n",
+       "      <td>69.669332</td>\n",
        "    </tr>\n",
        "    <tr>\n",
        "      <th>249876</th>\n",
        "      <td>999876</td>\n",
-       "      <td>19.054094</td>\n",
+       "      <td>20.382561</td>\n",
        "    </tr>\n",
        "  </tbody>\n",
        "</table>\n",
@@ -1975,17 +4087,17 @@
       ],
       "text/plain": [
        "            id  Listening_Time_minutes\n",
-       "51      750051               18.470409\n",
-       "52      750052               53.885558\n",
-       "227     750227               63.817438\n",
-       "243     750243               39.447936\n",
-       "312     750312               49.488448\n",
+       "51      750051               18.552194\n",
+       "52      750052               59.376488\n",
+       "227     750227               62.806197\n",
+       "243     750243               24.547198\n",
+       "312     750312               45.444251\n",
        "...        ...                     ...\n",
-       "249802  999802               37.015107\n",
-       "249832  999832               86.043035\n",
-       "249841  999841               19.981496\n",
-       "249854  999854               80.335338\n",
-       "249876  999876               19.054094\n",
+       "249802  999802               37.610411\n",
+       "249832  999832               87.554219\n",
+       "249841  999841               20.366437\n",
+       "249854  999854               69.669332\n",
+       "249876  999876               20.382561\n",
        "\n",
        "[9498 rows x 2 columns]"
       ]
@@ -2122,19 +4234,19 @@
   {
    "cell_type": "code",
    "execution_count": 9,
-   "id": "9b80a89c",
+   "id": "4361ce40",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-04-21T07:45:43.668245Z",
-     "iopub.status.busy": "2025-04-21T07:45:43.667849Z",
-     "iopub.status.idle": "2025-04-21T07:45:44.242211Z",
-     "shell.execute_reply": "2025-04-21T07:45:44.241295Z"
+     "iopub.execute_input": "2025-04-21T11:26:39.539110Z",
+     "iopub.status.busy": "2025-04-21T11:26:39.538265Z",
+     "iopub.status.idle": "2025-04-21T11:26:40.007014Z",
+     "shell.execute_reply": "2025-04-21T11:26:40.006368Z"
     },
     "papermill": {
-     "duration": 0.607748,
-     "end_time": "2025-04-21T07:45:44.244266",
+     "duration": 0.546972,
+     "end_time": "2025-04-21T11:26:40.008123",
      "exception": false,
-     "start_time": "2025-04-21T07:45:43.636518",
+     "start_time": "2025-04-21T11:26:39.461151",
      "status": "completed"
     },
     "tags": []
@@ -2150,7 +4262,7 @@
        "  white-space: pre-wrap;\n",
        "}\n",
        "</style>\n",
-       "<small>shape: (250_000, 2)</small><table border=\"1\" class=\"dataframe\"><thead><tr><th>id</th><th>Listening_Time_minutes</th></tr><tr><td>i64</td><td>f64</td></tr></thead><tbody><tr><td>750000</td><td>54.593041</td></tr><tr><td>750001</td><td>21.846049</td></tr><tr><td>750002</td><td>48.651854</td></tr><tr><td>750003</td><td>78.579022</td></tr><tr><td>750004</td><td>51.499747</td></tr><tr><td>&hellip;</td><td>&hellip;</td></tr><tr><td>999995</td><td>11.023805</td></tr><tr><td>999996</td><td>54.818624</td></tr><tr><td>999997</td><td>6.658399</td></tr><tr><td>999998</td><td>74.935553</td></tr><tr><td>999999</td><td>57.644219</td></tr></tbody></table></div>"
+       "<small>shape: (250_000, 2)</small><table border=\"1\" class=\"dataframe\"><thead><tr><th>id</th><th>Listening_Time_minutes</th></tr><tr><td>i64</td><td>f64</td></tr></thead><tbody><tr><td>750000</td><td>53.845155</td></tr><tr><td>750001</td><td>22.668697</td></tr><tr><td>750002</td><td>48.362052</td></tr><tr><td>750003</td><td>76.824966</td></tr><tr><td>750004</td><td>52.015605</td></tr><tr><td>&hellip;</td><td>&hellip;</td></tr><tr><td>999995</td><td>10.481044</td></tr><tr><td>999996</td><td>54.837017</td></tr><tr><td>999997</td><td>5.999391</td></tr><tr><td>999998</td><td>75.180534</td></tr><tr><td>999999</td><td>58.158694</td></tr></tbody></table></div>"
       ],
       "text/plain": [
        "shape: (250_000, 2)\n",
@@ -2159,17 +4271,17 @@
        "│ ---    ┆ ---                    │\n",
        "│ i64    ┆ f64                    │\n",
        "╞════════╪════════════════════════╡\n",
-       "│ 750000 ┆ 54.593041              │\n",
-       "│ 750001 ┆ 21.846049              │\n",
-       "│ 750002 ┆ 48.651854              │\n",
-       "│ 750003 ┆ 78.579022              │\n",
-       "│ 750004 ┆ 51.499747              │\n",
+       "│ 750000 ┆ 53.845155              │\n",
+       "│ 750001 ┆ 22.668697              │\n",
+       "│ 750002 ┆ 48.362052              │\n",
+       "│ 750003 ┆ 76.824966              │\n",
+       "│ 750004 ┆ 52.015605              │\n",
        "│ …      ┆ …                      │\n",
-       "│ 999995 ┆ 11.023805              │\n",
-       "│ 999996 ┆ 54.818624              │\n",
-       "│ 999997 ┆ 6.658399               │\n",
-       "│ 999998 ┆ 74.935553              │\n",
-       "│ 999999 ┆ 57.644219              │\n",
+       "│ 999995 ┆ 10.481044              │\n",
+       "│ 999996 ┆ 54.837017              │\n",
+       "│ 999997 ┆ 5.999391               │\n",
+       "│ 999998 ┆ 75.180534              │\n",
+       "│ 999999 ┆ 58.158694              │\n",
        "└────────┴────────────────────────┘"
       ]
      },
@@ -2186,13 +4298,13 @@
   {
    "cell_type": "code",
    "execution_count": null,
-   "id": "039d58f6",
+   "id": "69b5e458",
    "metadata": {
     "papermill": {
-     "duration": 0.029647,
-     "end_time": "2025-04-21T07:45:44.305142",
+     "duration": 0.075389,
+     "end_time": "2025-04-21T11:26:40.219399",
      "exception": false,
-     "start_time": "2025-04-21T07:45:44.275495",
+     "start_time": "2025-04-21T11:26:40.144010",
      "status": "completed"
     },
     "tags": []
@@ -2203,13 +4315,13 @@
   {
    "cell_type": "code",
    "execution_count": null,
-   "id": "75ecb4c8",
+   "id": "00f9d053",
    "metadata": {
     "papermill": {
-     "duration": 0.02869,
-     "end_time": "2025-04-21T07:45:44.363044",
+     "duration": 0.07499,
+     "end_time": "2025-04-21T11:26:40.369907",
      "exception": false,
-     "start_time": "2025-04-21T07:45:44.334354",
+     "start_time": "2025-04-21T11:26:40.294917",
      "status": "completed"
     },
     "tags": []
@@ -2258,14 +4370,14 @@
   },
   "papermill": {
    "default_parameters": {},
-   "duration": 1180.78312,
-   "end_time": "2025-04-21T07:45:47.076693",
+   "duration": 4761.329358,
+   "end_time": "2025-04-21T11:26:42.171132",
    "environment_variables": {},
    "exception": null,
    "input_path": "__notebook__.ipynb",
    "output_path": "__notebook__.ipynb",
    "parameters": {},
-   "start_time": "2025-04-21T07:26:06.293573",
+   "start_time": "2025-04-21T10:07:20.841774",
    "version": "2.6.0"
   }
  },
