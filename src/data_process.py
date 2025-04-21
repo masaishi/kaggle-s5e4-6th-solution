@@ -195,12 +195,8 @@ def get_combinations(df, columns_to_encode, pair_sizes):
 
     # Create target ratios with different step sizes for different ranges using np.arange
     target_ratios = []
-    target_ratios.extend(np.arange(0.01, 0.2, 0.05).tolist())
-    target_ratios.extend(np.arange(0.2, 0.9, 0.01).tolist())
-    target_ratios.extend(np.arange(0.9, 1.01, 0.05).tolist())
-
-    # # Round to avoid floating point precision issues
-    # target_ratios = [round(ratio, 2) for ratio in target_ratios]
+    target_ratios.extend(np.arange(0.01, 0.3, 0.05).tolist())
+    target_ratios.extend(np.arange(0.3, 1.01, 0.008).tolist())
 
     all_combinations = []
     for r in pair_sizes:
