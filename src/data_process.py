@@ -259,116 +259,36 @@ def cols_encode(df):
         "Length_per_Ads",
     ]
 
-    # pair_size = [3]
+    pair_size = [3]
 
-    # # Pure polars implementation for combinations
-    # for r in pair_size:
-    #     combinations_list = list(combinations(columns_to_encode, r))
-    #     batch_size = 20
+    # Pure polars implementation for combinations
+    for r in pair_size:
+        combinations_list = list(combinations(columns_to_encode, r))
+        batch_size = 20
 
-    #     print("\n pair_size:", r, "\n")
+        print("\n pair_size:", r, "\n")
 
-    #     for i in range(0, len(combinations_list), batch_size):
-    #         batch = combinations_list[i : i + batch_size]
+        for i in range(0, len(combinations_list), batch_size):
+            batch = combinations_list[i : i + batch_size]
 
-    #         for cols in tqdm(batch):
-    #             new_col_name = "colen_" + "_".join(cols)
-    #             concat_expr = pl.col(cols[0]).cast(pl.Utf8)
+            for cols in tqdm(batch):
+                new_col_name = "colen_" + "_".join(cols)
+                concat_expr = pl.col(cols[0]).cast(pl.Utf8)
 
-    #             for col_name in cols[1:]:
-    #                 concat_expr = concat_expr + "_" + pl.col(col_name).cast(pl.Utf8)
+                for col_name in cols[1:]:
+                    concat_expr = concat_expr + "_" + pl.col(col_name).cast(pl.Utf8)
 
-    #             df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))
+                df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))
 
-    #         gc.collect()
+            gc.collect()
 
-    #         mem_usage = sum(df.estimated_size() for col in df.columns) / (1024 * 1024)
-    #         print(f"Memory usage: {mem_usage:.2f} MB")
-    #         print(f"Total number of columns: {len(df.columns)}")
+            mem_usage = sum(df.estimated_size() for col in df.columns) / (1024 * 1024)
+            print(f"Memory usage: {mem_usage:.2f} MB")
+            print(f"Total number of columns: {len(df.columns)}")
 
-    #     print("=" * 20)
+        print("=" * 20)
 
     return df
-
-
-class FastPolarsTargetEncoder:
-    def __init__(self, smoothing=1.0):
-        self.smoothing = smoothing
-        self.target_mean = None
-        self.encoding_stats = {}
-        self.column_types = {}
-
-    def fit(self, df, feature_cols, target_col):
-        if not isinstance(target_col, pl.Series):
-            target_col = pl.Series(target_col)
-
-        self.target_mean = target_col.mean()
-
-        for col in feature_cols:
-            # Store original column type for later use
-            self.column_types[col] = df[col].dtype
-
-            # Extract feature values and target as lists to avoid expression issues
-            feature_values = df[col].to_list()
-            target_values = target_col.to_list()
-
-            # Create DataFrame with consistent types
-            temp_df = pl.DataFrame({"feature": feature_values, "target": target_values})
-
-            # Calculate statistics
-            stats_df = temp_df.group_by("feature").agg(pl.col("target").sum().alias("sum"), pl.col("target").count().alias("count"))
-
-            # Store the encoding stats with type information
-            self.encoding_stats[col] = stats_df
-
-        return self
-
-    def transform(self, df, feature_cols):
-        result_df = df.clone()
-
-        for col in feature_cols:
-            # Get original column type
-            orig_type = self.column_types.get(col, None)
-
-            # Extract feature values as a list to avoid type issues
-            feature_values = df[col].to_list()
-
-            # Create DataFrame with row indices
-            temp_df = pl.DataFrame({"feature": feature_values, "row_idx": list(range(len(df)))})
-
-            # Get encoding stats
-            stats_df = self.encoding_stats[col]
-
-            # Create a mapping dictionary for faster lookup
-            stats_dict = {}
-            for row in stats_df.iter_rows(named=True):
-                feature_val = row["feature"]
-                sum_val = row["sum"]
-                count_val = row["count"]
-                stats_dict[feature_val] = (sum_val, count_val)
-
-            # Calculate encoded values
-            encoded_values = []
-            for feature_val in feature_values:
-                if feature_val in stats_dict:
-                    sum_val, count_val = stats_dict[feature_val]
-
-                    if count_val <= 1:
-                        encoded_val = self.target_mean
-                    else:
-                        encoded_val = sum_val / count_val
-
-                    # Apply smoothing
-                    encoded_val = (encoded_val * count_val + self.smoothing * self.target_mean) / (count_val + self.smoothing)
-                else:
-                    encoded_val = self.target_mean
-
-                encoded_values.append(float(encoded_val))
-
-            # Add encoded values to result DataFrame
-            result_df = result_df.with_columns(pl.Series(name=f"{col}_encoded", values=encoded_values).cast(pl_f_type))
-
-        return result_df
 
 
 def get_dfs(cfg=cfg):
@@ -404,11 +324,6 @@ def get_dfs(cfg=cfg):
     X_train = pl.concat([X_train, df_pltpd], how="vertical")
     y_train = pl.concat([y_train, y_train_pltpd], how="vertical")
 
-    # Only use this line for debugging with a small sample
-    if hasattr(cfg, "debug") and cfg.debug:
-        X_train = X_train.sample(100)
-        y_train = y_train.sample(100)
-
     # Preprocess dataframes
     X_train = preprocess(X_train)
     X_valid = preprocess(X_valid, X_train)
@@ -427,12 +342,18 @@ def get_dfs(cfg=cfg):
     encoded_columns = X_train.columns[before_encode_len:]
     print("Length of train columns:", before_encode_len)
 
-    encoder = FastPolarsTargetEncoder(smoothing=1.0)
-    encoder.fit(X_train, encoded_columns, y_train)
+    from sklearn.preprocessing import TargetEncoder
 
-    # Transform the data using the encoder
-    X_train = encoder.transform(X_train, encoded_columns)
-    X_valid = encoder.transform(X_valid, encoded_columns)
+    encoder = TargetEncoder(random_state=cfg.random_state)
+    X_train_encoded = encoder.fit_transform(X_train[encoded_columns], y_train)
+    X_valid_encoded = encoder.transform(X_valid[encoded_columns])
+
+    encoded_train_df = pl.DataFrame({col: X_train_encoded[:, i] for i, col in enumerate(encoded_columns)})
+    encoded_valid_df = pl.DataFrame({col: X_valid_encoded[:, i] for i, col in enumerate(encoded_columns)})
+    X_train = X_train.drop(encoded_columns)
+    X_valid = X_valid.drop(encoded_columns)
+    X_train = X_train.hstack(encoded_train_df)
+    X_valid = X_valid.hstack(encoded_valid_df)
 
     return {
         "X_train": X_train,
