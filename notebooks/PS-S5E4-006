@@ -1,0 +1,2274 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "d674b5f1",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-04-21T07:26:12.329192Z",
+     "iopub.status.busy": "2025-04-21T07:26:12.328797Z",
+     "iopub.status.idle": "2025-04-21T07:26:22.058168Z",
+     "shell.execute_reply": "2025-04-21T07:26:22.057169Z"
+    },
+    "papermill": {
+     "duration": 9.736536,
+     "end_time": "2025-04-21T07:26:22.060200",
+     "exception": false,
+     "start_time": "2025-04-21T07:26:12.323664",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m13.5/13.5 MB\u001b[0m \u001b[31m81.7 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\r\n",
+      "\u001b[?25h\u001b[31mERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\r\n",
+      "category-encoders 2.7.0 requires scikit-learn<1.6.0,>=1.0.0, but you have scikit-learn 1.6.1 which is incompatible.\r\n",
+      "bigframes 1.36.0 requires rich<14,>=12.4.4, but you have rich 14.0.0 which is incompatible.\u001b[0m\u001b[31m\r\n",
+      "\u001b[0m"
+     ]
+    }
+   ],
+   "source": [
+    "!pip install -qq scikit-learn==1.6.1"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "3a1a40dc",
+   "metadata": {
+    "_cell_guid": "b1076dfc-b9ad-4769-8c92-a6c4dae69d19",
+    "_uuid": "8f2839f25d086af736a60e9eeb907d3b93b6e0e5",
+    "execution": {
+     "iopub.execute_input": "2025-04-21T07:26:22.069054Z",
+     "iopub.status.busy": "2025-04-21T07:26:22.068687Z",
+     "iopub.status.idle": "2025-04-21T07:26:22.077631Z",
+     "shell.execute_reply": "2025-04-21T07:26:22.076951Z"
+    },
+    "papermill": {
+     "duration": 0.014975,
+     "end_time": "2025-04-21T07:26:22.079122",
+     "exception": false,
+     "start_time": "2025-04-21T07:26:22.064147",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "from dataclasses import dataclass\n",
+    "from pathlib import Path\n",
+    "\n",
+    "\n",
+    "@dataclass\n",
+    "class CFG:\n",
+    "    train_path: Path = Path(\"/kaggle/input/playground-series-s5e4/train.csv\")\n",
+    "    test_path: Path = Path(\"/kaggle/input/playground-series-s5e4/test.csv\")\n",
+    "    sub_path: Path = Path(\"/kaggle/input/playground-series-s5e4/sample_submission.csv\")\n",
+    "    pltpd_path: Path = Path(\"/kaggle/input/podcast-listening-time-prediction-dataset/podcast_dataset.csv\")\n",
+    "    \n",
+    "    num_fold: int = 2\n",
+    "    dev_mode: bool = False\n",
+    "\n",
+    "    # Model parameters\n",
+    "    n_iter: int = 10000\n",
+    "    max_depth: int = -1\n",
+    "    num_leaves: int = 1024\n",
+    "    colsample_bytree: float = 0.7\n",
+    "    learning_rate: float = 0.04\n",
+    "\n",
+    "    objective: str = \"l2\"\n",
+    "    metric: str = \"rmse\"\n",
+    "    verbosity: int = -1\n",
+    "\n",
+    "    random_state: int = 42\n",
+    "    shuffle: bool = True\n",
+    "    encoded_columns_start: int = -91\n",
+    "    log_eval: int = 100\n",
+    "    early_stopping: int = 200\n",
+    "\n",
+    "    # debug = True\n",
+    "\n",
+    "\n",
+    "cfg = CFG()\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "af22fcc6",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-04-21T07:26:22.087690Z",
+     "iopub.status.busy": "2025-04-21T07:26:22.087380Z",
+     "iopub.status.idle": "2025-04-21T07:26:26.299851Z",
+     "shell.execute_reply": "2025-04-21T07:26:26.298827Z"
+    },
+    "papermill": {
+     "duration": 4.219144,
+     "end_time": "2025-04-21T07:26:26.301768",
+     "exception": false,
+     "start_time": "2025-04-21T07:26:22.082624",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "import gc\n",
+    "from itertools import combinations\n",
+    "\n",
+    "import numpy as np\n",
+    "import polars as pl\n",
+    "from sklearn.metrics import mean_squared_error\n",
+    "from sklearn.model_selection import train_test_split\n",
+    "from tqdm import tqdm\n",
+    "\n",
+    "def calc_rmse(y_true, y_pred):\n",
+    "    rmse = np.sqrt(mean_squared_error(y_true, y_pred))\n",
+    "    return rmse\n",
+    "\n",
+    "\n",
+    "re_dict = {}\n",
+    "re_dict[\"podc_dict\"] = {\n",
+    "    \"Mystery Matters\": 0,\n",
+    "    \"Joke Junction\": 1,\n",
+    "    \"Study Sessions\": 2,\n",
+    "    \"Digital Digest\": 3,\n",
+    "    \"Mind & Body\": 4,\n",
+    "    \"Fitness First\": 5,\n",
+    "    \"Criminal Minds\": 6,\n",
+    "    \"News Roundup\": 7,\n",
+    "    \"Daily Digest\": 8,\n",
+    "    \"Music Matters\": 9,\n",
+    "    \"Sports Central\": 10,\n",
+    "    \"Melody Mix\": 11,\n",
+    "    \"Game Day\": 12,\n",
+    "    \"Gadget Geek\": 13,\n",
+    "    \"Global News\": 14,\n",
+    "    \"Tech Talks\": 15,\n",
+    "    \"Sport Spot\": 16,\n",
+    "    \"Funny Folks\": 17,\n",
+    "    \"Sports Weekly\": 18,\n",
+    "    \"Business Briefs\": 19,\n",
+    "    \"Tech Trends\": 20,\n",
+    "    \"Innovators\": 21,\n",
+    "    \"Health Hour\": 22,\n",
+    "    \"Comedy Corner\": 23,\n",
+    "    \"Sound Waves\": 24,\n",
+    "    \"Brain Boost\": 25,\n",
+    "    \"Athlete's Arena\": 26,\n",
+    "    \"Wellness Wave\": 27,\n",
+    "    \"Style Guide\": 28,\n",
+    "    \"World Watch\": 29,\n",
+    "    \"Humor Hub\": 30,\n",
+    "    \"Money Matters\": 31,\n",
+    "    \"Healthy Living\": 32,\n",
+    "    \"Home & Living\": 33,\n",
+    "    \"Educational Nuggets\": 34,\n",
+    "    \"Market Masters\": 35,\n",
+    "    \"Learning Lab\": 36,\n",
+    "    \"Lifestyle Lounge\": 37,\n",
+    "    \"Crime Chronicles\": 38,\n",
+    "    \"Detective Diaries\": 39,\n",
+    "    \"Life Lessons\": 40,\n",
+    "    \"Current Affairs\": 41,\n",
+    "    \"Finance Focus\": 42,\n",
+    "    \"Laugh Line\": 43,\n",
+    "    \"True Crime Stories\": 44,\n",
+    "    \"Business Insights\": 45,\n",
+    "    \"Fashion Forward\": 46,\n",
+    "    \"Tune Time\": 47,\n",
+    "}\n",
+    "re_dict[\"genr_dict\"] = {\n",
+    "    \"True Crime\": 0,\n",
+    "    \"Comedy\": 1,\n",
+    "    \"Education\": 2,\n",
+    "    \"Technology\": 3,\n",
+    "    \"Health\": 4,\n",
+    "    \"News\": 5,\n",
+    "    \"Music\": 6,\n",
+    "    \"Sports\": 7,\n",
+    "    \"Business\": 8,\n",
+    "    \"Lifestyle\": 9,\n",
+    "}\n",
+    "re_dict[\"week_dict\"] = {\n",
+    "    \"Monday\": 0,\n",
+    "    \"Tuesday\": 1,\n",
+    "    \"Wednesday\": 2,\n",
+    "    \"Thursday\": 3,\n",
+    "    \"Friday\": 4,\n",
+    "    \"Saturday\": 5,\n",
+    "    \"Sunday\": 6,\n",
+    "}\n",
+    "re_dict[\"time_dict\"] = {\"Morning\": 10, \"Afternoon\": 14, \"Evening\": 17, \"Night\": 21}\n",
+    "re_dict[\"sent_dict\"] = {\"Negative\": 0, \"Neutral\": 1, \"Positive\": 2}\n",
+    "\n",
+    "\n",
+    "pl_i_type = pl.Int32\n",
+    "pl_f_type = pl.Float32\n",
+    "\n",
+    "\n",
+    "def cast_numeric_dtypes(df):\n",
+    "    float_cols = [col for col in df.columns if df.schema[col] == pl.Float64 or df.schema[col] == pl.Float32]\n",
+    "    int_cols = [col for col in df.columns if df.schema[col] == pl.Int64 or df.schema[col] == pl.Int32]\n",
+    "\n",
+    "    if float_cols:\n",
+    "        df = df.with_columns([pl.col(col).cast(pl_f_type) for col in float_cols])\n",
+    "    if int_cols:\n",
+    "        df = df.with_columns([pl.col(col).cast(pl_i_type) for col in int_cols])\n",
+    "\n",
+    "    return df\n",
+    "\n",
+    "\n",
+    "def preprocess(df, df_train=None):\n",
+    "    df = cast_numeric_dtypes(df)\n",
+    "    df = df.with_columns(pl.col(\"Episode_Title\").str.slice(8).cast(pl.Int32).alias(\"Episode_Num\")).drop(\"Episode_Title\")\n",
+    "\n",
+    "    # Convert categorical variables using mapping\n",
+    "    for col, mapping in [\n",
+    "        (\"Genre\", re_dict[\"genr_dict\"]),\n",
+    "        (\"Podcast_Name\", re_dict[\"podc_dict\"]),\n",
+    "        (\"Publication_Day\", re_dict[\"week_dict\"]),\n",
+    "        (\"Publication_Time\", re_dict[\"time_dict\"]),\n",
+    "        (\"Episode_Sentiment\", re_dict[\"sent_dict\"]),\n",
+    "    ]:\n",
+    "        df = df.with_columns(pl.col(col).replace(mapping).alias(col))\n",
+    "\n",
+    "    # Cap extreme values\n",
+    "    df = df.with_columns(\n",
+    "        pl.when(pl.col(\"Episode_Length_minutes\") > 121.0).then(121.0).otherwise(pl.col(\"Episode_Length_minutes\")).alias(\"Episode_Length_minutes\"),\n",
+    "        pl.when(pl.col(\"Number_of_Ads\") > 103.91).then(103.91).otherwise(pl.col(\"Number_of_Ads\")).alias(\"Number_of_Ads\"),\n",
+    "    )\n",
+    "\n",
+    "    # Create NaN indicator columns\n",
+    "    df = df.with_columns(\n",
+    "        pl.col(\"Episode_Length_minutes\").is_null().cast(pl.Utf8).cast(pl.Categorical).alias(\"Episode_Length_minutes_NaN\"),\n",
+    "        pl.col(\"Guest_Popularity_percentage\").is_null().cast(pl.Utf8).cast(pl.Categorical).alias(\"Guest_Popularity_percentage_NaN\"),\n",
+    "        pl.col(\"Number_of_Ads\").is_null().cast(pl.Utf8).cast(pl.Categorical).alias(\"Number_of_Ads_NaN\"),\n",
+    "    )\n",
+    "\n",
+    "    # Fill NA values with median\n",
+    "    if df_train is None:\n",
+    "        df_train = df.clone()\n",
+    "\n",
+    "    e_median = df_train.select(pl.col(\"Episode_Length_minutes\").median()).item()\n",
+    "    g_median = df_train.select(pl.col(\"Guest_Popularity_percentage\").median()).item()\n",
+    "    n_median = df_train.select(pl.col(\"Number_of_Ads\").median()).item()\n",
+    "\n",
+    "    df = df.with_columns(\n",
+    "        pl.col(\"Episode_Length_minutes\").fill_null(e_median),\n",
+    "        pl.col(\"Guest_Popularity_percentage\").fill_null(g_median),\n",
+    "        pl.col(\"Number_of_Ads\").fill_null(n_median),\n",
+    "    )\n",
+    "\n",
+    "    return df\n",
+    "\n",
+    "\n",
+    "def feature_eng(df, df_train):\n",
+    "    # Cyclical features for day and time\n",
+    "    df = df.with_columns(\n",
+    "        # Day features\n",
+    "        pl.col(\"Publication_Day\").cast(pl_f_type).mul(2 * np.pi / 7).sin().alias(\"Day_sin\"),\n",
+    "        pl.col(\"Publication_Day\").cast(pl_f_type).mul(2 * np.pi / 7).cos().alias(\"Day_cos\"),\n",
+    "        pl.col(\"Publication_Day\").cast(pl_f_type).mul(4 * np.pi / 7).sin().alias(\"Day_sin2\"),\n",
+    "        pl.col(\"Publication_Day\").cast(pl_f_type).mul(4 * np.pi / 7).cos().alias(\"Day_cos2\"),\n",
+    "        # Time features\n",
+    "        pl.col(\"Publication_Time\").cast(pl_f_type).mul(2 * np.pi / 4).sin().alias(\"Time_sin\"),\n",
+    "        pl.col(\"Publication_Time\").cast(pl_f_type).mul(2 * np.pi / 4).cos().alias(\"Time_cos\"),\n",
+    "        pl.col(\"Publication_Time\").cast(pl_f_type).mul(4 * np.pi / 24).sin().alias(\"Time_sin2\"),\n",
+    "        pl.col(\"Publication_Time\").cast(pl_f_type).mul(4 * np.pi / 24).cos().alias(\"Time_cos2\"),\n",
+    "        # Ratio features\n",
+    "        (pl.col(\"Episode_Length_minutes\") / (pl.col(\"Number_of_Ads\") + 1)).fill_null(0).alias(\"Length_per_Ads\"),\n",
+    "        (pl.col(\"Episode_Length_minutes\") / (pl.col(\"Host_Popularity_percentage\") + 1)).fill_null(0).alias(\"Length_per_Host\"),\n",
+    "        (pl.col(\"Episode_Length_minutes\") / (pl.col(\"Guest_Popularity_percentage\") + 1)).fill_null(0).alias(\"Length_per_Guest\"),\n",
+    "        # Episode length features\n",
+    "        pl.col(\"Episode_Length_minutes\").floor().alias(\"ELen_Int\"),\n",
+    "        (pl.col(\"Episode_Length_minutes\") - pl.col(\"Episode_Length_minutes\").floor()).alias(\"ELen_Dec\"),\n",
+    "        pl.col(\"Host_Popularity_percentage\").floor().alias(\"HPperc_Int\"),\n",
+    "        (pl.col(\"Host_Popularity_percentage\") - pl.col(\"Host_Popularity_percentage\").floor()).alias(\"HPperc_Dec\"),\n",
+    "        # Sentiment features\n",
+    "        (pl.col(\"Episode_Sentiment\") == \"2\").cast(pl.Int8).alias(\"Is_Positive_Sentiment\"),\n",
+    "        pl.when(pl.col(\"Episode_Sentiment\") == \"2\").then(0.75).otherwise(0.717).cast(pl_f_type).alias(\"Sentiment_Multiplier\"),\n",
+    "        # Squared features\n",
+    "        (pl.col(\"Episode_Length_minutes\") ** 2).alias(\"Episode_Length_squared\"),\n",
+    "        (pl.col(\"Episode_Length_minutes\") ** 3).alias(\"Episode_Length_squared2\"),\n",
+    "    )\n",
+    "\n",
+    "    # Add expected listening time based on sentiment\n",
+    "    df = df.with_columns((pl.col(\"Episode_Length_minutes\") * pl.col(\"Sentiment_Multiplier\")).alias(\"Expected_Listening_Time_Sentiment\"))\n",
+    "\n",
+    "    # Convert columns to categorical\n",
+    "    for col in [\"Podcast_Name\", \"Genre\", \"Publication_Day\", \"Publication_Time\", \"Episode_Sentiment\", \"Episode_Num\"]:\n",
+    "        df = df.with_columns(pl.col(col).cast(pl.Utf8).cast(pl.Categorical))\n",
+    "\n",
+    "    return df\n",
+    "\n",
+    "\n",
+    "def cols_encode(df):\n",
+    "    # Order of importance\n",
+    "    columns_to_encode = [\n",
+    "        \"Host_Popularity_percentage\",\n",
+    "        \"Guest_Popularity_percentage\",\n",
+    "        \"Episode_Length_minutes\",\n",
+    "        \"Episode_Num\",\n",
+    "        \"Podcast_Name\",\n",
+    "        \"Publication_Day\",\n",
+    "        \"Publication_Time\",\n",
+    "        # \"Episode_Sentiment\",\n",
+    "        \"Genre\",\n",
+    "        \"Number_of_Ads\",\n",
+    "        \"Episode_Length_minutes_NaN\",\n",
+    "        \"Guest_Popularity_percentage_NaN\",\n",
+    "        \"HPperc_Int\",\n",
+    "        \"HPperc_Dec\",\n",
+    "        \"ELen_Int\",\n",
+    "        \"ELen_Dec\",\n",
+    "        \"Length_per_Ads\",\n",
+    "    ]\n",
+    "\n",
+    "    pair_size = [2]\n",
+    "\n",
+    "    # Pure polars implementation for combinations\n",
+    "    for r in pair_size:\n",
+    "        combinations_list = list(combinations(columns_to_encode, r))\n",
+    "        batch_size = 20\n",
+    "\n",
+    "        print(\"\\n pair_size:\", r, \"\\n\")\n",
+    "\n",
+    "        for i in range(0, len(combinations_list), batch_size):\n",
+    "            batch = combinations_list[i : i + batch_size]\n",
+    "\n",
+    "            for cols in tqdm(batch):\n",
+    "                new_col_name = \"colen_\" + \"_\".join(cols)\n",
+    "                concat_expr = pl.col(cols[0]).cast(pl.Utf8)\n",
+    "\n",
+    "                for col_name in cols[1:]:\n",
+    "                    concat_expr = concat_expr + \"_\" + pl.col(col_name).cast(pl.Utf8)\n",
+    "\n",
+    "                df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+    "\n",
+    "            gc.collect()\n",
+    "\n",
+    "            mem_usage = sum(df.estimated_size() for col in df.columns) / (1024 * 1024)\n",
+    "            print(f\"Memory usage: {mem_usage:.2f} MB\")\n",
+    "            print(f\"Total number of columns: {len(df.columns)}\")\n",
+    "\n",
+    "        print(\"=\" * 20)\n",
+    "\n",
+    "    columns_to_encode = [\n",
+    "        \"Host_Popularity_percentage\",\n",
+    "        \"Guest_Popularity_percentage\",\n",
+    "        \"Episode_Length_minutes\",\n",
+    "        \"Episode_Num\",\n",
+    "        \"Podcast_Name\",\n",
+    "        \"Publication_Day\",\n",
+    "        \"Publication_Time\",\n",
+    "        \"Episode_Length_minutes_NaN\",\n",
+    "        \"Guest_Popularity_percentage_NaN\",\n",
+    "        \"HPperc_Int\",\n",
+    "        \"HPperc_Dec\",\n",
+    "        \"ELen_Int\",\n",
+    "        \"ELen_Dec\",\n",
+    "        \"Length_per_Ads\",\n",
+    "    ]\n",
+    "\n",
+    "    # pair_size = [3]\n",
+    "\n",
+    "    # # Pure polars implementation for combinations\n",
+    "    # for r in pair_size:\n",
+    "    #     combinations_list = list(combinations(columns_to_encode, r))\n",
+    "    #     batch_size = 20\n",
+    "\n",
+    "    #     print(\"\\n pair_size:\", r, \"\\n\")\n",
+    "\n",
+    "    #     for i in range(0, len(combinations_list), batch_size):\n",
+    "    #         batch = combinations_list[i : i + batch_size]\n",
+    "\n",
+    "    #         for cols in tqdm(batch):\n",
+    "    #             new_col_name = \"colen_\" + \"_\".join(cols)\n",
+    "    #             concat_expr = pl.col(cols[0]).cast(pl.Utf8)\n",
+    "\n",
+    "    #             for col_name in cols[1:]:\n",
+    "    #                 concat_expr = concat_expr + \"_\" + pl.col(col_name).cast(pl.Utf8)\n",
+    "\n",
+    "    #             df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+    "\n",
+    "    #         gc.collect()\n",
+    "\n",
+    "    #         mem_usage = sum(df.estimated_size() for col in df.columns) / (1024 * 1024)\n",
+    "    #         print(f\"Memory usage: {mem_usage:.2f} MB\")\n",
+    "    #         print(f\"Total number of columns: {len(df.columns)}\")\n",
+    "\n",
+    "    #     print(\"=\" * 20)\n",
+    "\n",
+    "    return df\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "953d8ec2",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-04-21T07:26:26.311727Z",
+     "iopub.status.busy": "2025-04-21T07:26:26.311205Z",
+     "iopub.status.idle": "2025-04-21T07:45:41.043775Z",
+     "shell.execute_reply": "2025-04-21T07:45:41.042869Z"
+    },
+    "papermill": {
+     "duration": 1154.739642,
+     "end_time": "2025-04-21T07:45:41.045383",
+     "exception": false,
+     "start_time": "2025-04-21T07:26:26.305741",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m If you're specifying your api key in code, ensure this code is not shared publicly.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Consider setting the WANDB_API_KEY environment variable, or running `wandb login` from the command line.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: Appending key for api.wandb.ai to your netrc file: /root/.netrc\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: Currently logged in as: \u001b[33mmasaishi\u001b[0m to \u001b[32mhttps://api.wandb.ai\u001b[0m. Use \u001b[1m`wandb login --relogin`\u001b[0m to force relogin\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: Using wandb-core as the SDK backend.  Please refer to https://wandb.me/wandb-core for more information.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: Tracking run with wandb version 0.19.6\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: Run data is saved locally in \u001b[35m\u001b[1m/kaggle/working/wandb/run-20250421_072635-zjhp1iaj\u001b[0m\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: Run \u001b[1m`wandb offline`\u001b[0m to turn off syncing.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: Syncing run \u001b[33mzesty-pine-342\u001b[0m\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: ⭐️ View project at \u001b[34m\u001b[4mhttps://wandb.ai/masaishi/playground-series-s5e4\u001b[0m\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: 🚀 View run at \u001b[34m\u001b[4mhttps://wandb.ai/masaishi/playground-series-s5e4/runs/zjhp1iaj\u001b[0m\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Training fold 1/2\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/tmp/ipykernel_13/2748906699.py:128: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(\n",
+      "/tmp/ipykernel_13/2748906699.py:186: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(pl.col(col).cast(pl.Utf8).cast(pl.Categorical))\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      " pair_size: 2 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_13/2748906699.py:232: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+      "100%|██████████| 20/20 [00:03<00:00,  5.45it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 6175.09 MB\n",
+      "Total number of columns: 53\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:03<00:00,  5.98it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 13105.61 MB\n",
+      "Total number of columns: 73\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 14.47it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 20075.46 MB\n",
+      "Total number of columns: 93\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 13.96it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 28484.18 MB\n",
+      "Total number of columns: 113\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 14.72it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 38186.56 MB\n",
+      "Total number of columns: 133\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:02<00:00,  9.52it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 50779.92 MB\n",
+      "Total number of columns: 153\n",
+      "====================\n",
+      "\n",
+      " pair_size: 2 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 11.45it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 5526.48 MB\n",
+      "Total number of columns: 53\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 11.12it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 11753.71 MB\n",
+      "Total number of columns: 73\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 18.29it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 17991.73 MB\n",
+      "Total number of columns: 93\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 17.80it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 25512.02 MB\n",
+      "Total number of columns: 113\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 17.34it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 34191.02 MB\n",
+      "Total number of columns: 133\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 12.98it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 45491.34 MB\n",
+      "Total number of columns: 153\n",
+      "====================\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:1408: DataConversionWarning: A column-vector y was passed when a 1d array was expected. Please change the shape of y to (n_samples, ), for example using ravel().\n",
+      "  y = column_or_1d(y, warn=True)\n",
+      "/usr/local/lib/python3.11/dist-packages/lightgbm/engine.py:204: UserWarning: Found `n_iter` in params. Will use it instead of argument\n",
+      "  _log_warning(f\"Found `{alias}` in params. Will use it instead of argument\")\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Training until validation scores don't improve for 200 rounds\n",
+      "[100]\tvalid_0's rmse: 12.4581\n",
+      "[200]\tvalid_0's rmse: 12.4348\n",
+      "[300]\tvalid_0's rmse: 12.4376\n",
+      "Early stopping, best iteration is:\n",
+      "[192]\tvalid_0's rmse: 12.4343\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/tmp/ipykernel_13/2748906699.py:128: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(\n",
+      "/tmp/ipykernel_13/2748906699.py:186: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(pl.col(col).cast(pl.Utf8).cast(pl.Categorical))\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      " pair_size: 2 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_13/2748906699.py:232: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+      "100%|██████████| 20/20 [00:01<00:00, 13.94it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 3782.40 MB\n",
+      "Total number of columns: 53\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 17.44it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 8120.40 MB\n",
+      "Total number of columns: 73\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 38.72it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 12401.66 MB\n",
+      "Total number of columns: 93\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 38.08it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 17545.88 MB\n",
+      "Total number of columns: 113\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 35.83it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 23491.40 MB\n",
+      "Total number of columns: 133\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 26.45it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 31324.61 MB\n",
+      "Total number of columns: 153\n",
+      "====================\n",
+      "Fold 1 validation score: 12.43428602112384\n",
+      "Training fold 2/2\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/tmp/ipykernel_13/2748906699.py:128: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(\n",
+      "/tmp/ipykernel_13/2748906699.py:186: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(pl.col(col).cast(pl.Utf8).cast(pl.Categorical))\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      " pair_size: 2 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_13/2748906699.py:232: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+      "100%|██████████| 20/20 [00:03<00:00,  5.73it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 6171.66 MB\n",
+      "Total number of columns: 53\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:03<00:00,  6.02it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 13099.59 MB\n",
+      "Total number of columns: 73\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 14.89it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 20067.87 MB\n",
+      "Total number of columns: 93\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 14.38it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 28475.55 MB\n",
+      "Total number of columns: 113\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 14.85it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 38176.67 MB\n",
+      "Total number of columns: 133\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:02<00:00,  9.76it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 50768.09 MB\n",
+      "Total number of columns: 153\n",
+      "====================\n",
+      "\n",
+      " pair_size: 2 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 11.14it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 5527.63 MB\n",
+      "Total number of columns: 53\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 11.53it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 11754.13 MB\n",
+      "Total number of columns: 73\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 19.34it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 17992.38 MB\n",
+      "Total number of columns: 93\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 18.31it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 25512.39 MB\n",
+      "Total number of columns: 113\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 17.63it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 34191.05 MB\n",
+      "Total number of columns: 133\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 13.66it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 45491.95 MB\n",
+      "Total number of columns: 153\n",
+      "====================\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/usr/local/lib/python3.11/dist-packages/sklearn/utils/validation.py:1408: DataConversionWarning: A column-vector y was passed when a 1d array was expected. Please change the shape of y to (n_samples, ), for example using ravel().\n",
+      "  y = column_or_1d(y, warn=True)\n",
+      "/usr/local/lib/python3.11/dist-packages/lightgbm/engine.py:204: UserWarning: Found `n_iter` in params. Will use it instead of argument\n",
+      "  _log_warning(f\"Found `{alias}` in params. Will use it instead of argument\")\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Training until validation scores don't improve for 200 rounds\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 0 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 0 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 0 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 50 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 50 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 50 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[100]\tvalid_0's rmse: 12.4229\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 100 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 100 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 100 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 150 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 150 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 150 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[200]\tvalid_0's rmse: 12.3983\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 200 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 200 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 200 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 250 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 250 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 250 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[300]\tvalid_0's rmse: 12.397\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 300 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 300 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 300 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 350 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 350 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \u001b[33mWARNING\u001b[0m Tried to log to step 350 that is less than the current step 351. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[400]\tvalid_0's rmse: 12.3976\n",
+      "[500]\tvalid_0's rmse: 12.4006\n",
+      "Early stopping, best iteration is:\n",
+      "[354]\tvalid_0's rmse: 12.3968\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/tmp/ipykernel_13/2748906699.py:128: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(\n",
+      "/tmp/ipykernel_13/2748906699.py:186: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(pl.col(col).cast(pl.Utf8).cast(pl.Categorical))\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      " pair_size: 2 \n",
+      "\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "  0%|          | 0/20 [00:00<?, ?it/s]/tmp/ipykernel_13/2748906699.py:232: CategoricalRemappingWarning: Local categoricals have different encodings, expensive re-encoding is done to perform this merge operation. Consider using a StringCache or an Enum type if the categories are known in advance\n",
+      "  df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))\n",
+      "100%|██████████| 20/20 [00:01<00:00, 17.61it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 3781.51 MB\n",
+      "Total number of columns: 53\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:01<00:00, 18.62it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 8118.04 MB\n",
+      "Total number of columns: 73\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 37.17it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 12398.67 MB\n",
+      "Total number of columns: 93\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 36.57it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 17542.25 MB\n",
+      "Total number of columns: 113\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 35.11it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 23487.15 MB\n",
+      "Total number of columns: 133\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 20/20 [00:00<00:00, 25.98it/s]\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Memory usage: 31319.76 MB\n",
+      "Total number of columns: 153\n",
+      "====================\n",
+      "Fold 2 validation score: 12.396803676306266\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\u001b[34m\u001b[1mwandb\u001b[0m:                                                                                \n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: Run history:\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: fold_1_val_score ▁\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: fold_2_val_score ▁\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m:     valid_0/rmse █▁▁▁▁▁▁▁▁▁▁▁\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: Run summary:\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: fold_1_val_score 12.43429\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: fold_2_val_score 12.3968\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m:     valid_0/rmse 12.40201\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: \n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: 🚀 View run \u001b[33mzesty-pine-342\u001b[0m at: \u001b[34m\u001b[4mhttps://wandb.ai/masaishi/playground-series-s5e4/runs/zjhp1iaj\u001b[0m\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: ⭐️ View project at: \u001b[34m\u001b[4mhttps://wandb.ai/masaishi/playground-series-s5e4\u001b[0m\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: Synced 5 W&B file(s), 40 media file(s), 80 artifact file(s) and 0 other file(s)\n",
+      "\u001b[34m\u001b[1mwandb\u001b[0m: Find logs at: \u001b[35m\u001b[1m./wandb/run-20250421_072635-zjhp1iaj/logs\u001b[0m\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "0"
+      ]
+     },
+     "execution_count": 4,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import gc\n",
+    "import numpy as np\n",
+    "import polars as pl\n",
+    "from sklearn.model_selection import KFold\n",
+    "from sklearn.preprocessing import TargetEncoder\n",
+    "import lightgbm as lgb\n",
+    "import wandb\n",
+    "from kaggle_secrets import UserSecretsClient\n",
+    "from dataclasses import asdict\n",
+    "\n",
+    "\n",
+    "# Custom wandb callback\n",
+    "class WandbCallback:\n",
+    "    def __init__(self, log_every=50, log_feature_importance=True):\n",
+    "        self.log_every = log_every\n",
+    "        self.iteration = 0\n",
+    "        self.log_feature_importance = log_feature_importance\n",
+    "\n",
+    "    def __call__(self, env):\n",
+    "        if self.iteration % self.log_every == 0:\n",
+    "            metrics = {}\n",
+    "            for dataset_name, eval_name, value, _ in env.evaluation_result_list:\n",
+    "                metric_name = f\"{dataset_name}/{eval_name}\"\n",
+    "                metrics[metric_name] = value\n",
+    "\n",
+    "            # Log feature importance if requested\n",
+    "            if self.log_feature_importance and hasattr(env, \"model\"):\n",
+    "                feature_names = env.model.feature_name()\n",
+    "                importance = env.model.feature_importance(importance_type=\"split\")\n",
+    "                feature_importance = {name: imp for name, imp in zip(feature_names, importance)}\n",
+    "\n",
+    "                # Log to wandb\n",
+    "                wandb.log(\n",
+    "                    {\n",
+    "                        \"feature_importance\": wandb.Table(\n",
+    "                            data=[[k, v] for k, v in sorted(feature_importance.items(), key=lambda x: x[1], reverse=True)],\n",
+    "                            columns=[\"feature\", \"importance\"],\n",
+    "                        )\n",
+    "                    },\n",
+    "                    step=self.iteration,\n",
+    "                )\n",
+    "\n",
+    "                # Log top 10 features\n",
+    "                wandb.log(\n",
+    "                    {\n",
+    "                        \"feature_importance_plot\": wandb.plot.bar(\n",
+    "                            wandb.Table(\n",
+    "                                data=[[k, v] for k, v in sorted(feature_importance.items(), key=lambda x: x[1], reverse=True)[:10]],\n",
+    "                                columns=[\"feature\", \"importance\"],\n",
+    "                            ),\n",
+    "                            \"feature\",\n",
+    "                            \"importance\",\n",
+    "                            title=\"Top Feature Importance\",\n",
+    "                        )\n",
+    "                    },\n",
+    "                    step=self.iteration,\n",
+    "                )\n",
+    "\n",
+    "            wandb.log(metrics, step=self.iteration)\n",
+    "\n",
+    "        self.iteration += 1\n",
+    "        return False\n",
+    "        \n",
+    "def get_dfs_with_kfold(cfg):\n",
+    "    # Read CSV files\n",
+    "    df_train = pl.read_csv(cfg.train_path)\n",
+    "    df_test = pl.read_csv(cfg.test_path)\n",
+    "    \n",
+    "    test_ids = df_test[\"id\"]\n",
+    "\n",
+    "    df_train = df_train.drop(\"id\")\n",
+    "    df_test = df_test.drop(\"id\")\n",
+    "    \n",
+    "    target_col = \"Listening_Time_minutes\"\n",
+    "    \n",
+    "    # Load and prepare podcast data\n",
+    "    df_pltpd = pl.read_csv(cfg.pltpd_path)\n",
+    "    df_pltpd = df_pltpd.filter(pl.col(\"Listening_Time_minutes\").is_not_null())\n",
+    "    y_pltpd = df_pltpd[\"Listening_Time_minutes\"]\n",
+    "    df_pltpd = df_pltpd.drop(\"Listening_Time_minutes\")\n",
+    "    df_pltpd = df_pltpd.with_columns(pl.col(\"Number_of_Ads\").cast(pl.Float64))\n",
+    "    \n",
+    "    # Create KFold\n",
+    "    kf = KFold(n_splits=cfg.num_fold, random_state=42, shuffle=True)\n",
+    "    \n",
+    "    # Get all row indices\n",
+    "    all_indices = np.arange(len(df_train))\n",
+    "    \n",
+    "    # Initialize predictions array for test data\n",
+    "    test_predictions = np.zeros(len(df_test))\n",
+    "    \n",
+    "    # Train models with cross-validation\n",
+    "    for fold, (idx_train, idx_valid) in enumerate(kf.split(all_indices)):\n",
+    "        print(f\"Training fold {fold+1}/{cfg.num_fold}\")\n",
+    "\n",
+    "        # Use direct indexing to select rows from the Polars DataFrame\n",
+    "        X_train = df_train.drop(target_col)[idx_train.tolist()]\n",
+    "        y_train = df_train.select(target_col)[idx_train.tolist()]\n",
+    "        X_valid = df_train.drop(target_col)[idx_valid.tolist()]\n",
+    "        y_valid = df_train.select(target_col)[idx_valid.tolist()]\n",
+    "        \n",
+    "        # Concatenate with podcast data\n",
+    "        X_train = pl.concat([X_train, df_pltpd], how=\"vertical\")\n",
+    "        y_train = pl.concat([y_train, pl.DataFrame({target_col: y_pltpd})], how=\"vertical\")\n",
+    "\n",
+    "        # Only use this line for debugging with a small sample\n",
+    "        if hasattr(cfg, 'debug') and cfg.debug:\n",
+    "            X_train = X_train.sample(100)\n",
+    "            y_train = y_train.sample(100)\n",
+    "\n",
+    "        # Preprocess\n",
+    "        X_train = preprocess(X_train)\n",
+    "        X_valid = preprocess(X_valid, X_train)\n",
+    "        \n",
+    "        # Feature engineering\n",
+    "        df_train_with_target = X_train.with_columns(y_train.select(pl.col(target_col)).rename({target_col: target_col}))\n",
+    "        X_train = feature_eng(X_train, df_train_with_target)\n",
+    "        X_valid = feature_eng(X_valid, df_train_with_target)\n",
+    "        \n",
+    "        # Encoding\n",
+    "        before_encode_len = len(X_train.columns)\n",
+    "        X_train = cols_encode(X_train)\n",
+    "        X_valid = cols_encode(X_valid)\n",
+    "        \n",
+    "        # Target encoding - we need to apply this with Polars\n",
+    "        encoded_columns = X_train.columns[before_encode_len:]\n",
+    "        \n",
+    "        # For target encoding, we'll use a custom function that works with polars\n",
+    "        X_train, X_valid, encoder = target_encode_polars(\n",
+    "            X_train, y_train, X_valid, \n",
+    "            columns=encoded_columns,\n",
+    "            random_state=cfg.random_state\n",
+    "        )\n",
+    "\n",
+    "        X_train = cast_numeric_dtypes(X_train)\n",
+    "        X_valid = cast_numeric_dtypes(X_valid)\n",
+    "        \n",
+    "        # Convert to numpy arrays for LightGBM\n",
+    "        X_train_arr = X_train.to_pandas()\n",
+    "        y_train_arr = y_train.to_pandas()\n",
+    "        X_valid_arr = X_valid.to_pandas()\n",
+    "        y_valid_arr = y_valid.to_pandas()\n",
+    "        \n",
+    "        # Train model\n",
+    "        model = lgb.LGBMRegressor(\n",
+    "            n_iter=cfg.n_iter,\n",
+    "            max_depth=cfg.max_depth,\n",
+    "            num_leaves=cfg.num_leaves,\n",
+    "            colsample_bytree=cfg.colsample_bytree,\n",
+    "            learning_rate=cfg.learning_rate,\n",
+    "            objective=cfg.objective,\n",
+    "            metric=cfg.metric,\n",
+    "            verbosity=cfg.verbosity,\n",
+    "            random_state=42,\n",
+    "        )\n",
+    "        \n",
+    "        model.fit(\n",
+    "            X_train_arr, y_train_arr,\n",
+    "            eval_set=[(X_valid_arr, y_valid_arr)],\n",
+    "            callbacks=[\n",
+    "                lgb.log_evaluation(cfg.log_eval),\n",
+    "                lgb.early_stopping(cfg.early_stopping),\n",
+    "                WandbCallback(log_every=50),\n",
+    "            ],\n",
+    "            feature_name=X_train.columns,\n",
+    "        )\n",
+    "        \n",
+    "        # Process test data\n",
+    "        X_test = preprocess(df_test, X_train)\n",
+    "        X_test = feature_eng(X_test, df_train_with_target)\n",
+    "        X_test = cols_encode(X_test)\n",
+    "        X_test = apply_target_encoding(X_test, encoder, encoded_columns)\n",
+    "        X_test = cast_numeric_dtypes(X_test)\n",
+    "        X_test_arr = X_test.to_pandas()\n",
+    "        \n",
+    "        # Add predictions\n",
+    "        fold_pred = model.predict(X_test_arr)\n",
+    "        test_predictions += fold_pred\n",
+    "        \n",
+    "        # Log fold performance\n",
+    "        val_score = model.best_score_[\"valid_0\"][cfg.metric]\n",
+    "        print(f\"Fold {fold+1} validation score: {val_score}\")\n",
+    "        wandb.log({f\"fold_{fold+1}_val_score\": val_score})\n",
+    "        \n",
+    "        # Cleanup\n",
+    "        gc.collect()\n",
+    "    \n",
+    "    return test_predictions\n",
+    "\n",
+    "\n",
+    "def target_encode_polars(X_train, y_train, X_valid, columns, random_state=42):\n",
+    "\n",
+    "    # Initialize the encoder\n",
+    "    encoder = TargetEncoder(random_state=random_state)\n",
+    "    \n",
+    "    # We'll need numpy arrays for the encoding\n",
+    "    X_train_numpy = X_train.select(columns).to_numpy()\n",
+    "    y_train_numpy = y_train.to_numpy()\n",
+    "    X_valid_numpy = X_valid.select(columns).to_numpy()\n",
+    "    \n",
+    "    # Fit and transform\n",
+    "    X_train_encoded = encoder.fit_transform(X_train_numpy, y_train_numpy)\n",
+    "    X_valid_encoded = encoder.transform(X_valid_numpy)\n",
+    "    \n",
+    "    # Create Polars DataFrames from the encoded results\n",
+    "    encoded_train_df = pl.DataFrame(\n",
+    "        {col: X_train_encoded[:, i] for i, col in enumerate(columns)}\n",
+    "    )\n",
+    "    encoded_valid_df = pl.DataFrame(\n",
+    "        {col: X_valid_encoded[:, i] for i, col in enumerate(columns)}\n",
+    "    )\n",
+    "    \n",
+    "    # Drop the original columns and add the encoded ones\n",
+    "    X_train = X_train.drop(columns)\n",
+    "    X_valid = X_valid.drop(columns)\n",
+    "    \n",
+    "    # Horizontal stack with encoded columns\n",
+    "    X_train = pl.concat([X_train, encoded_train_df], how=\"horizontal\")\n",
+    "    X_valid = pl.concat([X_valid, encoded_valid_df], how=\"horizontal\")\n",
+    "    \n",
+    "    return X_train, X_valid, encoder\n",
+    "\n",
+    "def apply_target_encoding(X_test, encoder, columns):\n",
+    "    X_test_numpy = X_test.select(columns).to_numpy()\n",
+    "    X_test_encoded = encoder.transform(X_test_numpy)\n",
+    "    \n",
+    "    encoded_test_df = pl.DataFrame(\n",
+    "        {col: X_test_encoded[:, i] for i, col in enumerate(columns)}\n",
+    "    )\n",
+    "    X_test = X_test.drop(columns)\n",
+    "    X_test = pl.concat([X_test, encoded_test_df], how=\"horizontal\")\n",
+    "    \n",
+    "    return X_test\n",
+    "    \n",
+    "\n",
+    "# Initialize wandb\n",
+    "user_secrets = UserSecretsClient()\n",
+    "WANDB_API_KEY = user_secrets.get_secret(\"wandb_api\")\n",
+    "wandb.login(key=WANDB_API_KEY)\n",
+    "wandb_run = wandb.init(project=\"playground-series-s5e4\", config=asdict(cfg))\n",
+    "\n",
+    "# Run the KFold training process\n",
+    "test_preds = get_dfs_with_kfold(cfg)\n",
+    "\n",
+    "# Log final results\n",
+    "wandb.log({\"final_predictions\": wandb.Histogram(test_preds)})\n",
+    "wandb.finish()\n",
+    "gc.collect()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "3e6d937b",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-04-21T07:45:41.103370Z",
+     "iopub.status.busy": "2025-04-21T07:45:41.102976Z",
+     "iopub.status.idle": "2025-04-21T07:45:41.224563Z",
+     "shell.execute_reply": "2025-04-21T07:45:41.223512Z"
+    },
+    "papermill": {
+     "duration": 0.152395,
+     "end_time": "2025-04-21T07:45:41.226492",
+     "exception": false,
+     "start_time": "2025-04-21T07:45:41.074097",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>id</th>\n",
+       "      <th>Listening_Time_minutes</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>750000</td>\n",
+       "      <td>54.593041</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>750001</td>\n",
+       "      <td>21.846049</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>750002</td>\n",
+       "      <td>48.651854</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>750003</td>\n",
+       "      <td>78.579022</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>750004</td>\n",
+       "      <td>51.499747</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>249995</th>\n",
+       "      <td>999995</td>\n",
+       "      <td>11.023805</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>249996</th>\n",
+       "      <td>999996</td>\n",
+       "      <td>54.818624</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>249997</th>\n",
+       "      <td>999997</td>\n",
+       "      <td>6.658399</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>249998</th>\n",
+       "      <td>999998</td>\n",
+       "      <td>74.935553</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>249999</th>\n",
+       "      <td>999999</td>\n",
+       "      <td>57.644219</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>250000 rows × 2 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "            id  Listening_Time_minutes\n",
+       "0       750000               54.593041\n",
+       "1       750001               21.846049\n",
+       "2       750002               48.651854\n",
+       "3       750003               78.579022\n",
+       "4       750004               51.499747\n",
+       "...        ...                     ...\n",
+       "249995  999995               11.023805\n",
+       "249996  999996               54.818624\n",
+       "249997  999997                6.658399\n",
+       "249998  999998               74.935553\n",
+       "249999  999999               57.644219\n",
+       "\n",
+       "[250000 rows x 2 columns]"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from IPython.display import display\n",
+    "import pandas as pd\n",
+    "\n",
+    "import warnings\n",
+    "warnings.filterwarnings('ignore')\n",
+    "warnings.simplefilter('ignore')\n",
+    "\n",
+    "df_subm = pd.read_csv(cfg.sub_path)\n",
+    "df_subm[\"Listening_Time_minutes\"] = test_preds / cfg.num_fold\n",
+    "df_subm"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "8099edb3",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-04-21T07:45:41.286210Z",
+     "iopub.status.busy": "2025-04-21T07:45:41.285819Z",
+     "iopub.status.idle": "2025-04-21T07:45:42.865679Z",
+     "shell.execute_reply": "2025-04-21T07:45:42.864559Z"
+    },
+    "papermill": {
+     "duration": 1.610291,
+     "end_time": "2025-04-21T07:45:42.867471",
+     "exception": false,
+     "start_time": "2025-04-21T07:45:41.257180",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df_train = pd.read_csv('/kaggle/input/playground-series-s5e4/train.csv')\n",
+    "df_test = pd.read_csv('/kaggle/input/playground-series-s5e4/test.csv')\n",
+    "\n",
+    "df_pltpd = pd.read_csv('/kaggle/input/podcast-listening-time-prediction-dataset/podcast_dataset.csv')\n",
+    "df_pltpd = df_pltpd.dropna(subset=[\"Listening_Time_minutes\"])\n",
+    "df_pltpd = df_pltpd.reset_index(drop=True)\n",
+    "df_pltpd.index = df_pltpd.index + 1000000\n",
+    "df_pltpd['id'] = df_pltpd.index\n",
+    "\n",
+    "df_train = pd.concat([df_train, df_pltpd], axis=0)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "77f3c2c4",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-04-21T07:45:42.936040Z",
+     "iopub.status.busy": "2025-04-21T07:45:42.935662Z",
+     "iopub.status.idle": "2025-04-21T07:45:42.984485Z",
+     "shell.execute_reply": "2025-04-21T07:45:42.983530Z"
+    },
+    "papermill": {
+     "duration": 0.079786,
+     "end_time": "2025-04-21T07:45:42.986326",
+     "exception": false,
+     "start_time": "2025-04-21T07:45:42.906540",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>id</th>\n",
+       "      <th>Podcast_Name</th>\n",
+       "      <th>Episode_Title</th>\n",
+       "      <th>Episode_Length_minutes</th>\n",
+       "      <th>Genre</th>\n",
+       "      <th>Host_Popularity_percentage</th>\n",
+       "      <th>Publication_Day</th>\n",
+       "      <th>Publication_Time</th>\n",
+       "      <th>Guest_Popularity_percentage</th>\n",
+       "      <th>Number_of_Ads</th>\n",
+       "      <th>Episode_Sentiment</th>\n",
+       "      <th>Listening_Time_minutes</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>37939</th>\n",
+       "      <td>787939</td>\n",
+       "      <td>Life Lessons</td>\n",
+       "      <td>Episode 94</td>\n",
+       "      <td>89.84</td>\n",
+       "      <td>Lifestyle</td>\n",
+       "      <td>60.79</td>\n",
+       "      <td>Sunday</td>\n",
+       "      <td>Afternoon</td>\n",
+       "      <td>62.13</td>\n",
+       "      <td>89.12</td>\n",
+       "      <td>Neutral</td>\n",
+       "      <td>88.49616</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "           id  Podcast_Name Episode_Title  Episode_Length_minutes      Genre  \\\n",
+       "37939  787939  Life Lessons    Episode 94                   89.84  Lifestyle   \n",
+       "\n",
+       "       Host_Popularity_percentage Publication_Day Publication_Time  \\\n",
+       "37939                       60.79          Sunday        Afternoon   \n",
+       "\n",
+       "       Guest_Popularity_percentage  Number_of_Ads Episode_Sentiment  \\\n",
+       "37939                        62.13          89.12           Neutral   \n",
+       "\n",
+       "       Listening_Time_minutes  \n",
+       "37939                88.49616  "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>id</th>\n",
+       "      <th>Listening_Time_minutes</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>37939</th>\n",
+       "      <td>787939</td>\n",
+       "      <td>56.745907</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "           id  Listening_Time_minutes\n",
+       "37939  787939               56.745907"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>id</th>\n",
+       "      <th>Listening_Time_minutes</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>37939</th>\n",
+       "      <td>787939</td>\n",
+       "      <td>88.49616</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "           id  Listening_Time_minutes\n",
+       "37939  787939                88.49616"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "df_test_with_id = df_test.copy()\n",
+    "\n",
+    "df_test_with_id.loc[df_test_with_id[\"Number_of_Ads\"] > 103.91, \"Number_of_Ads\"] = 0.0\n",
+    "df_over_ads = df_test_with_id[df_test_with_id[\"Number_of_Ads\"] > 3]\n",
+    "df_over_ads[\"Listening_Time_minutes\"] = df_over_ads[\"Number_of_Ads\"] * 0.993\n",
+    "display(df_over_ads)\n",
+    "\n",
+    "display(df_subm.loc[df_subm['id'].isin(df_over_ads['id'].values)])\n",
+    "df_subm.loc[df_subm['id'].isin(df_over_ads['id'].values), 'Listening_Time_minutes'] = df_over_ads['Listening_Time_minutes'].values\n",
+    "display(df_subm.loc[df_subm['id'].isin(df_over_ads['id'].values)])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "1b6d2d67",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-04-21T07:45:43.045580Z",
+     "iopub.status.busy": "2025-04-21T07:45:43.045214Z",
+     "iopub.status.idle": "2025-04-21T07:45:43.605143Z",
+     "shell.execute_reply": "2025-04-21T07:45:43.604256Z"
+    },
+    "papermill": {
+     "duration": 0.590851,
+     "end_time": "2025-04-21T07:45:43.606587",
+     "exception": false,
+     "start_time": "2025-04-21T07:45:43.015736",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>id</th>\n",
+       "      <th>Listening_Time_minutes</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>51</th>\n",
+       "      <td>750051</td>\n",
+       "      <td>18.470409</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>52</th>\n",
+       "      <td>750052</td>\n",
+       "      <td>53.885558</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>227</th>\n",
+       "      <td>750227</td>\n",
+       "      <td>63.817438</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>243</th>\n",
+       "      <td>750243</td>\n",
+       "      <td>39.447936</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>312</th>\n",
+       "      <td>750312</td>\n",
+       "      <td>49.488448</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>249802</th>\n",
+       "      <td>999802</td>\n",
+       "      <td>37.015107</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>249832</th>\n",
+       "      <td>999832</td>\n",
+       "      <td>86.043035</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>249841</th>\n",
+       "      <td>999841</td>\n",
+       "      <td>19.981496</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>249854</th>\n",
+       "      <td>999854</td>\n",
+       "      <td>80.335338</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>249876</th>\n",
+       "      <td>999876</td>\n",
+       "      <td>19.054094</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>9498 rows × 2 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "            id  Listening_Time_minutes\n",
+       "51      750051               18.470409\n",
+       "52      750052               53.885558\n",
+       "227     750227               63.817438\n",
+       "243     750243               39.447936\n",
+       "312     750312               49.488448\n",
+       "...        ...                     ...\n",
+       "249802  999802               37.015107\n",
+       "249832  999832               86.043035\n",
+       "249841  999841               19.981496\n",
+       "249854  999854               80.335338\n",
+       "249876  999876               19.054094\n",
+       "\n",
+       "[9498 rows x 2 columns]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>id</th>\n",
+       "      <th>Listening_Time_minutes</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>51</th>\n",
+       "      <td>750051</td>\n",
+       "      <td>18.060370</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>52</th>\n",
+       "      <td>750052</td>\n",
+       "      <td>65.789562</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>227</th>\n",
+       "      <td>750227</td>\n",
+       "      <td>58.393200</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>243</th>\n",
+       "      <td>750243</td>\n",
+       "      <td>23.830000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>312</th>\n",
+       "      <td>750312</td>\n",
+       "      <td>26.825190</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>249802</th>\n",
+       "      <td>999802</td>\n",
+       "      <td>45.055790</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>249832</th>\n",
+       "      <td>999832</td>\n",
+       "      <td>89.819210</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>249841</th>\n",
+       "      <td>999841</td>\n",
+       "      <td>17.234691</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>249854</th>\n",
+       "      <td>999854</td>\n",
+       "      <td>67.816132</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>249876</th>\n",
+       "      <td>999876</td>\n",
+       "      <td>19.197310</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>9498 rows × 2 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "            id  Listening_Time_minutes\n",
+       "51      750051               18.060370\n",
+       "52      750052               65.789562\n",
+       "227     750227               58.393200\n",
+       "243     750243               23.830000\n",
+       "312     750312               26.825190\n",
+       "...        ...                     ...\n",
+       "249802  999802               45.055790\n",
+       "249832  999832               89.819210\n",
+       "249841  999841               17.234691\n",
+       "249854  999854               67.816132\n",
+       "249876  999876               19.197310\n",
+       "\n",
+       "[9498 rows x 2 columns]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "cols_to_compare = ['Episode_Title', 'Host_Popularity_percentage', 'Guest_Popularity_percentage']\n",
+    "\n",
+    "df_test_with_id = df_test.copy()\n",
+    "df_test_with_id = df_test_with_id.dropna(subset=['Guest_Popularity_percentage'])\n",
+    "\n",
+    "leaked_rows = df_test_with_id.merge(\n",
+    "    df_train[cols_to_compare + ['Listening_Time_minutes']].drop_duplicates(),\n",
+    "    on=cols_to_compare,\n",
+    "    how='inner'\n",
+    ")\n",
+    "\n",
+    "mean_values = leaked_rows.groupby('id')['Listening_Time_minutes'].mean().reset_index()\n",
+    "\n",
+    "display(df_subm.loc[df_subm['id'].isin(mean_values['id'].values)])\n",
+    "df_subm.loc[df_subm['id'].isin(mean_values['id'].values), \"Listening_Time_minutes\"] = mean_values[\"Listening_Time_minutes\"].values\n",
+    "display(df_subm.loc[df_subm['id'].isin(mean_values['id'].values)])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "9b80a89c",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-04-21T07:45:43.668245Z",
+     "iopub.status.busy": "2025-04-21T07:45:43.667849Z",
+     "iopub.status.idle": "2025-04-21T07:45:44.242211Z",
+     "shell.execute_reply": "2025-04-21T07:45:44.241295Z"
+    },
+    "papermill": {
+     "duration": 0.607748,
+     "end_time": "2025-04-21T07:45:44.244266",
+     "exception": false,
+     "start_time": "2025-04-21T07:45:43.636518",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div><style>\n",
+       ".dataframe > thead > tr,\n",
+       ".dataframe > tbody > tr {\n",
+       "  text-align: right;\n",
+       "  white-space: pre-wrap;\n",
+       "}\n",
+       "</style>\n",
+       "<small>shape: (250_000, 2)</small><table border=\"1\" class=\"dataframe\"><thead><tr><th>id</th><th>Listening_Time_minutes</th></tr><tr><td>i64</td><td>f64</td></tr></thead><tbody><tr><td>750000</td><td>54.593041</td></tr><tr><td>750001</td><td>21.846049</td></tr><tr><td>750002</td><td>48.651854</td></tr><tr><td>750003</td><td>78.579022</td></tr><tr><td>750004</td><td>51.499747</td></tr><tr><td>&hellip;</td><td>&hellip;</td></tr><tr><td>999995</td><td>11.023805</td></tr><tr><td>999996</td><td>54.818624</td></tr><tr><td>999997</td><td>6.658399</td></tr><tr><td>999998</td><td>74.935553</td></tr><tr><td>999999</td><td>57.644219</td></tr></tbody></table></div>"
+      ],
+      "text/plain": [
+       "shape: (250_000, 2)\n",
+       "┌────────┬────────────────────────┐\n",
+       "│ id     ┆ Listening_Time_minutes │\n",
+       "│ ---    ┆ ---                    │\n",
+       "│ i64    ┆ f64                    │\n",
+       "╞════════╪════════════════════════╡\n",
+       "│ 750000 ┆ 54.593041              │\n",
+       "│ 750001 ┆ 21.846049              │\n",
+       "│ 750002 ┆ 48.651854              │\n",
+       "│ 750003 ┆ 78.579022              │\n",
+       "│ 750004 ┆ 51.499747              │\n",
+       "│ …      ┆ …                      │\n",
+       "│ 999995 ┆ 11.023805              │\n",
+       "│ 999996 ┆ 54.818624              │\n",
+       "│ 999997 ┆ 6.658399               │\n",
+       "│ 999998 ┆ 74.935553              │\n",
+       "│ 999999 ┆ 57.644219              │\n",
+       "└────────┴────────────────────────┘"
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_subm.to_csv('submission.csv', index=False)\n",
+    "pl.read_csv('submission.csv')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "039d58f6",
+   "metadata": {
+    "papermill": {
+     "duration": 0.029647,
+     "end_time": "2025-04-21T07:45:44.305142",
+     "exception": false,
+     "start_time": "2025-04-21T07:45:44.275495",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "75ecb4c8",
+   "metadata": {
+    "papermill": {
+     "duration": 0.02869,
+     "end_time": "2025-04-21T07:45:44.363044",
+     "exception": false,
+     "start_time": "2025-04-21T07:45:44.334354",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kaggle": {
+   "accelerator": "none",
+   "dataSources": [
+    {
+     "databundleVersionId": 11351736,
+     "sourceId": 91715,
+     "sourceType": "competition"
+    },
+    {
+     "datasetId": 5656615,
+     "sourceId": 9335009,
+     "sourceType": "datasetVersion"
+    }
+   ],
+   "dockerImageVersionId": 31012,
+   "isGpuEnabled": false,
+   "isInternetEnabled": true,
+   "language": "python",
+   "sourceType": "notebook"
+  },
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.11.11"
+  },
+  "papermill": {
+   "default_parameters": {},
+   "duration": 1180.78312,
+   "end_time": "2025-04-21T07:45:47.076693",
+   "environment_variables": {},
+   "exception": null,
+   "input_path": "__notebook__.ipynb",
+   "output_path": "__notebook__.ipynb",
+   "parameters": {},
+   "start_time": "2025-04-21T07:26:06.293573",
+   "version": "2.6.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
