@@ -213,11 +213,12 @@ class LOOTargetEncoder:
         if target is not None:
             if isinstance(target, str):
                 target_column = target
-                has_target = True
+                result_target = result[target_column]
             else:  # It's a Series
                 target_column = "_transform_target"
                 result = result.with_columns(pl.lit(target).alias(target_column))
-                has_target = True
+                result_target = target
+            has_target = True
         else:
             has_target = False
             target_column = None
@@ -231,39 +232,41 @@ class LOOTargetEncoder:
             cat_stats = self.category_stats[col]
 
             if has_target:
-                # Leave-one-out encoding when target is available
+                # Create a unique row identifier for proper leave-one-out computation
+                result = result.with_columns(pl.Series(name="_row_id", values=range(len(result))))
+
                 # Add category stats to result
                 result = result.join(cat_stats, on=col, how="left")
 
-                # Calculate LOO encoding
+                # Calculate LOO encoding - fixed to properly exclude the current row
                 smooth = float(self.smooth)
                 global_mean = self.global_mean
 
-                # Fixed expression for leave-one-out calculation
+                # Create properly adjusted sum and count for LOO
+                result = result.with_columns(
+                    [
+                        # Adjust sum by removing current row's target value
+                        (pl.col("sum") - pl.col(target_column)).alias("adjusted_sum"),
+                        # Adjust count by removing current row (always subtract 1)
+                        (pl.col("count") - 1).alias("adjusted_count"),
+                    ]
+                )
+
+                # Calculate LOO encoding
                 result = result.with_columns(
                     [
                         (
-                            # Numerator: Adjusted sum times adjusted count + smooth * global_mean
-                            (
-                                (pl.col("sum") - pl.col(target_column))
-                                * pl.when(pl.col("count") > 1).then(1.0 / (pl.col("count") - 1)).otherwise(0.0)
-                                * (pl.col("count") - 1)
-                                + smooth * global_mean
-                            )
-                            /
-                            # Denominator: Adjusted count + smooth
-                            pl.when(pl.col("count") > 1).then(pl.col("count") - 1 + smooth).otherwise(smooth)
+                            # For adjusted count > 0: Use adjusted mean with smoothing
+                            pl.when(pl.col("adjusted_count") > 0)
+                            .then((pl.col("adjusted_sum") + smooth * global_mean) / (pl.col("adjusted_count") + smooth))
+                            # For adjusted count = 0: Use global mean
+                            .otherwise(global_mean)
                         ).alias(f"{col}_encoded")
                     ]
                 )
 
-                # Handle edge case where count = 1 (single instance of category)
-                result = result.with_columns(
-                    [pl.when(pl.col("count") <= 1).then(pl.lit(global_mean)).otherwise(pl.col(f"{col}_encoded")).alias(f"{col}_encoded")]
-                )
-
                 # Drop temporary columns
-                result = result.drop(["sum", "count"])
+                result = result.drop(["sum", "count", "adjusted_sum", "adjusted_count", "_row_id"])
 
             else:
                 # Regular encoding when no target is available (for new data)
@@ -286,7 +289,7 @@ class LOOTargetEncoder:
                 result = result.drop("encoded_value")
 
         # Remove added target column if we added it
-        if has_target and isinstance(target, pl.Series):
+        if has_target and not isinstance(target, str):
             result = result.drop(target_column)
 
         return result
@@ -294,4 +297,4 @@ class LOOTargetEncoder:
     def fit_transform(self, df: pl.DataFrame, target: Union[str, pl.Series]) -> pl.DataFrame:
         """Fit the encoder and transform the input data."""
         self.fit(df, target)
-        return self.transform(df)
+        return self.transform(df, target)

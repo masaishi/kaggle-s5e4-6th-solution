@@ -301,7 +301,8 @@ def get_dfs(cfg=cfg):
         "ELen_Dec",
         "Length_per_Ads",
     ]
-    pair_size = [2, 3, 4]
+    # pair_size = [2, 3, 4]
+    pair_size = [2, 3]
     combinations_list = get_combinations(X_train, columns_to_encode, pair_size)
     print("Combinations list length:", len(combinations_list))
     print("Combinations list:", combinations_list)
@@ -312,21 +313,28 @@ def get_dfs(cfg=cfg):
     encoded_columns = X_train.columns[before_encode_len:]
     print("Length of train columns:", before_encode_len)
 
-    from sklearn.preprocessing import TargetEncoder
+    # from sklearn.preprocessing import TargetEncoder
 
-    encoder = TargetEncoder(random_state=cfg.random_state)
+    # encoder = TargetEncoder(random_state=cfg.random_state)
+    # X_train_encoded = encoder.fit_transform(X_train[encoded_columns], y_train)
+    # X_valid_encoded = encoder.transform(X_valid[encoded_columns])
+
+    # encoded_train_df = pl.DataFrame({col: X_train_encoded[:, i] for i, col in enumerate(encoded_columns)})
+    # encoded_valid_df = pl.DataFrame({col: X_valid_encoded[:, i] for i, col in enumerate(encoded_columns)})
+    # X_train = X_train.drop(encoded_columns)
+    # X_valid = X_valid.drop(encoded_columns)
+    # X_train = X_train.hstack(encoded_train_df)
+    # X_valid = X_valid.hstack(encoded_valid_df)
+
+    from encoders import LOOTargetEncoder
+
+    encoder = LOOTargetEncoder()
     X_train_encoded = encoder.fit_transform(X_train[encoded_columns], y_train)
     X_valid_encoded = encoder.transform(X_valid[encoded_columns])
-
-    encoded_train_df = pl.DataFrame({col: X_train_encoded[:, i] for i, col in enumerate(encoded_columns)})
-    encoded_valid_df = pl.DataFrame({col: X_valid_encoded[:, i] for i, col in enumerate(encoded_columns)})
     X_train = X_train.drop(encoded_columns)
     X_valid = X_valid.drop(encoded_columns)
-    X_train = X_train.hstack(encoded_train_df)
-    X_valid = X_valid.hstack(encoded_valid_df)
-
-    X_train = cast_numeric_dtypes(X_train)
-    X_valid = cast_numeric_dtypes(X_valid)
+    X_train = X_train.hstack(X_train_encoded)
+    X_valid = X_valid.hstack(X_valid_encoded)
 
     return {
         "X_train": X_train,
