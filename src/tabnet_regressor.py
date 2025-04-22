@@ -109,7 +109,6 @@ def train_tabnet_model():
         "mask_type": "entmax",
         "verbose": 1,
         "seed": 42,
-        "loss_fn": rmse_loss_fn,
     }
     model = TabNetRegressor(**tabnet_params)
 
