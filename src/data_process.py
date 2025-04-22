@@ -3,7 +3,6 @@ from itertools import combinations
 
 import numpy as np
 import polars as pl
-import polars.selectors as cs
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
@@ -152,67 +151,6 @@ def preprocess(df, df_train=None):
 
 
 def feature_eng(df, df_train):
-    numeric_cols = df.select(cs.numeric()).columns
-    stats = {
-        col: {
-            "mean": df_train.select(pl.col(col).mean()).item(),
-            "std": df_train.select(pl.col(col).std()).item(),
-            "min": df_train.select(pl.col(col).min()).item(),
-            "max": df_train.select(pl.col(col).max()).item(),
-            "median": df_train.select(pl.col(col).median()).item(),
-            "q1": df_train.select(pl.col(col).quantile(0.25)).item(),
-            "q3": df_train.select(pl.col(col).quantile(0.75)).item(),
-        }
-        for col in numeric_cols
-    }
-
-    transformations = []
-    for col in numeric_cols:
-        # Existing transformations
-        transformations.append(((pl.col(col) - stats[col]["mean"]) / stats[col]["std"]).alias(f"{col}_norm"))
-        transformations.append(pl.col(col).pow(2).alias(f"{col}_squared"))
-        transformations.append((pl.col(col) + 1).log().alias(f"{col}_log"))
-        transformations.append(pl.when(pl.col(col) >= 0).then(pl.col(col).sqrt()).otherwise(0).alias(f"{col}_sqrt"))
-        transformations.append(((pl.col(col) - stats[col]["min"]) / (stats[col]["max"] - stats[col]["min"])).alias(f"{col}_minmax"))
-
-        # New transformations
-        # Robust scaling using IQR
-        transformations.append(((pl.col(col) - stats[col]["median"]) / (stats[col]["q3"] - stats[col]["q1"])).alias(f"{col}_robust"))
-
-        # Binning features (quantile-based)
-        transformations.append(
-            pl.when(pl.col(col) <= stats[col]["q1"])
-            .then(0)
-            .when(pl.col(col) <= stats[col]["median"])
-            .then(1)
-            .when(pl.col(col) <= stats[col]["q3"])
-            .then(2)
-            .otherwise(3)
-            .alias(f"{col}_bin")
-        )
-
-        # Cubic transformation
-        transformations.append(pl.col(col).pow(3).alias(f"{col}_cubed"))
-
-        # Reciprocal (with safety check)
-        transformations.append(pl.when(pl.col(col).abs() > 1e-10).then(1 / pl.col(col)).otherwise(0).alias(f"{col}_recip"))
-
-        # Exponential
-        transformations.append(pl.col(col).exp().clip(0, 1e10).alias(f"{col}_exp"))
-
-        # Hyperbolic functions
-        transformations.append(pl.col(col).tanh().alias(f"{col}_tanh"))
-        transformations.append(pl.col(col).clip(-20, 20).sinh().alias(f"{col}_sinh"))
-
-        # Difference from mean and median
-        transformations.append((pl.col(col) - stats[col]["mean"]).alias(f"{col}_diff_mean"))
-        transformations.append((pl.col(col) - stats[col]["median"]).alias(f"{col}_diff_median"))
-
-        # Z-score capped (for outlier handling)
-        transformations.append(((pl.col(col) - stats[col]["mean"]) / stats[col]["std"]).clip(-3, 3).alias(f"{col}_norm_clipped"))
-
-    df = df.with_columns(transformations)
-
     # Cyclical features for day and time
     df = df.with_columns(
         # Day features
@@ -242,92 +180,8 @@ def feature_eng(df, df_train):
         (pl.col("Episode_Length_minutes") ** 3).alias("Episode_Length_squared2"),
     )
 
-    df = df.with_columns(
-        # Annual patterns (simulated with episode numbers)
-        (np.sin(2 * np.pi * pl.col("Episode_Num") / 52)).alias("Annual_Cycle_Sin"),
-        (np.cos(2 * np.pi * pl.col("Episode_Num") / 52)).alias("Annual_Cycle_Cos"),
-        (np.sin(2 * np.pi * pl.col("Episode_Num") / 13)).alias("Quarterly_Cycle_Sin"),
-        (np.cos(2 * np.pi * pl.col("Episode_Num") / 13)).alias("Quarterly_Cycle_Cos"),
-        (np.sin(2 * np.pi * pl.col("Episode_Num") / 100)).alias("Long_Term_Cycle_Sin"),
-        (np.cos(2 * np.pi * pl.col("Episode_Num") / 100)).alias("Long_Term_Cycle_Cos"),
-    )
-
     # Add expected listening time based on sentiment
-    df = df.with_columns(
-        (pl.col("Episode_Length_minutes") * pl.col("Sentiment_Multiplier")).alias("Expected_Listening_Time_Sentiment"),
-        ((pl.col("Episode_Length_minutes") + pl.col("Host_Popularity_percentage") + pl.col("Guest_Popularity_percentage")) / (3.0)).alias(
-            "Mean_Important_Features"
-        ),
-        (
-            pl.col("Episode_Length_minutes") * 0.5
-            + pl.col("Number_of_Ads") * 0.2
-            + pl.col("Host_Popularity_percentage") * 0.15
-            + pl.col("Guest_Popularity_percentage") * 0.15
-        ).alias("Episode_Complexity_Score"),
-    )
-
-    important_cols = [
-        "Episode_Length_minutes",
-        "Host_Popularity_percentage",
-        "Guest_Popularity_percentage",
-        "Number_of_Ads",
-        "ELen_Int",
-        "ELen_Dec",
-        "HPperc_Int",
-        "HPperc_Dec",
-    ]
-    interaction_transforms = []
-
-    for i, col1 in enumerate(important_cols):
-        for col2 in important_cols[i + 1 :]:
-            interaction_transforms.append((pl.col(col1) * pl.col(col2)).alias(f"{col1}_{col2}_mult"))
-            interaction_transforms.append((pl.col(col1) + pl.col(col2)).alias(f"{col1}_{col2}_sum"))
-            interaction_transforms.append((pl.col(col1) - pl.col(col2)).alias(f"{col1}_{col2}_diff"))
-            interaction_transforms.append(pl.when(pl.col(col2).abs() > 1e-10).then(pl.col(col1) / pl.col(col2)).otherwise(0).alias(f"{col1}_{col2}_div"))
-
-            interaction_transforms.append((0.7 * pl.col(col1) + 0.3 * pl.col(col2)).alias(f"{col1}_{col2}_wgt_avg1"))
-            interaction_transforms.append((0.3 * pl.col(col1) + 0.7 * pl.col(col2)).alias(f"{col1}_{col2}_wgt_avg2"))
-
-            interaction_transforms.append(
-                pl.when((pl.col(col1) >= 0) & (pl.col(col2) >= 0)).then((pl.col(col1) * pl.col(col2)).sqrt()).otherwise(0).alias(f"{col1}_{col2}_geo_mean")
-            )
-            interaction_transforms.append(
-                pl.when((pl.col(col1).abs() > 1e-10) & (pl.col(col2).abs() > 1e-10))
-                .then(2 / (1 / pl.col(col1) + 1 / pl.col(col2)))
-                .otherwise(0)
-                .alias(f"{col1}_{col2}_harm_mean")
-            )
-
-            interaction_transforms.append(pl.max_horizontal(pl.col(col1), pl.col(col2)).alias(f"{col1}_{col2}_max"))
-            interaction_transforms.append(pl.min_horizontal(pl.col(col1), pl.col(col2)).alias(f"{col1}_{col2}_min"))
-
-            interaction_transforms.append(
-                (pl.max_horizontal(pl.col(col1), pl.col(col2)) - pl.min_horizontal(pl.col(col1), pl.col(col2))).alias(f"{col1}_{col2}_range")
-            )
-            interaction_transforms.append((pl.col(col1) - pl.col(col2)).pow(2).alias(f"{col1}_{col2}_sq_diff"))
-
-            interaction_transforms.append(
-                pl.when(pl.max_horizontal(pl.col(col1).abs(), pl.col(col2).abs()) > 1e-10)
-                .then(((pl.col(col1) - pl.col(col2)).abs() / pl.max_horizontal(pl.col(col1).abs(), pl.col(col2).abs())))
-                .otherwise(0)
-                .alias(f"{col1}_{col2}_pct_diff")
-            )
-            interaction_transforms.append(
-                pl.when((pl.col(col1) > 0) & (pl.col(col2) > 0))
-                .then((pl.col(col1) + 1).log() * (pl.col(col2) + 1).log())
-                .otherwise(0)
-                .alias(f"{col1}_{col2}_log_prod")
-            )
-
-            interaction_transforms.append((pl.col(col1).pow(2) * pl.col(col2)).alias(f"{col1}_sq_{col2}"))
-            interaction_transforms.append((pl.col(col1) * pl.col(col2).pow(2)).alias(f"{col1}_{col2}_sq"))
-
-            interaction_transforms.append(
-                pl.when(pl.col(col2).pow(2).abs() > 1e-10).then(pl.col(col1).pow(2) / pl.col(col2).pow(2)).otherwise(0).alias(f"{col1}_sq_{col2}_sq_ratio")
-            )
-            interaction_transforms.append((pl.col(col1).tanh() * pl.col(col2).tanh()).alias(f"{col1}_{col2}_tanh_prod"))
-
-    df = df.with_columns(interaction_transforms)
+    df = df.with_columns((pl.col("Episode_Length_minutes") * pl.col("Sentiment_Multiplier")).alias("Expected_Listening_Time_Sentiment"))
 
     # Convert columns to categorical
     for col in ["Podcast_Name", "Genre", "Publication_Day", "Publication_Time", "Episode_Sentiment", "Episode_Num"]:
