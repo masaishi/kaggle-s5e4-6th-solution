@@ -196,7 +196,7 @@ def get_combinations(df, columns_to_encode, pair_sizes):
     target_ratios = []
     # target_ratios.extend(np.arange(0.01, 0.3, 0.05).tolist())
     # target_ratios.extend(np.arange(0.3, 1.01, 0.008).tolist())
-    target_ratios.extend(np.arange(0.0, 1.01, 0.05).tolist())
+    target_ratios.extend(np.arange(0.001, 0.999, 0.05).tolist())
 
     all_combinations = []
     for r in pair_sizes:
