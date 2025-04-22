@@ -31,14 +31,6 @@ class WandbCallback(Callback):
         return False
 
 
-def rmse_loss_fn(y_pred, y_true):
-    squared_error = (y_pred - y_true) ** 2
-    mean_squared_error = torch.mean(squared_error)
-    rmse = torch.sqrt(mean_squared_error)
-
-    return rmse
-
-
 def train_tabnet_model():
     # Load data
     dfs = get_dfs()

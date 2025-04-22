@@ -243,7 +243,18 @@ def feature_eng(df, df_train):
     )
 
     # Add expected listening time based on sentiment
-    df = df.with_columns((pl.col("Episode_Length_minutes") * pl.col("Sentiment_Multiplier")).alias("Expected_Listening_Time_Sentiment"))
+    df = df.with_columns(
+        (pl.col("Episode_Length_minutes") * pl.col("Sentiment_Multiplier")).alias("Expected_Listening_Time_Sentiment"),
+        ((pl.col("Episode_Length_minutes") + pl.col("Host_Popularity_percentage") + pl.col("Guest_Popularity_percentage")) / (3.0)).alias(
+            "Mean_Important_Features"
+        ),
+        (
+            pl.col("Episode_Length_minutes") * 0.5
+            + pl.col("Number_of_Ads") * 0.2
+            + pl.col("Host_Popularity_percentage") * 0.15
+            + pl.col("Guest_Popularity_percentage") * 0.15
+        ).alias("Episode_Complexity_Score"),
+    )
 
     # Convert columns to categorical
     for col in ["Podcast_Name", "Genre", "Publication_Day", "Publication_Time", "Episode_Sentiment", "Episode_Num"]:
