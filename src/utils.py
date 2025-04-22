@@ -32,27 +32,23 @@ def commit_results(val_score, wandb_run_name):
 
 
 def get_index_splits(df, cfg=cfg):
-    # Filter out rows with null Guest_Popularity_percentage
     df_with_guest = df.filter(~pl.col("Guest_Popularity_percentage").is_null())
     df_without_guest = df.filter(pl.col("Guest_Popularity_percentage").is_null())
 
-    # Group by relevant columns
     groups_with_guest = df_with_guest.group_by(
         ["Podcast_Name", "Episode_Title", "Host_Popularity_percentage", "Guest_Popularity_percentage", "Publication_Day"]
     )
-    unique_groups_with_guest = groups_with_guest.agg(pl.count()).drop("count")
+    unique_groups_with_guest = groups_with_guest
 
     groups_without_guest = df_without_guest.group_by(["Podcast_Name", "Episode_Title", "Host_Popularity_percentage", "Publication_Day"])
-    unique_groups_without_guest = groups_without_guest.agg(pl.count()).drop("count")
+    unique_groups_without_guest = groups_without_guest
     breakpoint()
 
     # Apply KFold on both group types
+    df = df.with_columns(pl.lit(-1).alias("fold"))
     kf = KFold(n_splits=cfg.num_fold, shuffle=True, random_state=42)
     with_guest_splits = list(kf.split(unique_groups_with_guest))
     without_guest_splits = list(kf.split(unique_groups_without_guest))
-
-    # Initialize fold column
-    df = df.with_columns(pl.lit(-1).alias("fold"))
 
     # Create a mapping dictionary for faster lookups
     fold_mapping_with_guest = {}
