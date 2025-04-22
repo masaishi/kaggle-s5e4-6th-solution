@@ -31,6 +31,14 @@ class WandbCallback(Callback):
         return False
 
 
+def rmse_loss_fn(y_pred, y_true):
+    squared_error = (y_pred - y_true) ** 2
+    mean_squared_error = torch.mean(squared_error)
+    rmse = torch.sqrt(mean_squared_error)
+
+    return rmse
+
+
 def train_tabnet_model():
     # Load data
     dfs = get_dfs()
@@ -71,23 +79,39 @@ def train_tabnet_model():
     wandb_run = wandb.init(project="playground-series-s5e4", config=config)
 
     # Set up model with proper categorical indices and dimensions
-
-    model = TabNetRegressor(
-        n_d=64,
-        n_a=64,
-        n_steps=5,
-        gamma=1.5,
-        cat_idxs=cat_cols_idx,
-        cat_dims=cat_dims,
-        optimizer_fn=torch.optim.AdamW,
-        optimizer_params={"lr": 2e-2},
-        scheduler_fn=torch.optim.lr_scheduler.StepLR,
-        scheduler_params={"step_size": 10, "gamma": 0.9},
-        mask_type="sparsemax",
-        lambda_sparse=1e-3,
-        seed=42,
-        verbose=1,
-    )
+    tabnet_params = {
+        # Architecture parameters
+        "n_d": 64,  # Width of the decision prediction layer (increased from default 8)
+        "n_a": 64,  # Width of the attention embedding for each step (increased from default 8)
+        "n_steps": 5,  # Number of steps in the architecture (increased from default 3)
+        "gamma": 1.5,  # Coefficient for feature reusage in the masks
+        # For categorical features from your feature engineering
+        "cat_idxs": cat_cols_idx,
+        "cat_dims": cat_dims,
+        "cat_emb_dim": 3,  # Embedding dimension for categorical features (increased slightly)
+        # Feature selection parameters
+        "n_independent": 2,  # Number of independent Gated Linear Units layers
+        "n_shared": 3,  # Number of shared Gated Linear Units (increased from default)
+        # Regularization parameters
+        "lambda_sparse": 0.005,  # Sparsity regularization (increased slightly)
+        "momentum": 0.3,  # Ghost Batch Norm momentum (increased)
+        "clip_value": 2,  # Gradient clipping value (increased)
+        # Training parameters
+        "optimizer_fn": torch.optim.AdamW,
+        "optimizer_params": {
+            "lr": 0.01,
+            "weight_decay": 1e-5,
+        },
+        # Learning rate scheduler
+        "scheduler_fn": torch.optim.lr_scheduler.ReduceLROnPlateau,
+        "scheduler_params": {"mode": "min", "factor": 0.5, "patience": 10, "verbose": True},
+        # Other parameters
+        "mask_type": "entmax",
+        "verbose": 1,
+        "seed": 42,
+        "loss_fn": rmse_loss_fn,
+    }
+    model = TabNetRegressor(**tabnet_params)
 
     # Train the model with our proper callback class
     model.fit(
