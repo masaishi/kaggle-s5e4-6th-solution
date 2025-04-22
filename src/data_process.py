@@ -193,7 +193,6 @@ def feature_eng(df, df_train):
 def get_combinations(df, columns_to_encode, pair_sizes):
     df_length = len(df)
 
-    # Create target ratios with different step sizes for different ranges using np.arange
     target_ratios = []
     # target_ratios.extend(np.arange(0.01, 0.3, 0.05).tolist())
     # target_ratios.extend(np.arange(0.3, 1.01, 0.008).tolist())
