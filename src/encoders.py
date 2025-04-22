@@ -213,11 +213,9 @@ class LOOTargetEncoder:
         if target is not None:
             if isinstance(target, str):
                 target_column = target
-                result_target = result[target_column]
             else:  # It's a Series
                 target_column = "_transform_target"
                 result = result.with_columns(pl.lit(target).alias(target_column))
-                result_target = target
             has_target = True
         else:
             has_target = False
@@ -298,3 +296,98 @@ class LOOTargetEncoder:
         """Fit the encoder and transform the input data."""
         self.fit(df, target)
         return self.transform(df, target)
+
+
+class HoldoutTargetEncoder:
+    """Holdout Target Encoder for Polars DataFrames.
+
+    Encodes categorical features based on target mean values calculated from a separate
+    holdout dataset to prevent data leakage.
+    """
+
+    def __init__(
+        self,
+        cat_columns: Optional[List[str]] = None,
+        smooth: Union[float, str] = 10.0,
+    ):
+        """
+        Parameters
+        ----------
+        cat_columns : list of str or None, default=None
+            List of categorical column names to encode. If None, all string and categorical
+            columns will be encoded.
+
+        smooth : float, default=10.0
+            Smoothing parameter that controls blending between the category mean and the global mean.
+            Higher values put more weight on the global mean.
+        """
+        self.cat_columns = cat_columns
+        self.smooth = smooth
+        self.encodings = {}
+        self.global_mean = None
+
+    def fit(self, holdout_df: pl.DataFrame, target_column: str) -> "HoldoutTargetEncoder":
+        """Fit the encoder on the holdout data."""
+        # Store global target mean
+        self.global_mean = holdout_df[target_column].mean()
+
+        # Identify categorical columns if not specified
+        if self.cat_columns is None:
+            self.cat_columns = [
+                col
+                for col in holdout_df.columns
+                if col != target_column
+                and (holdout_df[col].dtype == pl.Categorical or holdout_df[col].dtype == pl.String or holdout_df[col].dtype == pl.Object)
+            ]
+
+        # Calculate encoding for each categorical column using the holdout set
+        for col in self.cat_columns:
+            # Calculate means and counts per category
+            encoding_stats = holdout_df.group_by(col).agg([pl.mean(target_column).alias("category_mean"), pl.count(target_column).alias("category_count")])
+
+            # Get smoothing value
+            smooth_value = 10.0 if self.smooth == "auto" else float(self.smooth)
+
+            # Calculate smoothed encoding
+            encoding_stats = encoding_stats.with_columns(
+                [
+                    ((pl.col("category_count") * pl.col("category_mean") + smooth_value * self.global_mean) / (pl.col("category_count") + smooth_value)).alias(
+                        "encoded_value"
+                    )
+                ]
+            )
+
+            # Store encoding mapping
+            self.encodings[col] = encoding_stats.select([col, "encoded_value"]).to_dict(as_series=False)
+
+        return self
+
+    def transform(self, df: pl.DataFrame) -> pl.DataFrame:
+        """Transform categories using encodings learned from the holdout data."""
+        result = df.clone()
+
+        for col in self.cat_columns:
+            if col not in df.columns:
+                continue
+
+            # Get encoding dictionary for this column
+            encoding_dict = self.encodings[col]
+
+            # Create lookup dataframe
+            lookup_df = pl.DataFrame({col: list(encoding_dict[col]), "encoded_value": list(encoding_dict["encoded_value"])})
+
+            # Join with lookup to apply encoding
+            result = result.join(lookup_df, on=col, how="left")
+
+            # Fill missing values with global mean
+            result = result.with_columns([pl.col("encoded_value").fill_null(self.global_mean).alias(f"{col}_encoded")])
+
+            # Drop temporary column
+            result = result.drop("encoded_value")
+
+        return result
+
+    def fit_transform(self, holdout_df: pl.DataFrame, target_column: str, df: pl.DataFrame) -> pl.DataFrame:
+        """Fit encoder on holdout data and transform the input data."""
+        self.fit(holdout_df, target_column)
+        return self.transform(df)
