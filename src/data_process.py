@@ -196,8 +196,9 @@ def get_combinations(df, columns_to_encode, pair_sizes):
 
     # Create target ratios with different step sizes for different ranges using np.arange
     target_ratios = []
-    target_ratios.extend(np.arange(0.01, 0.3, 0.05).tolist())
-    target_ratios.extend(np.arange(0.3, 1.01, 0.008).tolist())
+    # target_ratios.extend(np.arange(0.01, 0.3, 0.05).tolist())
+    # target_ratios.extend(np.arange(0.3, 1.01, 0.008).tolist())
+    target_ratios.extend(np.arange(0.0, 1.01, 0.05).tolist())
 
     all_combinations = []
     for r in pair_sizes:
@@ -313,16 +314,29 @@ def get_dfs(cfg=cfg):
     encoded_columns = X_train.columns[before_encode_len:]
     print("Length of train columns:", before_encode_len)
 
+    # from sklearn.preprocessing import TargetEncoder
+
+    # encoder = TargetEncoder(random_state=cfg.random_state)
+    # X_train_encoded = encoder.fit_transform(X_train[encoded_columns], y_train)
+    # X_valid_encoded = encoder.transform(X_valid[encoded_columns])
+
+    # encoded_train_df = pl.DataFrame({col: X_train_encoded[:, i] for i, col in enumerate(encoded_columns)})
+    # encoded_valid_df = pl.DataFrame({col: X_valid_encoded[:, i] for i, col in enumerate(encoded_columns)})
+    # X_train = X_train.drop(encoded_columns)
+    # X_valid = X_valid.drop(encoded_columns)
+    # X_train = X_train.hstack(encoded_train_df)
+    # X_valid = X_valid.hstack(encoded_valid_df)
+
     encoder = LOOTargetEncoder()
     X_train_encoded = encoder.fit_transform(X_train[encoded_columns], y_train)
     X_valid_encoded = encoder.transform(X_valid[encoded_columns])
-
-    encoded_train_df = pl.DataFrame({col: X_train_encoded[:, i] for i, col in enumerate(encoded_columns)})
-    encoded_valid_df = pl.DataFrame({col: X_valid_encoded[:, i] for i, col in enumerate(encoded_columns)})
     X_train = X_train.drop(encoded_columns)
     X_valid = X_valid.drop(encoded_columns)
-    X_train = X_train.hstack(encoded_train_df)
-    X_valid = X_valid.hstack(encoded_valid_df)
+    X_train = X_train.hstack(X_train_encoded)
+    X_valid = X_valid.hstack(X_valid_encoded)
+
+    X_train = cast_numeric_dtypes(X_train)
+    X_valid = cast_numeric_dtypes(X_valid)
 
     return {
         "X_train": X_train,

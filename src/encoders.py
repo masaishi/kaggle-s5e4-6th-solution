@@ -294,4 +294,4 @@ class LOOTargetEncoder:
     def fit_transform(self, df: pl.DataFrame, target: Union[str, pl.Series]) -> pl.DataFrame:
         """Fit the encoder and transform the input data."""
         self.fit(df, target)
-        return self.transform(df, target)
+        return self.transform(df)
