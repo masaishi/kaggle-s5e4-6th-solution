@@ -3,7 +3,6 @@ from itertools import combinations
 
 import numpy as np
 import polars as pl
-import polars.selectors as cs
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
@@ -152,67 +151,6 @@ def preprocess(df, df_train=None):
 
 
 def feature_eng(df, df_train):
-    numeric_cols = df.select(cs.numeric()).columns
-    stats = {
-        col: {
-            "mean": df_train.select(pl.col(col).mean()).item(),
-            "std": df_train.select(pl.col(col).std()).item(),
-            "min": df_train.select(pl.col(col).min()).item(),
-            "max": df_train.select(pl.col(col).max()).item(),
-            "median": df_train.select(pl.col(col).median()).item(),
-            "q1": df_train.select(pl.col(col).quantile(0.25)).item(),
-            "q3": df_train.select(pl.col(col).quantile(0.75)).item(),
-        }
-        for col in numeric_cols
-    }
-
-    transformations = []
-    for col in numeric_cols:
-        # Existing transformations
-        transformations.append(((pl.col(col) - stats[col]["mean"]) / stats[col]["std"]).alias(f"{col}_norm"))
-        transformations.append(pl.col(col).pow(2).alias(f"{col}_squared"))
-        transformations.append((pl.col(col) + 1).log().alias(f"{col}_log"))
-        transformations.append(pl.when(pl.col(col) >= 0).then(pl.col(col).sqrt()).otherwise(0).alias(f"{col}_sqrt"))
-        transformations.append(((pl.col(col) - stats[col]["min"]) / (stats[col]["max"] - stats[col]["min"])).alias(f"{col}_minmax"))
-
-        # New transformations
-        # Robust scaling using IQR
-        transformations.append(((pl.col(col) - stats[col]["median"]) / (stats[col]["q3"] - stats[col]["q1"])).alias(f"{col}_robust"))
-
-        # Binning features (quantile-based)
-        transformations.append(
-            pl.when(pl.col(col) <= stats[col]["q1"])
-            .then(0)
-            .when(pl.col(col) <= stats[col]["median"])
-            .then(1)
-            .when(pl.col(col) <= stats[col]["q3"])
-            .then(2)
-            .otherwise(3)
-            .alias(f"{col}_bin")
-        )
-
-        # Cubic transformation
-        transformations.append(pl.col(col).pow(3).alias(f"{col}_cubed"))
-
-        # Reciprocal (with safety check)
-        transformations.append(pl.when(pl.col(col).abs() > 1e-10).then(1 / pl.col(col)).otherwise(0).alias(f"{col}_recip"))
-
-        # Exponential
-        transformations.append(pl.col(col).exp().clip(0, 1e10).alias(f"{col}_exp"))
-
-        # Hyperbolic functions
-        transformations.append(pl.col(col).tanh().alias(f"{col}_tanh"))
-        transformations.append(pl.col(col).clip(-20, 20).sinh().alias(f"{col}_sinh"))
-
-        # Difference from mean and median
-        transformations.append((pl.col(col) - stats[col]["mean"]).alias(f"{col}_diff_mean"))
-        transformations.append((pl.col(col) - stats[col]["median"]).alias(f"{col}_diff_median"))
-
-        # Z-score capped (for outlier handling)
-        transformations.append(((pl.col(col) - stats[col]["mean"]) / stats[col]["std"]).clip(-3, 3).alias(f"{col}_norm_clipped"))
-
-    df = df.with_columns(transformations)
-
     # Cyclical features for day and time
     df = df.with_columns(
         # Day features
