@@ -236,6 +236,53 @@ def cols_encode(df, combinations_list):
     return df
 
 
+def encode_target(X_train, X_valid, encode_columns, target, random_state=42):
+    """
+    Encode columns using TargetEncoder
+
+    Args:
+        X_train: Training dataframe
+        X_valid: Validation dataframe
+        encode_columns: List of column names to encode
+        target: Target values as a polars Series
+        random_state: Random state for reproducibility
+
+    Returns:
+        X_train, X_valid with encoded columns added
+    """
+    from sklearn.preprocessing import TargetEncoder
+
+    # Convert target to numpy if it's a polars Series
+    if isinstance(target, pl.Series):
+        target_values = target.to_numpy()
+    else:
+        target_values = target
+
+    # Create encoder
+    encoder = TargetEncoder(random_state=random_state)
+
+    # Ensure encode_columns is a list
+    if isinstance(encode_columns, str):
+        encode_columns = [encode_columns]
+
+    for col in encode_columns:
+        # Extract column to encode
+        X_train_col = X_train[col].to_numpy().reshape(-1, 1)
+        X_valid_col = X_valid[col].to_numpy().reshape(-1, 1)
+
+        # Fit and transform
+        encoded_train = encoder.fit_transform(X_train_col, target_values)
+        encoded_valid = encoder.transform(X_valid_col)
+
+        # Add encoded column back to dataframes
+        encoded_col_name = f"{col}_{target.name}_encoded"
+
+        X_train = X_train.with_columns(pl.Series(encoded_col_name, encoded_train.flatten()))
+        X_valid = X_valid.with_columns(pl.Series(encoded_col_name, encoded_valid.flatten()))
+
+    return X_train, X_valid
+
+
 def get_dfs(cfg=cfg):
     # Read CSV files using polars
     df_train = pl.read_csv(cfg.train_path)
@@ -313,18 +360,13 @@ def get_dfs(cfg=cfg):
     encoded_columns = X_train.columns[before_encode_len:]
     print("Length of train columns:", before_encode_len)
 
-    from sklearn.preprocessing import TargetEncoder
+    X_train, X_valid = encode_target(X_train, X_valid, encoded_columns, y_train)
 
-    encoder = TargetEncoder(random_state=cfg.random_state)
-    X_train_encoded = encoder.fit_transform(X_train[encoded_columns], y_train)
-    X_valid_encoded = encoder.transform(X_valid[encoded_columns])
+    encoded_columns = [col for col in encoded_columns if col != "Episode_Length_minutes"]
+    X_train, X_valid = encode_target(X_train, X_valid, encoded_columns, X_train["Episode_Length_minutes"])
 
-    encoded_train_df = pl.DataFrame({col: X_train_encoded[:, i] for i, col in enumerate(encoded_columns)})
-    encoded_valid_df = pl.DataFrame({col: X_valid_encoded[:, i] for i, col in enumerate(encoded_columns)})
     X_train = X_train.drop(encoded_columns)
     X_valid = X_valid.drop(encoded_columns)
-    X_train = X_train.hstack(encoded_train_df)
-    X_valid = X_valid.hstack(encoded_valid_df)
 
     return {
         "X_train": X_train,
