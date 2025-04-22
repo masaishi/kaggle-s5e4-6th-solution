@@ -265,68 +265,67 @@ def feature_eng(df, df_train):
         ).alias("Episode_Complexity_Score"),
     )
 
-    important_cols = [
-        "Episode_Length_minutes",
-        "Host_Popularity_percentage",
-        "Guest_Popularity_percentage",
-        "Number_of_Ads",
-        "ELen_Int",
-        "ELen_Dec",
-        "HPperc_Int",
-        "HPperc_Dec",
-    ]
-    interaction_transforms = []
+    # important_cols = [
+    #     "Episode_Length_minutes",
+    #     "Host_Popularity_percentage",
+    #     "Guest_Popularity_percentage",
+    #     "Number_of_Ads",
+    #     "ELen_Int",
+    #     "ELen_Dec",
+    #     "HPperc_Int",
+    #     "HPperc_Dec",
+    # ]
+    # interaction_transforms = []
 
-    for i, col1 in enumerate(important_cols):
-        for col2 in important_cols[i + 1 :]:
-            interaction_transforms.append((pl.col(col1) * pl.col(col2)).alias(f"{col1}_{col2}_mult"))
-            interaction_transforms.append((pl.col(col1) + pl.col(col2)).alias(f"{col1}_{col2}_sum"))
-            interaction_transforms.append((pl.col(col1) - pl.col(col2)).alias(f"{col1}_{col2}_diff"))
-            interaction_transforms.append(pl.when(pl.col(col2).abs() > 1e-10).then(pl.col(col1) / pl.col(col2)).otherwise(0).alias(f"{col1}_{col2}_div"))
+    # for i, col1 in enumerate(important_cols):
+    #     for col2 in important_cols[i + 1 :]:
+    #         interaction_transforms.append((pl.col(col1) * pl.col(col2)).alias(f"{col1}_{col2}_mult"))
+    #         interaction_transforms.append((pl.col(col1) + pl.col(col2)).alias(f"{col1}_{col2}_sum"))
+    #         interaction_transforms.append((pl.col(col1) - pl.col(col2)).alias(f"{col1}_{col2}_diff"))
+    #         interaction_transforms.append(pl.when(pl.col(col2).abs() > 1e-10).then(pl.col(col1) / pl.col(col2)).otherwise(0).alias(f"{col1}_{col2}_div"))
 
-            interaction_transforms.append((0.7 * pl.col(col1) + 0.3 * pl.col(col2)).alias(f"{col1}_{col2}_wgt_avg1"))
-            interaction_transforms.append((0.3 * pl.col(col1) + 0.7 * pl.col(col2)).alias(f"{col1}_{col2}_wgt_avg2"))
+    #         interaction_transforms.append((0.7 * pl.col(col1) + 0.3 * pl.col(col2)).alias(f"{col1}_{col2}_wgt_avg1"))
+    #         interaction_transforms.append((0.3 * pl.col(col1) + 0.7 * pl.col(col2)).alias(f"{col1}_{col2}_wgt_avg2"))
 
-            interaction_transforms.append(
-                pl.when((pl.col(col1) >= 0) & (pl.col(col2) >= 0)).then((pl.col(col1) * pl.col(col2)).sqrt()).otherwise(0).alias(f"{col1}_{col2}_geo_mean")
-            )
-            interaction_transforms.append(
-                pl.when((pl.col(col1).abs() > 1e-10) & (pl.col(col2).abs() > 1e-10))
-                .then(2 / (1 / pl.col(col1) + 1 / pl.col(col2)))
-                .otherwise(0)
-                .alias(f"{col1}_{col2}_harm_mean")
-            )
+    #         interaction_transforms.append(
+    #             pl.when((pl.col(col1) >= 0) & (pl.col(col2) >= 0)).then((pl.col(col1) * pl.col(col2)).sqrt()).otherwise(0).alias(f"{col1}_{col2}_geo_mean")
+    #         )
+    #         interaction_transforms.append(
+    #             pl.when((pl.col(col1).abs() > 1e-10) & (pl.col(col2).abs() > 1e-10))
+    #             .then(2 / (1 / pl.col(col1) + 1 / pl.col(col2)))
+    #             .otherwise(0)
+    #             .alias(f"{col1}_{col2}_harm_mean")
+    #         )
 
-            interaction_transforms.append(pl.max_horizontal(pl.col(col1), pl.col(col2)).alias(f"{col1}_{col2}_max"))
-            interaction_transforms.append(pl.min_horizontal(pl.col(col1), pl.col(col2)).alias(f"{col1}_{col2}_min"))
+    #         interaction_transforms.append(pl.max_horizontal(pl.col(col1), pl.col(col2)).alias(f"{col1}_{col2}_max"))
+    #         interaction_transforms.append(pl.min_horizontal(pl.col(col1), pl.col(col2)).alias(f"{col1}_{col2}_min"))
 
-            interaction_transforms.append(
-                (pl.max_horizontal(pl.col(col1), pl.col(col2)) - pl.min_horizontal(pl.col(col1), pl.col(col2))).alias(f"{col1}_{col2}_range")
-            )
-            interaction_transforms.append((pl.col(col1) - pl.col(col2)).pow(2).alias(f"{col1}_{col2}_sq_diff"))
+    #         interaction_transforms.append(
+    #             (pl.max_horizontal(pl.col(col1), pl.col(col2)) - pl.min_horizontal(pl.col(col1), pl.col(col2))).alias(f"{col1}_{col2}_range")
+    #         )
+    #         interaction_transforms.append((pl.col(col1) - pl.col(col2)).pow(2).alias(f"{col1}_{col2}_sq_diff"))
 
-            interaction_transforms.append(
-                pl.when(pl.max_horizontal(pl.col(col1).abs(), pl.col(col2).abs()) > 1e-10)
-                .then(((pl.col(col1) - pl.col(col2)).abs() / pl.max_horizontal(pl.col(col1).abs(), pl.col(col2).abs())))
-                .otherwise(0)
-                .alias(f"{col1}_{col2}_pct_diff")
-            )
-            interaction_transforms.append(
-                pl.when((pl.col(col1) > 0) & (pl.col(col2) > 0))
-                .then((pl.col(col1) + 1).log() * (pl.col(col2) + 1).log())
-                .otherwise(0)
-                .alias(f"{col1}_{col2}_log_prod")
-            )
+    #         interaction_transforms.append(
+    #             pl.when(pl.max_horizontal(pl.col(col1).abs(), pl.col(col2).abs()) > 1e-10)
+    #             .then(((pl.col(col1) - pl.col(col2)).abs() / pl.max_horizontal(pl.col(col1).abs(), pl.col(col2).abs())))
+    #             .otherwise(0)
+    #             .alias(f"{col1}_{col2}_pct_diff")
+    #         )
+    #         interaction_transforms.append(
+    #             pl.when((pl.col(col1) > 0) & (pl.col(col2) > 0))
+    #             .then((pl.col(col1) + 1).log() * (pl.col(col2) + 1).log())
+    #             .otherwise(0)
+    #             .alias(f"{col1}_{col2}_log_prod")
+    #         )
 
-            interaction_transforms.append((pl.col(col1).pow(2) * pl.col(col2)).alias(f"{col1}_sq_{col2}"))
-            interaction_transforms.append((pl.col(col1) * pl.col(col2).pow(2)).alias(f"{col1}_{col2}_sq"))
+    #         interaction_transforms.append((pl.col(col1).pow(2) * pl.col(col2)).alias(f"{col1}_sq_{col2}"))
+    #         interaction_transforms.append((pl.col(col1) * pl.col(col2).pow(2)).alias(f"{col1}_{col2}_sq"))
 
-            interaction_transforms.append(
-                pl.when(pl.col(col2).pow(2).abs() > 1e-10).then(pl.col(col1).pow(2) / pl.col(col2).pow(2)).otherwise(0).alias(f"{col1}_sq_{col2}_sq_ratio")
-            )
-            interaction_transforms.append((pl.col(col1).tanh() * pl.col(col2).tanh()).alias(f"{col1}_{col2}_tanh_prod"))
-
-    df = df.with_columns(interaction_transforms)
+    #         interaction_transforms.append(
+    #             pl.when(pl.col(col2).pow(2).abs() > 1e-10).then(pl.col(col1).pow(2) / pl.col(col2).pow(2)).otherwise(0).alias(f"{col1}_sq_{col2}_sq_ratio")
+    #         )
+    #         interaction_transforms.append((pl.col(col1).tanh() * pl.col(col2).tanh()).alias(f"{col1}_{col2}_tanh_prod"))
+    # df = df.with_columns(interaction_transforms)
 
     # Convert columns to categorical
     for col in ["Podcast_Name", "Genre", "Publication_Day", "Publication_Time", "Episode_Sentiment", "Episode_Num"]:
