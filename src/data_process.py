@@ -365,8 +365,8 @@ def get_dfs(cfg=cfg):
     encoded_columns = [col for col in encoded_columns if col != "Episode_Length_minutes"]
     X_train, X_valid = encode_target(X_train, X_valid, encoded_columns, X_train["Episode_Length_minutes"])
 
-    encoded_columns = [col for col in encoded_columns if col != "Host_Popularity_percentage"]
-    X_train, X_valid = encode_target(X_train, X_valid, encoded_columns, X_train["Host_Popularity_percentage"])
+    encoded_columns = [col for col in encoded_columns if col != "Guest_Popularity_percentage"]
+    X_train, X_valid = encode_target(X_train, X_valid, encoded_columns, X_train["Guest_Popularity_percentage"])
 
     X_train = X_train.drop(encoded_columns)
     X_valid = X_valid.drop(encoded_columns)
