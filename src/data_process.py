@@ -349,7 +349,7 @@ def get_dfs(cfg=cfg):
         "Length_per_Ads",
     ]
     # pair_size = [2, 3, 4]
-    pair_size = [1, 2, 3]
+    pair_size = [2, 3]
     combinations_list = get_combinations(X_train, columns_to_encode, pair_size)
     print("Combinations list length:", len(combinations_list))
     print("Combinations list:", combinations_list)
@@ -364,9 +364,6 @@ def get_dfs(cfg=cfg):
 
     encoded_columns = [col for col in encoded_columns if col != "Episode_Length_minutes"]
     X_train, X_valid = encode_target(X_train, X_valid, encoded_columns, X_train["Episode_Length_minutes"])
-
-    encoded_columns = [col for col in encoded_columns if col != "Guest_Popularity_percentage"]
-    X_train, X_valid = encode_target(X_train, X_valid, encoded_columns, X_train["Guest_Popularity_percentage"])
 
     X_train = X_train.drop(encoded_columns)
     X_valid = X_valid.drop(encoded_columns)
