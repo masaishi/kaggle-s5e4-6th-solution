@@ -9,7 +9,7 @@ from pytorch_tabnet.callbacks import Callback
 from pytorch_tabnet.tab_model import TabNetRegressor
 
 import wandb
-from data_process import get_dfs
+from tabnet_data_process import get_dfs
 from utils import commit_results
 
 warnings.filterwarnings("ignore")
@@ -71,6 +71,7 @@ def train_tabnet_model():
     wandb_run = wandb.init(project="playground-series-s5e4", config=config)
 
     # Set up model with proper categorical indices and dimensions
+
     model = TabNetRegressor(
         n_d=64,
         n_a=64,
@@ -93,8 +94,8 @@ def train_tabnet_model():
         X_train=X_train_np,
         y_train=y_train_np,
         eval_set=[(X_train_np, y_train_np), (X_valid_np, y_valid_np)],
-        eval_name=["valid"],
-        eval_metric=["rmse"],
+        eval_name=["train", "valid"],
+        eval_metric=["rmse", "rmse"],
         max_epochs=200,
         patience=10,
         batch_size=1024,
