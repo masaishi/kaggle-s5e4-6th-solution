@@ -5,76 +5,43 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.model_selection import KFold
 
 
+# reference: https://www.kaggle.com/code/act18l/say-goodbye-to-ordinalencoder
 class OrderedTargetEncoder(BaseEstimator, TransformerMixin):
     """
-    Out‑of‑fold **mean‑rank** encoder with optional smoothing for Polars.
+    Out‑of‑fold **mean‑rank** encoder with optional smoothing.
     • Encodes each category by the *rank* of its target mean within a fold.
     • Unseen categories get the global mean rank (or −1 if you prefer).
     """
 
-    def __init__(self, cat_cols=None, n_splits=5, smoothing=0):
+    def __init__(self, cat_cols=None, n_splits=5, smoothing=0, random_state=42):
         self.cat_cols = cat_cols
         self.n_splits = n_splits
         self.smoothing = smoothing  # 0 = no smoothing
         self.maps_ = {}  # per‑fold maps
         self.global_map = {}  # fit on full data for test set
+        self.random_state = random_state
 
     def _make_fold_map(self, X_col, y):
-        # Convert to Series for processing
-        df = pl.DataFrame({"feature": X_col, "target": y})
-
-        # Calculate means by group
-        means = df.group_by("feature", maintain_order=False).agg(pl.mean("target").alias("mean"))
-
+        means = y.groupby(X_col, dropna=False).mean()
         if self.smoothing > 0:
-            # Calculate counts and global mean for smoothing
-            counts = df.group_by("feature", maintain_order=False).agg(pl.count("target").alias("count"))
-            global_mean = df.select(pl.mean("target")).item()
-
-            # Join counts to means
-            means = means.join(counts, on="feature")
-
-            # Apply smoothing
-            means = means.with_columns(
-                ((pl.col("count") * pl.col("mean") + self.smoothing * global_mean) / (pl.col("count") + self.smoothing)).alias("smoothed_mean")
-            )
-
-            # Sort by smoothed mean and create mapping
-            means = means.sort("smoothed_mean")
-        else:
-            # Sort by mean and create mapping
-            means = means.sort("mean")
-
-        # Create mapping from category to rank
-        mapping = {cat: rank for rank, cat in enumerate(means["feature"].to_list())}
-        return mapping
+            counts = y.groupby(X_col, dropna=False).count()
+            smooth = (counts * means + self.smoothing * y.mean()) / (counts + self.smoothing)
+            means = smooth
+        return {k: r for r, k in enumerate(means.sort_values().index)}
 
     def fit(self, X, y):
-        # Convert to Polars if needed
-        if not isinstance(X, pl.DataFrame):
-            X = pl.from_pandas(X.reset_index(drop=True))
-        if not isinstance(y, pl.Series):
-            y = pl.Series(y.reset_index(drop=True).values)
-
-        # If cat_cols not specified, find object columns
+        X, y = X.reset_index(drop=True), y.reset_index(drop=True)
         if self.cat_cols is None:
-            self.cat_cols = [col for col in X.columns if X[col].dtype == pl.Object or X[col].dtype == pl.Categorical]
+            self.cat_cols = X.select_dtypes(include="object").columns.tolist()
 
-        # Initialize KFold
-        kf = KFold(self.n_splits, shuffle=True, random_state=42)
+        kf = KFold(self.n_splits, shuffle=True, random_state=self.random_state)
         self.maps_ = {col: [None] * self.n_splits for col in self.cat_cols}
 
-        # Get numpy arrays for KFold splitting
-        X_numpy = X.to_numpy()
-
-        # Perform fold-wise fitting
-        for fold, (tr_idx, _) in enumerate(kf.split(X_numpy)):
+        for fold, (tr_idx, _) in enumerate(kf.split(X)):
+            X_tr, y_tr = X.loc[tr_idx], y.loc[tr_idx]
             for col in self.cat_cols:
-                X_tr_col = X[col].take(tr_idx)
-                y_tr = y.take(tr_idx)
-                self.maps_[col][fold] = self._make_fold_map(X_tr_col, y_tr)
+                self.maps_[col][fold] = self._make_fold_map(X_tr[col], y_tr)
 
-        # Fit global map on full data
         for col in self.cat_cols:
             self.global_map[col] = self._make_fold_map(X[col], y)
 
@@ -85,26 +52,11 @@ class OrderedTargetEncoder(BaseEstimator, TransformerMixin):
         • During CV pass fold index to use fold‑specific maps (leak‑free).
         • At inference time (fold=None) uses global map.
         """
-        # Convert to Polars if needed
-        if not isinstance(X, pl.DataFrame):
-            X = pl.from_pandas(X)
-
-        # Make a copy
-        X_transformed = X.clone()
-
-        # Choose appropriate maps based on fold
+        X = X.copy()
         tgt_maps = {col: (self.global_map[col] if fold is None else self.maps_[col][fold]) for col in self.cat_cols}
-
-        # Apply mappings
         for col, mapping in tgt_maps.items():
-            # Create a mapper function
-            def map_values(x):
-                return mapping.get(x, -1)
-
-            # Apply mapping and convert to integer
-            X_transformed = X_transformed.with_columns(pl.col(col).map_elements(map_values).alias(col).cast(pl.Int32))
-
-        return X_transformed
+            X[col] = X[col].map(mapping).fillna(-1).astype(int)
+        return X
 
 
 class PolarsTargetEncoder:

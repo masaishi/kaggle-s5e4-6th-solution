@@ -266,10 +266,8 @@ def encode_target(
         target_values = target
 
     encoder = TargetEncoder(random_state=random_state)
-    if isinstance(encode_columns, str):
-        encode_columns = [encode_columns]
 
-    for col in encode_columns:
+    for col in tqdm(encode_columns, desc=f"Encoding col: {encode_columns}"):
         encoded_col_name = f"{col}_{target.name}_encoded"
 
         X_train_col = X_train[col].to_numpy().reshape(-1, 1)
