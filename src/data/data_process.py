@@ -1,8 +1,8 @@
 import polars as pl
 
 from config import cfg
-from data_class import DatasetXy, Dfs
-from feature_eng import add_te, feature_eng, preprocess
+from data.data_class import DatasetXy, Dfs
+from data.feature_eng import add_te, feature_eng, preprocess
 
 _ = [DatasetXy, Dfs, add_te, feature_eng, preprocess]
 

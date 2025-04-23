@@ -7,7 +7,7 @@ from sklearn.preprocessing import TargetEncoder
 from tqdm import tqdm
 
 from config import cfg
-from data_class import DatasetX
+from data.data_class import DatasetX
 
 re_dict = {}
 re_dict["podc_dict"] = {

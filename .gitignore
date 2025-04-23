@@ -8,5 +8,5 @@ wheels/
 .venv
 
 .env*
-data/
+/data
 wandb/
