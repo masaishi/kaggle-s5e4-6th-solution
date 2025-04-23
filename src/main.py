@@ -12,9 +12,9 @@ import wandb
 from config import cfg
 from data.data_class import Dfs
 from data.data_process import add_fold, get_Xy
+from models.lgb import train_model
 
-# from models.lgb import train_model
-from models.xgb import train_model
+# from models.xgb import train_model
 from utils import commit_results
 
 warnings.filterwarnings("ignore")
