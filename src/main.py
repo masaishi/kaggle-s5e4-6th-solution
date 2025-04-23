@@ -62,7 +62,6 @@ wandb.finish()
 gc.collect()
 
 if hasattr(cfg, "predict") and cfg.predict:
-    breakpoint()
     test_pred = np.array(test_preds).mean(axis=0)
 
     test_df = pl.read_csv(cfg.test_path)

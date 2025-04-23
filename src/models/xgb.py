@@ -80,6 +80,7 @@ def train_model(fold: int, datasetXy: DatasetXy):
         colsample_bytree=cfg.colsample_bytree,
         random_state=42,
         verbosity=cfg.verbosity,
+        callbacks=[wandb_callback],
     )
 
     wandb_callback.model = model
@@ -89,7 +90,6 @@ def train_model(fold: int, datasetXy: DatasetXy):
         y_train,
         eval_set=[(X_train, y_train), (X_valid, y_valid)],
         verbose=cfg.log_eval,
-        callbacks=[wandb_callback],
         early_stopping_rounds=cfg.early_stopping,
         eval_metric=cfg.metric,
     )

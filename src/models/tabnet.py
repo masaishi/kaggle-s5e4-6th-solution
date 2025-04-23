@@ -7,9 +7,9 @@ import polars as pl
 import torch
 from pytorch_tabnet.callbacks import Callback
 from pytorch_tabnet.tab_model import TabNetRegressor
+from tabnet_feature_eng import get_dfs
 
 import wandb
-from tabnet_data_process import get_dfs
 from utils import commit_results
 
 warnings.filterwarnings("ignore")
