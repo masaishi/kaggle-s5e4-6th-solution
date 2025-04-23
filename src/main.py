@@ -132,7 +132,7 @@ for fold, (idx_train, idx_valid) in enumerate(group_kfold.split(df, groups=df["f
     print(f"Fold {fold + 1} validation score: {val_score}")
     wandb.log({f"fold_{fold + 1}_val_score": val_score})
 
-    if hasattr(cfg, "eval") and cfg.eval and fold >= 0:
+    if hasattr(cfg, "eval") and cfg.eval and fold >= 1:
         break
 
 git_info = commit_results(val_score, wandb_run.name)
@@ -146,5 +146,6 @@ if hasattr(cfg, "predict") and cfg.predict:
 
     test_df = pl.read_csv(cfg.test_path)
     test_df = test_df.with_columns(pl.Series(test_pred).alias("Listening_Time_minutes"))
+    test_df = test_df[["id", "Listening_Time_minutes"]]
     test_df.write_csv(cfg.test_output_path)
     print(f"Test predictions saved to {cfg.test_output_path}")
