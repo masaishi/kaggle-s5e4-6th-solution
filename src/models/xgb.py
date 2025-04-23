@@ -1,13 +1,14 @@
 import gc
 
 from xgboost import XGBRegressor
+from xgboost.callback import TrainingCallback
 
 import wandb
 from config import cfg
 from data.data_class import DatasetXy
 
 
-class WandbCallback:
+class WandbCallback(TrainingCallback):
     def __init__(self, log_every=50, log_feature_importance=True):
         self.log_every = log_every
         self.iteration = 0
@@ -73,31 +74,25 @@ def train_model(fold: int, datasetXy: DatasetXy):
     wandb_callback = WandbCallback(log_every=50)
 
     model = XGBRegressor(
+        tree_method="hist",
+        max_depth=14,
+        colsample_bytree=0.5,
+        subsample=0.9,
         n_estimators=cfg.n_iter,
-        max_depth=cfg.max_depth,
-        learning_rate=cfg.learning_rate,
-        objective="reg:squarederror",
-        colsample_bytree=cfg.colsample_bytree,
-        random_state=42,
-        verbosity=cfg.verbosity,
-        callbacks=[wandb_callback],
+        learning_rate=0.02,
+        enable_categorical=True,
+        min_child_weight=10,
+        early_stopping_rounds=150,
     )
 
     wandb_callback.model = model
 
-    model.fit(
-        X_train,
-        y_train,
-        eval_set=[(X_train, y_train), (X_valid, y_valid)],
-        verbose=cfg.log_eval,
-        early_stopping_rounds=cfg.early_stopping,
-        eval_metric=cfg.metric,
-    )
+    model.fit(X_train, y_train, eval_set=[(X_train, y_train), (X_valid, y_valid)], verbose=50)
 
     del X_train, y_train, X_valid, y_valid
     gc.collect()
 
-    val_score = model.best_score_["valid_1"][cfg.metric]
+    val_score = model.best_score
     print(f"Fold {fold + 1} validation score: {val_score}")
     wandb.log({f"fold_{fold + 1}_val_score": val_score})
 

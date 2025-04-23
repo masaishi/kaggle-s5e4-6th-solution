@@ -31,9 +31,16 @@ class CFG:
     log_eval: int = 100
     early_stopping: int = 200
 
-    # debug: bool = True
+    debug: bool = True
     eval: bool = True
     predict: bool = True
 
+    device: str = "cpu"
+
 
 cfg = CFG()
+
+if hasattr(cfg, "eval") and cfg.eval:
+    cfg.n_iter = 500
+if hasattr(cfg, "debug") and cfg.debug:
+    cfg.n_iter = 5

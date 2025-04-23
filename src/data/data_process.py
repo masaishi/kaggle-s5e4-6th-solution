@@ -36,6 +36,11 @@ def get_Xy(dfs: Dfs) -> DatasetXy:
     if df_test is not None:
         df_test = df_test.drop(["id"])
 
+    # df_pltpd = pl.read_csv(cfg.pltpd_path)
+    # df_pltpd = df_pltpd.filter(pl.col("Episode_Length_minutes").is_not_null())
+    # df_pltpd = df_pltpd.drop(["id"])
+    # df_train = pl.concat([df_train, df_pltpd], how="horizontal")
+
     target_col = "Listening_Time_minutes"
     y_train = df_train[target_col]
     X_train = df_train.drop(target_col)

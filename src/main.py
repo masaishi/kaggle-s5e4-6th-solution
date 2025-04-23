@@ -12,23 +12,18 @@ import wandb
 from config import cfg
 from data.data_class import Dfs
 from data.data_process import add_fold, get_Xy
-from models.lgb import train_model
 
-# from models.xgb import train_model
+# from models.lgb import train_model
+from models.xgb import train_model
 from utils import commit_results
 
 warnings.filterwarnings("ignore")
 warnings.simplefilter("ignore")
 
-
 load_dotenv()
 wandb.login(key=os.getenv("WANDB_API_KEY"))
 wandb_run = wandb.init(project="playground-series-s5e4", config=asdict(cfg))
 
-if hasattr(cfg, "eval") and cfg.eval:
-    cfg.n_iter = 500
-if hasattr(cfg, "debug") and cfg.debug:
-    cfg.n_iter = 5
 
 df = pl.read_csv(cfg.train_path)
 df = df.filter(pl.col("Number_of_Ads").is_not_null())
@@ -52,7 +47,7 @@ for fold, (idx_train, idx_valid) in enumerate(group_kfold.split(df, groups=df["f
     test_preds += [test_pred]
 
     gc.collect()
-    if hasattr(cfg, "eval") and cfg.eval and fold >= 1:
+    if hasattr(cfg, "eval") and cfg.eval and fold >= 0:
         break
 
 git_info = commit_results(val_score, wandb_run.name)
