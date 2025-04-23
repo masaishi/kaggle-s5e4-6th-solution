@@ -146,5 +146,5 @@ if hasattr(cfg, "predict") and cfg.predict:
 
     test_df = pl.read_csv(cfg.test_path)
     test_df = test_df.with_columns(pl.Series(test_pred).alias("Listening_Time_minutes"))
-    test_df.write_csv(str(cfg.test_output_path), has_header=True)
+    test_df.write_csv(cfg.test_output_path)
     print(f"Test predictions saved to {cfg.test_output_path}")
