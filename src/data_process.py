@@ -1,74 +1,59 @@
-import numpy as np
 import polars as pl
-from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import train_test_split
 
 from config import cfg
+from data_class import DatasetXy, Dfs
 from feature_eng import add_te, feature_eng, preprocess
 
-# from utils import get_index_splits
+_ = [add_te, feature_eng, preprocess]
 
 
-def calc_rmse(y_true, y_pred):
-    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
-    return rmse
-
-
-def get_dfs(cfg=cfg):
-    # Read CSV files using polars
+def get_dfs(cfg=cfg) -> Dfs:
     df_train = pl.read_csv(cfg.train_path)
     df_train = df_train.filter(pl.col("Number_of_Ads").is_not_null())
-    # df_test = pl.read_csv(cfg.test_path)
+
     df_test = None
+    if hasattr(cfg, "predict") and cfg.predict:
+        df_test = pl.read_csv(cfg.test_path)
 
-    # df_train = get_index_splits(df_train)
-    # breakpoint()
+    return Dfs(df_train=df_train, df_test=df_test)
 
-    # df_train = df_train.drop("id")
-    # df_test = df_test.drop("id")
+
+def add_fold(df: pl.DataFrame) -> pl.DataFrame:
+    cols = ["Podcast_Name", "Episode_Title", "Host_Popularity_percentage", "Publication_Day"]
+    concat_expr = pl.col(cols[0]).cast(pl.Utf8)
+    for col_name in cols[1:]:
+        concat_expr = concat_expr + "_" + pl.col(col_name).cast(pl.Utf8)
+
+    df = df.with_columns(concat_expr.alias("fold").cast(pl.Categorical))
+    return df
+
+
+def get_Xy(dfs: Dfs) -> DatasetXy:
+    df_train, df_valid, df_test = dfs.get()
+
+    df_train = df_train.drop(["id", "fold"])
+    df_valid = df_valid.drop(["id", "fold"])
+    if df_test is not None:
+        df_test = df_test.drop(["id", "fold"])
 
     target_col = "Listening_Time_minutes"
     y_train = df_train[target_col]
     X_train = df_train.drop(target_col)
+    y_valid = df_valid[target_col]
+    X_valid = df_valid.drop(target_col)
+    X_test = df_test
 
-    X_train, X_valid, y_train, y_valid = train_test_split(
-        X_train,
-        y_train,
-        test_size=0.2,  # 20% for validation
-        random_state=42,
-    )
-
-    # # Merge with df_podcast
-    # df_pltpd = pl.read_csv(cfg.pltpd_path)
-    # df_pltpd = df_pltpd.filter(pl.col("Listening_Time_minutes").is_not_null())
-
-    # # Extract target column and prepare for concatenation
-    # y_train_pltpd = df_pltpd["Listening_Time_minutes"]
-    # df_pltpd = df_pltpd.drop("Listening_Time_minutes")
-    # df_pltpd = df_pltpd.with_columns(pl.col("Number_of_Ads").cast(pl.Float64))
-
-    # # Now concatenate with matching schemas
-    # X_train = pl.concat([X_train, df_pltpd], how="vertical")
-    # y_train = pl.concat([y_train, y_train_pltpd], how="vertical")
-
-    # Preprocess dataframes
     X_train = preprocess(X_train)
     X_valid = preprocess(X_valid, X_train)
+    if df_test is not None:
+        X_test = preprocess(X_test, X_train)
 
-    # Create combined df_train for feature engineering
-    df_train = X_train.with_columns(y_train.alias("Listening_Time_minutes"))
-
-    # Feature engineering
     X_train = feature_eng(X_train, df_train)
     X_valid = feature_eng(X_valid, df_train)
+    if df_test is not None:
+        X_test = feature_eng(X_test, df_train)
 
-    # Encode target
-    te_dict = add_te(y_train, X_train, X_valid)
-    X_train, X_valid, _ = te_dict.values()
+    # datasetX = add_te(y_train, X_train, X_valid, X_test)
+    # X_train, X_valid, X_test = datasetX.get()
 
-    return {
-        "X_train": X_train,
-        "y_train": y_train,
-        "X_valid": X_valid,
-        "y_valid": y_valid,
-    }
+    return DatasetXy(X_train=X_train, y_train=y_train, X_valid=X_valid, y_valid=y_valid, X_test=X_test, y_test=None)

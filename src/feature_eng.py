@@ -6,6 +6,8 @@ import polars as pl
 from sklearn.preprocessing import TargetEncoder
 from tqdm import tqdm
 
+from data_class import DatasetX
+
 re_dict = {}
 re_dict["podc_dict"] = {
     "Mystery Matters": 0,
@@ -86,7 +88,7 @@ pl_i_type = pl.Int32
 pl_f_type = pl.Float32
 
 
-def cast_numeric_dtypes(df):
+def cast_numeric_dtypes(df: pl.DataFrame) -> pl.DataFrame:
     float_cols = [col for col in df.columns if df.schema[col] == pl.Float64 or df.schema[col] == pl.Float32]
     int_cols = [col for col in df.columns if df.schema[col] == pl.Int64 or df.schema[col] == pl.Int32]
 
@@ -98,7 +100,7 @@ def cast_numeric_dtypes(df):
     return df
 
 
-def preprocess(df, df_train=None):
+def preprocess(df: pl.DataFrame, df_train: pl.DataFrame = None) -> pl.DataFrame:
     df = cast_numeric_dtypes(df)
     df = df.with_columns(pl.col("Episode_Title").str.slice(8).cast(pl.Int32).alias("Episode_Num")).drop("Episode_Title")
 
@@ -141,7 +143,7 @@ def preprocess(df, df_train=None):
     return df
 
 
-def feature_eng(df, df_train):
+def feature_eng(df: pl.DataFrame, df_train: pl.DataFrame) -> pl.DataFrame:
     # Cyclical features for day and time
     df = df.with_columns(
         # Day features
@@ -209,7 +211,7 @@ def feature_eng(df, df_train):
     return df
 
 
-def get_combinations(df, columns_to_encode, pair_sizes):
+def get_combinations(df: pl.DataFrame, columns_to_encode: list, pair_sizes: list) -> list:
     df_length = len(df)
 
     target_ratios = []
@@ -232,7 +234,7 @@ def get_combinations(df, columns_to_encode, pair_sizes):
     return list(unique_combinations)
 
 
-def cols_encode(df, combinations_list):
+def cols_encode(df: pl.DataFrame, combinations_list: list) -> pl.DataFrame:
     batch_size = 20
     for i in range(0, len(combinations_list), batch_size):
         batch = combinations_list[i : i + batch_size]
@@ -255,8 +257,9 @@ def cols_encode(df, combinations_list):
     return df
 
 
-def encode_target(target, encode_columns, X_train, X_valid, X_test=None, random_state=42):
-    # Convert target to numpy if it's a polars Series
+def encode_target(
+    target: pl.Series, encode_columns: list, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_test: pl.DataFrame = None, random_state: int = 42
+) -> DatasetX:
     if isinstance(target, pl.Series):
         target_values = target.to_numpy()
     else:
@@ -285,14 +288,19 @@ def encode_target(target, encode_columns, X_train, X_valid, X_test=None, random_
             encoded_test = encoder.transform(X_test_col)
             X_test = X_test.with_columns(pl.Series(encoded_col_name, encoded_test.flatten()))
 
-    return {
-        "X_train": X_train,
-        "X_valid": X_valid,
-        "X_test": X_test,
-    }
+    # return {
+    #     "X_train": X_train,
+    #     "X_valid": X_valid,
+    #     "X_test": X_test,
+    # }
+    return DatasetX(
+        X_train=X_train,
+        X_valid=X_valid,
+        X_test=X_test,
+    )
 
 
-def add_te(y_train, X_train, X_valid, X_test=None):
+def add_te(y_train: pl.Series, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_test: pl.DataFrame = None) -> DatasetX:
     before_encode_len = len(X_train.columns)
 
     columns_to_encode = [
@@ -431,20 +439,20 @@ def add_te(y_train, X_train, X_valid, X_test=None):
     encoded_columns = X_train.columns[before_encode_len:]
     print("Length of train columns:", before_encode_len)
 
-    encode_dict = encode_target(y_train, encoded_columns, X_train, X_valid, X_test=X_test)
-    X_train, X_valid, X_test = encode_dict.values()
+    datasetX = encode_target(y_train, encoded_columns, X_train, X_valid, X_test=X_test)
+    X_train, X_valid, X_test = datasetX.get()
 
     encoded_columns = [col for col in encoded_columns if col != "Episode_Length_minutes"]
-    encode_dict = encode_target(X_train["Episode_Length_minutes"], encoded_columns, X_train, X_valid)
-    X_train, X_valid, X_test = encode_dict.values()
+    datasetX = encode_target(X_train["Episode_Length_minutes"], encoded_columns, X_train, X_valid)
+    X_train, X_valid, X_test = datasetX.get()
 
     X_train = X_train.drop(encoded_columns)
     X_valid = X_valid.drop(encoded_columns)
     if X_test is not None:
         X_test = X_test.drop(encoded_columns)
 
-    return {
-        "X_train": X_train,
-        "X_valid": X_valid,
-        "X_test": X_test,
-    }
+    return DatasetX(
+        X_train=X_train,
+        X_valid=X_valid,
+        X_test=X_test,
+    )
