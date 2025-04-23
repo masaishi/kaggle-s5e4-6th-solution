@@ -150,5 +150,6 @@ if hasattr(cfg, "predict") and cfg.predict:
     test_df = pl.read_csv(cfg.test_path)
     test_df = test_df.with_columns(pl.Series(test_pred).alias("Listening_Time_minutes"))
     test_df = test_df[["id", "Listening_Time_minutes"]]
-    test_df.write_csv(f"./data/submissions/sub_{wandb_run.name}.csv")
-    print(f"Test predictions saved to ./data/submissions/sub_{wandb_run.name}.csv")
+    wandb_num = wandb_run.name.split("-")[-1]
+    test_df.write_csv(f"./data/submissions/sub_{wandb_num}.csv")
+    print(f"Test predictions saved to ./data/submissions/sub_{wandb_num}.csv")
