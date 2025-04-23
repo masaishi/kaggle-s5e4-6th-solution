@@ -195,8 +195,6 @@ def feature_eng(df, df_train):
         "Number_of_Ads",
         "ELen_Int",
         "ELen_Dec",
-        "HPperc_Int",
-        "HPperc_Dec",
     ]
     interaction_transforms = []
 
@@ -362,149 +360,149 @@ def get_dfs(cfg=cfg):
     X_train = feature_eng(X_train, df_train)
     X_valid = feature_eng(X_valid, df_train)
 
-    before_encode_len = len(X_train.columns)
-    # columns_to_encode = [
-    #     "Host_Popularity_percentage",
-    #     "Guest_Popularity_percentage",
-    #     "Episode_Length_minutes",
-    #     "Episode_Num",
-    #     "Podcast_Name",
-    #     "Publication_Day",
-    #     "Publication_Time",
-    #     "Episode_Sentiment",
-    #     "Genre",
-    #     "Number_of_Ads",
-    #     "Episode_Length_minutes_NaN",
-    #     "Guest_Popularity_percentage_NaN",
-    #     "HPperc_Int",
-    #     "HPperc_Dec",
-    #     "ELen_Int",
-    #     "ELen_Dec",
-    #     "Length_per_Ads",
-    # ]
-    # # pair_size = [2, 3, 4]
+    # before_encode_len = len(X_train.columns)
+    # # columns_to_encode = [
+    # #     "Host_Popularity_percentage",
+    # #     "Guest_Popularity_percentage",
+    # #     "Episode_Length_minutes",
+    # #     "Episode_Num",
+    # #     "Podcast_Name",
+    # #     "Publication_Day",
+    # #     "Publication_Time",
+    # #     "Episode_Sentiment",
+    # #     "Genre",
+    # #     "Number_of_Ads",
+    # #     "Episode_Length_minutes_NaN",
+    # #     "Guest_Popularity_percentage_NaN",
+    # #     "HPperc_Int",
+    # #     "HPperc_Dec",
+    # #     "ELen_Int",
+    # #     "ELen_Dec",
+    # #     "Length_per_Ads",
+    # # ]
+    # # # pair_size = [2, 3, 4]
+    # # # pair_size = [2, 3]
     # # pair_size = [2, 3]
-    # pair_size = [2, 3]
-    # combinations_list = get_combinations(X_train, columns_to_encode, pair_size)
-    combinations_list = [
-        # 2-interaction
-        ["Episode_Length_minutes", "Host_Popularity_percentage"],
-        ["Episode_Length_minutes", "Guest_Popularity_percentage"],
-        ["Episode_Length_minutes", "Number_of_Ads"],
-        ["Episode_Num", "Host_Popularity_percentage"],
-        ["Episode_Num", "Guest_Popularity_percentage"],
-        ["Episode_Num", "Number_of_Ads"],
-        ["Host_Popularity_percentage", "Guest_Popularity_percentage"],
-        ["Host_Popularity_percentage", "Number_of_Ads"],
-        ["Host_Popularity_percentage", "Episode_Sentiment"],
-        ["Episode_Length_minutes", "Podcast_Name"],
-        ["Episode_Num", "Podcast_Name"],
-        ["Guest_Popularity_percentage", "Podcast_Name"],
-        ["ELen_Int", "Episode_Num"],
-        ["ELen_Int", "Host_Popularity_percentage"],
-        ["ELen_Int", "Guest_Popularity_percentage"],
-        ["ELen_Dec", "Episode_Num"],
-        ["ELen_Dec", "Episode_Sentiment"],
-        ["ELen_Dec", "Publication_Day"],
-        # 3-interaction
-        ["Episode_Length_minutes", "Episode_Num", "Host_Popularity_percentage"],
-        ["Episode_Length_minutes", "Episode_Num", "Guest_Popularity_percentage"],
-        ["Episode_Length_minutes", "Episode_Num", "Number_of_Ads"],
-        ["Episode_Length_minutes", "Episode_Num", "Episode_Sentiment"],
-        ["Episode_Length_minutes", "Episode_Num", "Publication_Day"],
-        ["Episode_Length_minutes", "Host_Popularity_percentage", "Guest_Popularity_percentage"],
-        ["Episode_Length_minutes", "Host_Popularity_percentage", "Number_of_Ads"],
-        ["Episode_Length_minutes", "Host_Popularity_percentage", "Episode_Sentiment"],
-        ["Episode_Length_minutes", "Host_Popularity_percentage", "Publication_Day"],
-        ["Episode_Length_minutes", "Host_Popularity_percentage", "Publication_Time"],
-        ["Episode_Length_minutes", "Guest_Popularity_percentage", "Number_of_Ads"],
-        ["Episode_Length_minutes", "Guest_Popularity_percentage", "Publication_Day"],
-        ["Episode_Length_minutes", "Guest_Popularity_percentage", "Publication_Time"],
-        ["Episode_Length_minutes", "Number_of_Ads", "Episode_Sentiment"],
-        ["Episode_Length_minutes", "Number_of_Ads", "Publication_Day"],
-        ["Episode_Length_minutes", "Episode_Sentiment", "Publication_Time"],
-        ["Episode_Num", "Host_Popularity_percentage", "Guest_Popularity_percentage"],
-        ["Episode_Num", "Host_Popularity_percentage", "Number_of_Ads"],
-        ["Episode_Num", "Host_Popularity_percentage", "Episode_Sentiment"],
-        ["Episode_Num", "Host_Popularity_percentage", "Publication_Day"],
-        ["Episode_Num", "Host_Popularity_percentage", "Publication_Time"],
-        ["Episode_Num", "Host_Popularity_percentage", "Genre"],
-        ["Episode_Num", "Guest_Popularity_percentage", "Number_of_Ads"],
-        ["Episode_Num", "Guest_Popularity_percentage", "Episode_Sentiment"],
-        ["Episode_Num", "Guest_Popularity_percentage", "Publication_Day"],
-        ["Episode_Num", "Guest_Popularity_percentage", "Publication_Time"],
-        ["Episode_Num", "Guest_Popularity_percentage", "Genre"],
-        ["Episode_Num", "Number_of_Ads", "Episode_Sentiment"],
-        ["Host_Popularity_percentage", "Guest_Popularity_percentage", "Number_of_Ads"],
-        ["Host_Popularity_percentage", "Guest_Popularity_percentage", "Episode_Sentiment"],
-        ["Host_Popularity_percentage", "Guest_Popularity_percentage", "Publication_Day"],
-        ["Host_Popularity_percentage", "Guest_Popularity_percentage", "Publication_Time"],
-        ["Host_Popularity_percentage", "Number_of_Ads", "Publication_Day"],
-        ["Guest_Popularity_percentage", "Number_of_Ads", "Episode_Sentiment"],
-        ["Guest_Popularity_percentage", "Number_of_Ads", "Genre"],
-        ["ELen_Int", "Number_of_Ads", "Episode_Sentiment"],
-        ["ELen_Dec", "Number_of_Ads", "Podcast_Name"],
-        # 4-interaction
-        ["Episode_Length_minutes", "Episode_Num", "Host_Popularity_percentage", "Guest_Popularity_percentage"],
-        ["Episode_Length_minutes", "Episode_Num", "Host_Popularity_percentage", "Number_of_Ads"],
-        ["Episode_Length_minutes", "Episode_Num", "Host_Popularity_percentage", "Episode_Sentiment"],
-        ["Episode_Length_minutes", "Episode_Num", "Host_Popularity_percentage", "Publication_Day"],
-        ["Episode_Length_minutes", "Episode_Num", "Host_Popularity_percentage", "Publication_Time"],
-        ["Episode_Length_minutes", "Episode_Num", "Host_Popularity_percentage", "Genre"],
-        ["Episode_Length_minutes", "Episode_Num", "Guest_Popularity_percentage", "Number_of_Ads"],
-        ["Episode_Length_minutes", "Episode_Num", "Guest_Popularity_percentage", "Episode_Sentiment"],
-        ["Episode_Length_minutes", "Episode_Num", "Guest_Popularity_percentage", "Publication_Day"],
-        ["Episode_Length_minutes", "Episode_Num", "Guest_Popularity_percentage", "Publication_Time"],
-        ["Episode_Length_minutes", "Episode_Num", "Number_of_Ads", "Episode_Sentiment"],
-        ["Episode_Length_minutes", "Episode_Num", "Number_of_Ads", "Publication_Day"],
-        ["Episode_Length_minutes", "Episode_Num", "Number_of_Ads", "Publication_Time"],
-        ["Episode_Length_minutes", "Episode_Num", "Publication_Day", "Publication_Time"],
-        ["Episode_Length_minutes", "Episode_Num", "Publication_Day", "Genre"],
-        ["Episode_Length_minutes", "Host_Popularity_percentage", "Guest_Popularity_percentage", "Number_of_Ads"],
-        ["Episode_Length_minutes", "Host_Popularity_percentage", "Guest_Popularity_percentage", "Episode_Sentiment"],
-        ["Episode_Length_minutes", "Host_Popularity_percentage", "Guest_Popularity_percentage", "Publication_Day"],
-        ["Episode_Length_minutes", "Host_Popularity_percentage", "Guest_Popularity_percentage", "Publication_Time"],
-        ["Episode_Length_minutes", "Host_Popularity_percentage", "Number_of_Ads", "Episode_Sentiment"],
-        ["Episode_Length_minutes", "Host_Popularity_percentage", "Number_of_Ads", "Publication_Day"],
-        ["Episode_Length_minutes", "Host_Popularity_percentage", "Publication_Day", "Publication_Time"],
-        ["Episode_Length_minutes", "Host_Popularity_percentage", "Publication_Day", "Genre"],
-        ["Episode_Length_minutes", "Guest_Popularity_percentage", "Number_of_Ads", "Episode_Sentiment"],
-        ["Episode_Length_minutes", "Guest_Popularity_percentage", "Number_of_Ads", "Publication_Day"],
-        ["Episode_Length_minutes", "Guest_Popularity_percentage", "Number_of_Ads", "Publication_Time"],
-        ["Episode_Length_minutes", "Guest_Popularity_percentage", "Number_of_Ads", "Genre"],
-        ["Episode_Length_minutes", "Episode_Num", "Publication_Time", "Podcast_Name"],
-        ["Episode_Num", "Host_Popularity_percentage", "Guest_Popularity_percentage", "Number_of_Ads"],
-        ["Episode_Num", "Host_Popularity_percentage", "Guest_Popularity_percentage", "Episode_Sentiment"],
-        ["Episode_Num", "Host_Popularity_percentage", "Number_of_Ads", "Publication_Day"],
-        ["Episode_Num", "Host_Popularity_percentage", "Number_of_Ads", "Publication_Time"],
-        ["Episode_Num", "Host_Popularity_percentage", "Episode_Sentiment", "Publication_Day"],
-        ["Episode_Num", "Host_Popularity_percentage", "Episode_Sentiment", "Publication_Time"],
-        ["Episode_Num", "Host_Popularity_percentage", "Episode_Sentiment", "Genre"],
-        ["Episode_Num", "Host_Popularity_percentage", "Publication_Day", "Publication_Time"],
-        ["Episode_Num", "Host_Popularity_percentage", "Publication_Time", "Genre"],
-        ["Episode_Num", "Guest_Popularity_percentage", "Number_of_Ads", "Episode_Sentiment"],
-        ["Episode_Num", "Guest_Popularity_percentage", "Number_of_Ads", "Genre"],
-        ["Episode_Num", "Host_Popularity_percentage", "Episode_Sentiment", "Podcast_Name"],
-        ["Host_Popularity_percentage", "Number_of_Ads", "Episode_Sentiment", "Podcast_Name"],
-        ["Host_Popularity_percentage", "Number_of_Ads", "Publication_Day", "Podcast_Name"],
-        ["Host_Popularity_percentage", "Number_of_Ads", "Publication_Time", "Podcast_Name"],
-    ]
-    print("Combinations list length:", len(combinations_list))
-    print("Combinations list:", combinations_list)
+    # # combinations_list = get_combinations(X_train, columns_to_encode, pair_size)
+    # combinations_list = [
+    #     # 2-interaction
+    #     ["Episode_Length_minutes", "Host_Popularity_percentage"],
+    #     ["Episode_Length_minutes", "Guest_Popularity_percentage"],
+    #     ["Episode_Length_minutes", "Number_of_Ads"],
+    #     ["Episode_Num", "Host_Popularity_percentage"],
+    #     ["Episode_Num", "Guest_Popularity_percentage"],
+    #     ["Episode_Num", "Number_of_Ads"],
+    #     ["Host_Popularity_percentage", "Guest_Popularity_percentage"],
+    #     ["Host_Popularity_percentage", "Number_of_Ads"],
+    #     ["Host_Popularity_percentage", "Episode_Sentiment"],
+    #     ["Episode_Length_minutes", "Podcast_Name"],
+    #     ["Episode_Num", "Podcast_Name"],
+    #     ["Guest_Popularity_percentage", "Podcast_Name"],
+    #     ["ELen_Int", "Episode_Num"],
+    #     ["ELen_Int", "Host_Popularity_percentage"],
+    #     ["ELen_Int", "Guest_Popularity_percentage"],
+    #     ["ELen_Dec", "Episode_Num"],
+    #     ["ELen_Dec", "Episode_Sentiment"],
+    #     ["ELen_Dec", "Publication_Day"],
+    #     # 3-interaction
+    #     ["Episode_Length_minutes", "Episode_Num", "Host_Popularity_percentage"],
+    #     ["Episode_Length_minutes", "Episode_Num", "Guest_Popularity_percentage"],
+    #     ["Episode_Length_minutes", "Episode_Num", "Number_of_Ads"],
+    #     ["Episode_Length_minutes", "Episode_Num", "Episode_Sentiment"],
+    #     ["Episode_Length_minutes", "Episode_Num", "Publication_Day"],
+    #     ["Episode_Length_minutes", "Host_Popularity_percentage", "Guest_Popularity_percentage"],
+    #     ["Episode_Length_minutes", "Host_Popularity_percentage", "Number_of_Ads"],
+    #     ["Episode_Length_minutes", "Host_Popularity_percentage", "Episode_Sentiment"],
+    #     ["Episode_Length_minutes", "Host_Popularity_percentage", "Publication_Day"],
+    #     ["Episode_Length_minutes", "Host_Popularity_percentage", "Publication_Time"],
+    #     ["Episode_Length_minutes", "Guest_Popularity_percentage", "Number_of_Ads"],
+    #     ["Episode_Length_minutes", "Guest_Popularity_percentage", "Publication_Day"],
+    #     ["Episode_Length_minutes", "Guest_Popularity_percentage", "Publication_Time"],
+    #     ["Episode_Length_minutes", "Number_of_Ads", "Episode_Sentiment"],
+    #     ["Episode_Length_minutes", "Number_of_Ads", "Publication_Day"],
+    #     ["Episode_Length_minutes", "Episode_Sentiment", "Publication_Time"],
+    #     ["Episode_Num", "Host_Popularity_percentage", "Guest_Popularity_percentage"],
+    #     ["Episode_Num", "Host_Popularity_percentage", "Number_of_Ads"],
+    #     ["Episode_Num", "Host_Popularity_percentage", "Episode_Sentiment"],
+    #     ["Episode_Num", "Host_Popularity_percentage", "Publication_Day"],
+    #     ["Episode_Num", "Host_Popularity_percentage", "Publication_Time"],
+    #     ["Episode_Num", "Host_Popularity_percentage", "Genre"],
+    #     ["Episode_Num", "Guest_Popularity_percentage", "Number_of_Ads"],
+    #     ["Episode_Num", "Guest_Popularity_percentage", "Episode_Sentiment"],
+    #     ["Episode_Num", "Guest_Popularity_percentage", "Publication_Day"],
+    #     ["Episode_Num", "Guest_Popularity_percentage", "Publication_Time"],
+    #     ["Episode_Num", "Guest_Popularity_percentage", "Genre"],
+    #     ["Episode_Num", "Number_of_Ads", "Episode_Sentiment"],
+    #     ["Host_Popularity_percentage", "Guest_Popularity_percentage", "Number_of_Ads"],
+    #     ["Host_Popularity_percentage", "Guest_Popularity_percentage", "Episode_Sentiment"],
+    #     ["Host_Popularity_percentage", "Guest_Popularity_percentage", "Publication_Day"],
+    #     ["Host_Popularity_percentage", "Guest_Popularity_percentage", "Publication_Time"],
+    #     ["Host_Popularity_percentage", "Number_of_Ads", "Publication_Day"],
+    #     ["Guest_Popularity_percentage", "Number_of_Ads", "Episode_Sentiment"],
+    #     ["Guest_Popularity_percentage", "Number_of_Ads", "Genre"],
+    #     ["ELen_Int", "Number_of_Ads", "Episode_Sentiment"],
+    #     ["ELen_Dec", "Number_of_Ads", "Podcast_Name"],
+    #     # 4-interaction
+    #     ["Episode_Length_minutes", "Episode_Num", "Host_Popularity_percentage", "Guest_Popularity_percentage"],
+    #     ["Episode_Length_minutes", "Episode_Num", "Host_Popularity_percentage", "Number_of_Ads"],
+    #     ["Episode_Length_minutes", "Episode_Num", "Host_Popularity_percentage", "Episode_Sentiment"],
+    #     ["Episode_Length_minutes", "Episode_Num", "Host_Popularity_percentage", "Publication_Day"],
+    #     ["Episode_Length_minutes", "Episode_Num", "Host_Popularity_percentage", "Publication_Time"],
+    #     ["Episode_Length_minutes", "Episode_Num", "Host_Popularity_percentage", "Genre"],
+    #     ["Episode_Length_minutes", "Episode_Num", "Guest_Popularity_percentage", "Number_of_Ads"],
+    #     ["Episode_Length_minutes", "Episode_Num", "Guest_Popularity_percentage", "Episode_Sentiment"],
+    #     ["Episode_Length_minutes", "Episode_Num", "Guest_Popularity_percentage", "Publication_Day"],
+    #     ["Episode_Length_minutes", "Episode_Num", "Guest_Popularity_percentage", "Publication_Time"],
+    #     ["Episode_Length_minutes", "Episode_Num", "Number_of_Ads", "Episode_Sentiment"],
+    #     ["Episode_Length_minutes", "Episode_Num", "Number_of_Ads", "Publication_Day"],
+    #     ["Episode_Length_minutes", "Episode_Num", "Number_of_Ads", "Publication_Time"],
+    #     ["Episode_Length_minutes", "Episode_Num", "Publication_Day", "Publication_Time"],
+    #     ["Episode_Length_minutes", "Episode_Num", "Publication_Day", "Genre"],
+    #     ["Episode_Length_minutes", "Host_Popularity_percentage", "Guest_Popularity_percentage", "Number_of_Ads"],
+    #     ["Episode_Length_minutes", "Host_Popularity_percentage", "Guest_Popularity_percentage", "Episode_Sentiment"],
+    #     ["Episode_Length_minutes", "Host_Popularity_percentage", "Guest_Popularity_percentage", "Publication_Day"],
+    #     ["Episode_Length_minutes", "Host_Popularity_percentage", "Guest_Popularity_percentage", "Publication_Time"],
+    #     ["Episode_Length_minutes", "Host_Popularity_percentage", "Number_of_Ads", "Episode_Sentiment"],
+    #     ["Episode_Length_minutes", "Host_Popularity_percentage", "Number_of_Ads", "Publication_Day"],
+    #     ["Episode_Length_minutes", "Host_Popularity_percentage", "Publication_Day", "Publication_Time"],
+    #     ["Episode_Length_minutes", "Host_Popularity_percentage", "Publication_Day", "Genre"],
+    #     ["Episode_Length_minutes", "Guest_Popularity_percentage", "Number_of_Ads", "Episode_Sentiment"],
+    #     ["Episode_Length_minutes", "Guest_Popularity_percentage", "Number_of_Ads", "Publication_Day"],
+    #     ["Episode_Length_minutes", "Guest_Popularity_percentage", "Number_of_Ads", "Publication_Time"],
+    #     ["Episode_Length_minutes", "Guest_Popularity_percentage", "Number_of_Ads", "Genre"],
+    #     ["Episode_Length_minutes", "Episode_Num", "Publication_Time", "Podcast_Name"],
+    #     ["Episode_Num", "Host_Popularity_percentage", "Guest_Popularity_percentage", "Number_of_Ads"],
+    #     ["Episode_Num", "Host_Popularity_percentage", "Guest_Popularity_percentage", "Episode_Sentiment"],
+    #     ["Episode_Num", "Host_Popularity_percentage", "Number_of_Ads", "Publication_Day"],
+    #     ["Episode_Num", "Host_Popularity_percentage", "Number_of_Ads", "Publication_Time"],
+    #     ["Episode_Num", "Host_Popularity_percentage", "Episode_Sentiment", "Publication_Day"],
+    #     ["Episode_Num", "Host_Popularity_percentage", "Episode_Sentiment", "Publication_Time"],
+    #     ["Episode_Num", "Host_Popularity_percentage", "Episode_Sentiment", "Genre"],
+    #     ["Episode_Num", "Host_Popularity_percentage", "Publication_Day", "Publication_Time"],
+    #     ["Episode_Num", "Host_Popularity_percentage", "Publication_Time", "Genre"],
+    #     ["Episode_Num", "Guest_Popularity_percentage", "Number_of_Ads", "Episode_Sentiment"],
+    #     ["Episode_Num", "Guest_Popularity_percentage", "Number_of_Ads", "Genre"],
+    #     ["Episode_Num", "Host_Popularity_percentage", "Episode_Sentiment", "Podcast_Name"],
+    #     ["Host_Popularity_percentage", "Number_of_Ads", "Episode_Sentiment", "Podcast_Name"],
+    #     ["Host_Popularity_percentage", "Number_of_Ads", "Publication_Day", "Podcast_Name"],
+    #     ["Host_Popularity_percentage", "Number_of_Ads", "Publication_Time", "Podcast_Name"],
+    # ]
+    # print("Combinations list length:", len(combinations_list))
+    # print("Combinations list:", combinations_list)
 
-    X_train = cols_encode(X_train, combinations_list)
-    X_valid = cols_encode(X_valid, combinations_list)
+    # X_train = cols_encode(X_train, combinations_list)
+    # X_valid = cols_encode(X_valid, combinations_list)
 
-    encoded_columns = X_train.columns[before_encode_len:]
-    print("Length of train columns:", before_encode_len)
+    # encoded_columns = X_train.columns[before_encode_len:]
+    # print("Length of train columns:", before_encode_len)
 
-    X_train, X_valid = encode_target(X_train, X_valid, encoded_columns, y_train)
+    # X_train, X_valid = encode_target(X_train, X_valid, encoded_columns, y_train)
 
-    encoded_columns = [col for col in encoded_columns if col != "Episode_Length_minutes"]
-    X_train, X_valid = encode_target(X_train, X_valid, encoded_columns, X_train["Episode_Length_minutes"])
+    # encoded_columns = [col for col in encoded_columns if col != "Episode_Length_minutes"]
+    # X_train, X_valid = encode_target(X_train, X_valid, encoded_columns, X_train["Episode_Length_minutes"])
 
-    X_train = X_train.drop(encoded_columns)
-    X_valid = X_valid.drop(encoded_columns)
+    # X_train = X_train.drop(encoded_columns)
+    # X_valid = X_valid.drop(encoded_columns)
 
     return {
         "X_train": X_train,
