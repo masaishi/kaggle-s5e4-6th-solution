@@ -49,7 +49,7 @@ for fold, (idx_train, idx_valid) in enumerate(group_kfold.split(df, groups=df["f
     datasetXy = get_Xy(Dfs(df_train=df_train, df_valid=df_valid, df_test=df_test))
 
     val_score, test_pred = train_model(fold, datasetXy)
-    test_preds.append([test_pred])
+    test_preds += [test_pred]
 
     gc.collect()
     if hasattr(cfg, "eval") and cfg.eval and fold >= 1:
