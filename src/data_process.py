@@ -193,7 +193,7 @@ def feature_eng(df, df_train):
         "Host_Popularity_percentage",
         "Guest_Popularity_percentage",
         "Number_of_Ads",
-        "ELen_Int",
+        # "ELen_Int",
         "ELen_Dec",
     ]
     interaction_transforms = []
