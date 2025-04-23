@@ -32,7 +32,7 @@ class CFG:
     log_eval: int = 100
     early_stopping: int = 200
 
-    debug: bool = True
+    # debug: bool = True
     eval: bool = True
     predict: bool = True
 

@@ -265,10 +265,7 @@ def encode_target(
     else:
         target_values = target
 
-    # Create encoder
     encoder = TargetEncoder(random_state=random_state)
-
-    # Ensure encode_columns is a list
     if isinstance(encode_columns, str):
         encode_columns = [encode_columns]
 
@@ -288,11 +285,6 @@ def encode_target(
             encoded_test = encoder.transform(X_test_col)
             X_test = X_test.with_columns(pl.Series(encoded_col_name, encoded_test.flatten()))
 
-    # return {
-    #     "X_train": X_train,
-    #     "X_valid": X_valid,
-    #     "X_test": X_test,
-    # }
     return DatasetX(
         X_train=X_train,
         X_valid=X_valid,
@@ -435,6 +427,8 @@ def add_te(y_train: pl.Series, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_t
 
     X_train = cols_encode(X_train, combinations_list)
     X_valid = cols_encode(X_valid, combinations_list)
+    if X_test is not None:
+        X_test = cols_encode(X_test, combinations_list)
 
     encoded_columns = X_train.columns[before_encode_len:]
     print("Length of train columns:", before_encode_len)
@@ -443,7 +437,7 @@ def add_te(y_train: pl.Series, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_t
     X_train, X_valid, X_test = datasetX.get()
 
     encoded_columns = [col for col in encoded_columns if col != "Episode_Length_minutes"]
-    datasetX = encode_target(X_train["Episode_Length_minutes"], encoded_columns, X_train, X_valid)
+    datasetX = encode_target(X_train["Episode_Length_minutes"], encoded_columns, X_train, X_valid, X_test=X_test)
     X_train, X_valid, X_test = datasetX.get()
 
     X_train = X_train.drop(encoded_columns)

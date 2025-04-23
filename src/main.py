@@ -132,7 +132,7 @@ for fold, (idx_train, idx_valid) in enumerate(group_kfold.split(df, groups=df["f
     print(f"Fold {fold + 1} validation score: {val_score}")
     wandb.log({f"fold_{fold + 1}_val_score": val_score})
 
-    if hasattr(cfg, "eval") and cfg.eval and fold >= 1:
+    if hasattr(cfg, "eval") and cfg.eval and fold >= 0:
         break
 
 git_info = commit_results(val_score, wandb_run.name)
