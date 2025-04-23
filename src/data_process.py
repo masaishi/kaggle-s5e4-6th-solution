@@ -4,7 +4,7 @@ from config import cfg
 from data_class import DatasetXy, Dfs
 from feature_eng import add_te, feature_eng, preprocess
 
-_ = [add_te, feature_eng, preprocess]
+_ = [DatasetXy, Dfs, add_te, feature_eng, preprocess]
 
 
 def get_dfs(cfg=cfg) -> Dfs:
