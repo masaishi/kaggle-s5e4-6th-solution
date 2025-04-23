@@ -187,6 +187,7 @@ def feature_eng(df: pl.DataFrame, df_train: pl.DataFrame) -> pl.DataFrame:
         "Number_of_Ads",
         "ELen_Int",
         "ELen_Dec",
+        "HPperc_Int",
     ]
     interaction_transforms = []
 
