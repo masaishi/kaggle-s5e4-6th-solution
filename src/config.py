@@ -32,7 +32,7 @@ class CFG:
     early_stopping: int = 200
 
     # debug: bool = True
-    # eval: bool = True
+    eval: bool = True
     predict: bool = True
 
 
