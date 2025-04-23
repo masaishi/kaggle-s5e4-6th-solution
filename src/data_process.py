@@ -34,7 +34,7 @@ def get_Xy(dfs: Dfs) -> DatasetXy:
     df_train = df_train.drop(["id", "fold"])
     df_valid = df_valid.drop(["id", "fold"])
     if df_test is not None:
-        df_test = df_test.drop(["id", "fold"])
+        df_test = df_test.drop(["id"])
 
     target_col = "Listening_Time_minutes"
     y_train = df_train[target_col]

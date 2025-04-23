@@ -121,9 +121,10 @@ for fold, (idx_train, idx_valid) in enumerate(group_kfold.split(df, groups=df["f
         ],
     )
 
-    if hasattr(cfg, "predict") and cfg.predict and X_test is not None:
+    if hasattr(cfg, "predict") and cfg.predict:
+        X_test = X_test.to_pandas()
         y_test = model.predict(X_test)
-        test_preds += [y_test.to_list()]
+        test_preds += [y_test.tolist()]
 
     val_score = model.best_score_["valid_1"][cfg.metric]
     print(f"Fold {fold + 1} validation score: {val_score}")
@@ -138,7 +139,7 @@ wandb.finish()
 
 gc.collect()
 
-if hasattr(cfg, "predict") and cfg.predict and X_test is not None:
+if hasattr(cfg, "predict") and cfg.predict:
     test_pred = np.array(test_preds).mean(axis=0)
 
     test_df = pl.read_csv(cfg.test_path)
