@@ -28,12 +28,11 @@ class CFG:
 
     random_state: int = 42
     shuffle: bool = True
-    encoded_columns_start: int = -91
     log_eval: int = 100
     early_stopping: int = 200
 
     # debug: bool = True
-    eval: bool = True
+    # eval: bool = True
     predict: bool = True
 
 

@@ -6,6 +6,7 @@ import polars as pl
 from sklearn.preprocessing import TargetEncoder
 from tqdm import tqdm
 
+from config import cfg
 from data_class import DatasetX
 
 re_dict = {}
@@ -215,9 +216,11 @@ def get_combinations(df: pl.DataFrame, columns_to_encode: list, pair_sizes: list
     df_length = len(df)
 
     target_ratios = []
-    # target_ratios.extend(np.arange(0.01, 0.3, 0.05).tolist())
-    # target_ratios.extend(np.arange(0.3, 1.01, 0.008).tolist())
-    target_ratios.extend(np.arange(0.001, 0.999, 0.05).tolist())
+    target_ratios.extend(np.arange(0.01, 0.3, 0.05).tolist())
+    target_ratios.extend(np.arange(0.3, 1.01, 0.005).tolist())
+
+    if hasattr(cfg, "eval") and cfg.eval:
+        target_ratios = np.arange(0.001, 0.999, 0.05).tolist()
 
     all_combinations = []
     for r in pair_sizes:
@@ -267,7 +270,7 @@ def encode_target(
 
     encoder = TargetEncoder(random_state=random_state)
 
-    for col in tqdm(encode_columns, desc=f"Encoding col: {encode_columns}"):
+    for col in tqdm(encode_columns, desc="Encoding cols"):
         encoded_col_name = f"{col}_{target.name}_encoded"
 
         X_train_col = X_train[col].to_numpy().reshape(-1, 1)
@@ -282,6 +285,8 @@ def encode_target(
             X_test_col = X_test[col].to_numpy().reshape(-1, 1)
             encoded_test = encoder.transform(X_test_col)
             X_test = X_test.with_columns(pl.Series(encoded_col_name, encoded_test.flatten()))
+
+        gc.collect()
 
     return DatasetX(
         X_train=X_train,
@@ -312,9 +317,10 @@ def add_te(y_train: pl.Series, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_t
         "ELen_Dec",
         "Length_per_Ads",
     ]
-    # pair_size = [2, 3, 4]
+    pair_size = [2, 3, 4]
     # pair_size = [2, 3]
-    pair_size = [2, 3]
+    if hasattr(cfg, "eval") and cfg.eval:
+        pair_size = [2, 3]
     combinations_list = get_combinations(X_train, columns_to_encode, pair_size)
 
     # combinations_list = [

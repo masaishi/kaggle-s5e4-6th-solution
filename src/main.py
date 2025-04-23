@@ -122,6 +122,8 @@ for fold, (idx_train, idx_valid) in enumerate(group_kfold.split(df, groups=df["f
             WandbCallback(log_every=50),
         ],
     )
+    del X_train, y_train, X_valid, y_valid
+    gc.collect()
 
     if hasattr(cfg, "predict") and cfg.predict:
         X_test = X_test.to_pandas()
@@ -132,6 +134,7 @@ for fold, (idx_train, idx_valid) in enumerate(group_kfold.split(df, groups=df["f
     print(f"Fold {fold + 1} validation score: {val_score}")
     wandb.log({f"fold_{fold + 1}_val_score": val_score})
 
+    gc.collect()
     if hasattr(cfg, "eval") and cfg.eval and fold >= 0:
         break
 
