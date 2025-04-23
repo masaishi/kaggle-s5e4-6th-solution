@@ -10,6 +10,7 @@ class CFG:
     pltpd_path: Path = Path("./data/podcast_dataset.csv")
 
     model_path: Path = Path("./model/lgbm_model.txt")
+    test_output_path: Path = Path("./data/submission.csv")
 
     num_fold: int = 5
     dev_mode: bool = False
@@ -31,7 +32,7 @@ class CFG:
     log_eval: int = 100
     early_stopping: int = 200
 
-    # debug: bool = True
+    debug: bool = True
     eval: bool = True
     predict: bool = True
 

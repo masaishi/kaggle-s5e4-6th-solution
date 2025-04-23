@@ -74,6 +74,8 @@ wandb_run = wandb.init(project="playground-series-s5e4", config=asdict(cfg))
 
 if hasattr(cfg, "eval") and cfg.eval:
     cfg.n_iter = 500
+if hasattr(cfg, "debug") and cfg.debug:
+    cfg.n_iter = 5
 
 df = pl.read_csv(cfg.train_path)
 df = df.filter(pl.col("Number_of_Ads").is_not_null())
