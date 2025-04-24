@@ -12,7 +12,8 @@ class CFG:
     model_path: Path = Path("./model/lgbm_model.txt")
     test_output_path: Path = Path("./data/submission.csv")
 
-    num_fold: int = 5
+    # num_fold: int = 5
+    num_fold: int = 7
     dev_mode: bool = False
 
     # Model parameters
@@ -33,9 +34,9 @@ class CFG:
 
     # default_combinations: bool = True
 
-    # debug: bool = True
-    eval: bool = True
-    # predict: bool = True
+    debug: bool = True
+    # eval: bool = True
+    predict: bool = True
 
     device: str = "cpu"
 

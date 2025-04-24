@@ -73,6 +73,6 @@ def get_Xy(dfs: Dfs) -> DatasetXy:
     X_train = X_train.drop(["id", "fold"])
     X_valid = X_valid.drop(["id", "fold"])
     if X_test is not None:
-        X_test = X_test.drop(["id"])
+        X_test = X_test.drop(["id", "fold"])
 
     return DatasetXy(X_train=X_train, y_train=y_train, X_valid=X_valid, y_valid=y_valid, X_test=X_test, y_test=None)
