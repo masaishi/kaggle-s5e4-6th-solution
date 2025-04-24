@@ -514,6 +514,30 @@ def add_original_cols(df: pl.DataFrame) -> pl.DataFrame:
         ["ELen_Dec", "Publication_Day"],
     ]
 
+    # selected = [
+    #     "Episode_Num-Length_per_Guest",
+    #     "Length_per_Guest-HPperc_Dec",
+    #     "Length_per_Guest-HPperc_Int",
+    #     "Episode_Num-Length_per_Host",
+    #     "Length_per_Guest-Long_Term_Cycle_Sin",
+    #     "Length_per_Guest-Long_Term_Cycle_Cos",
+    #     "Length_per_Host-Long_Term_Cycle_Cos",
+    #     "Length_per_Host-Long_Term_Cycle_Sin",
+    #     "Episode_Length_minutes-Host_Popularity_percentage",
+    #     "Episode_Length_minutes-Length_per_Host",
+    #     "Host_Popularity_percentage-Length_per_Host",
+    #     "Length_per_Host-ELen_Int",
+    #     "Length_per_Host-HPperc_Int",
+    #     "Length_per_Host-HPperc_Dec",
+    #     "Length_per_Host-ELen_Dec",
+    #     "Length_per_Host-Length_per_Guest",
+    #     "Host_Popularity_percentage-Length_per_Guest",
+    #     "Podcast_Name-Length_per_Guest",
+    #     "Guest_Popularity_percentage-Length_per_Host",
+    #     "Episode_Length_minutes-HPperc_Dec",
+    # ]
+    # combinations_list = [item.split("-") for item in selected]
+
     m = df_pltpd["Listening_Time_minutes"].mean()
 
     for cols in combinations_list:
