@@ -2,8 +2,8 @@ import polars as pl
 
 from config import cfg
 from data.data_class import DatasetXy, Dfs
-from data.feature_eng import add_original_cols, add_te
-from data.simple_feature_eng import feature_eng, preprocess
+from data.feature_eng import add_te
+from data.simple_feature_eng import add_original_cols, feature_eng, preprocess
 
 _ = [DatasetXy, Dfs, add_te, add_original_cols, feature_eng, preprocess]
 
@@ -44,18 +44,25 @@ def get_Xy(dfs: Dfs) -> DatasetXy:
     X_valid = df_valid.drop(target_col)
     X_test = df_test
 
+    breakpoint()
+    df_pltpd = pl.read_csv(cfg.pltpd_path)
+    df_pltpd = df_pltpd.filter(pl.col("Episode_Length_minutes").is_not_null())
+    df_pltpd = df_pltpd.with_columns(pl.col("Number_of_Ads").cast(pl.Float64), pl.lit(list(range(len(df_pltpd) + 100000))).alias("id"))
+    df_pltpd = add_fold(df_pltpd)
+    df_pltpd = preprocess(df_pltpd, df_train)
+
+    X_train = add_original_cols(X_train, df_pltpd)
+    X_valid = add_original_cols(X_valid, df_pltpd)
+    if X_test is not None:
+        X_test = add_original_cols(X_test, df_pltpd)
+
     X_train = feature_eng(X_train, df_train)
     X_valid = feature_eng(X_valid, df_train)
     if X_test is not None:
         X_test = feature_eng(X_test, df_train)
 
-    X_train = add_original_cols(X_train)
-    X_valid = add_original_cols(X_valid)
-    if X_test is not None:
-        X_test = add_original_cols(X_test)
-
-    datasetX = add_te(y_train, X_train, X_valid, X_test)
-    X_train, X_valid, X_test = datasetX.get()
+    # datasetX = add_te(y_train, X_train, X_valid, X_test)
+    # X_train, X_valid, X_test = datasetX.get()
 
     df_train = df_train.drop(["id", "fold"])
     df_valid = df_valid.drop(["id", "fold"])

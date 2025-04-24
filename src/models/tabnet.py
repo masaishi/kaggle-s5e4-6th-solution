@@ -140,4 +140,4 @@ def train_model(fold: int, datasetXy: DatasetXy):
     wandb.finish()
     gc.collect()
 
-    return model
+    return model, None

@@ -4,6 +4,8 @@ import polars.selectors as cs
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import GroupKFold
 
+from data.feature_eng import default_combinations_list
+
 
 def calc_rmse(y_true, y_pred):
     rmse = np.sqrt(mean_squared_error(y_true, y_pred))
@@ -202,5 +204,25 @@ def feature_eng(df, df_train):
     df_update = df_update.sort("id")
     df = df.with_columns(df_update)
     df = df.drop(categorical_cols)
-    df = df.drop(["id", "fold"])
+    return df
+
+
+def add_original_cols(df: pl.DataFrame, df_pltpd: pl.DataFrame) -> pl.DataFrame:
+    breakpoint()
+    numeric_cols = df.select(cs.numeric()).columns
+    if "id" in numeric_cols:
+        numeric_cols.remove("id")
+
+    combinations_list = [[col] for col in numeric_cols] + default_combinations_list
+
+    # combinations_list = [item.split("-") for item in selecteds]
+    # combinations_list += [[col] for col in numeric_cols]
+
+    m = df_pltpd["Listening_Time_minutes"].mean()
+
+    for cols in combinations_list:
+        n = f"pte-{'_'.join(cols)}"
+        means = df_pltpd.group_by(cols).agg(pl.col("Listening_Time_minutes").mean().alias("mean_listening_time"))
+        df = df.join(means, on=cols, how="left").with_columns(pl.col("mean_listening_time").fill_null(m).alias(n)).drop("mean_listening_time")
+
     return df
