@@ -31,11 +31,6 @@ def add_fold(df: pl.DataFrame) -> pl.DataFrame:
 def get_Xy(dfs: Dfs) -> DatasetXy:
     df_train, df_valid, df_test = dfs.get()
 
-    df_train = df_train.drop(["id", "fold"])
-    df_valid = df_valid.drop(["id", "fold"])
-    if df_test is not None:
-        df_test = df_test.drop(["id"])
-
     target_col = "Listening_Time_minutes"
     y_train = df_train[target_col]
     X_train = df_train.drop(target_col)
@@ -60,5 +55,10 @@ def get_Xy(dfs: Dfs) -> DatasetXy:
 
     datasetX = add_te(y_train, X_train, X_valid, X_test)
     X_train, X_valid, X_test = datasetX.get()
+
+    df_train = df_train.drop(["id", "fold"])
+    df_valid = df_valid.drop(["id", "fold"])
+    if df_test is not None:
+        df_test = df_test.drop(["id"])
 
     return DatasetXy(X_train=X_train, y_train=y_train, X_valid=X_valid, y_valid=y_valid, X_test=X_test, y_test=None)

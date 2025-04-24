@@ -507,6 +507,8 @@ def add_original_cols(df: pl.DataFrame) -> pl.DataFrame:
     import polars.selectors as cs
 
     numeric_cols = df.select(cs.numeric()).columns
+    numeric_cols.remove("id")
+
     # combinations_list = [[col] for col in numeric_cols] + [
     #     # 2-interaction
     #     ["Episode_Length_minutes", "Host_Popularity_percentage"],
