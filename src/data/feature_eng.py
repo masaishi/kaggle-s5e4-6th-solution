@@ -134,7 +134,7 @@ default_combinations_list = [
     ["Host_Popularity_percentage", "Number_of_Ads", "Episode_Sentiment", "Podcast_Name"],
     ["Host_Popularity_percentage", "Number_of_Ads", "Publication_Day", "Podcast_Name"],
     ["Host_Popularity_percentage", "Number_of_Ads", "Publication_Time", "Podcast_Name"],
-]
+][:30]
 
 re_dict = {}
 re_dict["podc_dict"] = {
@@ -439,7 +439,9 @@ def add_te(y_train: pl.Series, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_t
 def add_original_cols(df: pl.DataFrame) -> pl.DataFrame:
     df_pltpd = pl.read_csv(cfg.pltpd_path)
     df_pltpd = df_pltpd.filter(pl.col("Episode_Length_minutes").is_not_null())
-    df_pltpd = df_pltpd.with_columns(pl.col("Number_of_Ads").cast(pl.Float64))
+    df_pltpd = df_pltpd.with_columns(
+        pl.col("Number_of_Ads").cast(pl.Float64),
+    )
 
     df_pltpd = preprocess(df_pltpd)
     df_pltpd = feature_eng(df_pltpd, df_pltpd)
@@ -447,7 +449,8 @@ def add_original_cols(df: pl.DataFrame) -> pl.DataFrame:
     import polars.selectors as cs
 
     numeric_cols = df.select(cs.numeric()).columns
-    numeric_cols.remove("id")
+    if "id" in numeric_cols:
+        numeric_cols.remove("id")
 
     combinations_list = [[col] for col in numeric_cols] + default_combinations_list
 

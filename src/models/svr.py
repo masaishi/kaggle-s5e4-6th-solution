@@ -100,8 +100,6 @@ def train_model(fold: int, datasetXy: DatasetXy):
 
     model = SVR(**svm_params)
 
-    # Since SVM doesn't have built-in callbacks, we'll implement
-    # a custom training approach with periodic evaluation
     best_model = None
     max_iterations = 10  # Number of hyperparameter tuning iterations
 

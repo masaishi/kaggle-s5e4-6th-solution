@@ -7,9 +7,9 @@ import polars as pl
 import torch
 from pytorch_tabnet.callbacks import Callback
 from pytorch_tabnet.tab_model import TabNetRegressor
-from tabnet_feature_eng import get_dfs
 
 import wandb
+from data.data_class import DatasetXy
 from utils import commit_results
 
 warnings.filterwarnings("ignore")
@@ -31,12 +31,8 @@ class WandbCallback(Callback):
         return False
 
 
-def train_tabnet_model():
-    # Load data
-    dfs = get_dfs()
-    X_train, y_train, X_valid, y_valid = dfs.values()
-    print(X_train.shape, y_train.shape, X_valid.shape, y_valid.shape)
-    print(X_train.head())
+def train_model(fold: int, datasetXy: DatasetXy):
+    X_train, y_train, X_valid, y_valid, X_test, y_test = datasetXy.get()
 
     # Handle categorical columns
     cat_cols = [col for col in X_train.columns if pl.Categorical in X_train[col].dtype.base_type().__mro__ or X_train[col].dtype == pl.Utf8]
@@ -145,8 +141,3 @@ def train_tabnet_model():
     gc.collect()
 
     return model
-
-
-if __name__ == "__main__":
-    model = train_tabnet_model()
-    print("Model training completed.")

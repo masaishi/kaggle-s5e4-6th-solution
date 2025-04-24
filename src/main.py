@@ -11,13 +11,14 @@ from sklearn.model_selection import GroupKFold
 import wandb
 from config import cfg
 from data.data_class import Dfs
+from data.data_process import add_fold, get_Xy
 
-# from data.data_process import add_fold, get_Xy
-from data.simple_data_process import add_fold, get_Xy
-
+# from data.simple_data_process import add_fold, get_Xy
 # from models.lgb import train_model
+from models.tabnet import train_model
+
 # from models.svr import train_model
-from models.xgb import train_model
+# from models.xgb import train_model
 from utils import commit_results
 
 warnings.filterwarnings("ignore")
@@ -30,12 +31,13 @@ wandb_run = wandb.init(project="playground-series-s5e4", config=asdict(cfg))
 
 df = pl.read_csv(cfg.train_path)
 df = df.filter(pl.col("Number_of_Ads").is_not_null())
+df = add_fold(df)
 
 df_test = None
 if hasattr(cfg, "predict") and cfg.predict:
     df_test = pl.read_csv(cfg.test_path)
+    df_test = add_fold(df_test)
 
-df = add_fold(df)
 
 val_score = 999
 test_preds = []
