@@ -4,8 +4,6 @@ import polars.selectors as cs
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import GroupKFold
 
-from data.feature_eng import default_combinations_list
-
 
 def calc_rmse(y_true, y_pred):
     rmse = np.sqrt(mean_squared_error(y_true, y_pred))
@@ -208,12 +206,11 @@ def feature_eng(df, df_train):
 
 
 def add_original_cols(df: pl.DataFrame, df_pltpd: pl.DataFrame) -> pl.DataFrame:
-    breakpoint()
     numeric_cols = df.select(cs.numeric()).columns
     if "id" in numeric_cols:
         numeric_cols.remove("id")
 
-    combinations_list = [[col] for col in numeric_cols] + default_combinations_list
+    combinations_list = [[col] for col in numeric_cols]
 
     # combinations_list = [item.split("-") for item in selecteds]
     # combinations_list += [[col] for col in numeric_cols]

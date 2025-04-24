@@ -3,6 +3,7 @@ from itertools import combinations
 
 import numpy as np
 import polars as pl
+import polars.selectors as cs
 from sklearn.preprocessing import TargetEncoder
 from tqdm import tqdm
 
@@ -105,7 +106,7 @@ selecteds = [
 ]
 
 if hasattr(cfg, "eval") and cfg.eval:
-    selecteds = selecteds[len(list(range(0, 100, 5)))]
+    selecteds = [selecteds[i] for i in range(0, len(selecteds), 5)]
 
 default_combinations_list = [
     # 2-interaction
@@ -511,18 +512,7 @@ def add_te(y_train: pl.Series, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_t
     )
 
 
-def add_original_cols(df: pl.DataFrame) -> pl.DataFrame:
-    df_pltpd = pl.read_csv(cfg.pltpd_path)
-    df_pltpd = df_pltpd.filter(pl.col("Episode_Length_minutes").is_not_null())
-    df_pltpd = df_pltpd.with_columns(
-        pl.col("Number_of_Ads").cast(pl.Float64),
-    )
-
-    df_pltpd = preprocess(df_pltpd)
-    df_pltpd = feature_eng(df_pltpd, df_pltpd)
-
-    import polars.selectors as cs
-
+def add_original_cols(df: pl.DataFrame, df_pltpd: pl.DataFrame) -> pl.DataFrame:
     numeric_cols = df.select(cs.numeric()).columns
     if "id" in numeric_cols:
         numeric_cols.remove("id")

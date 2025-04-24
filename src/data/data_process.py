@@ -48,10 +48,19 @@ def get_Xy(dfs: Dfs) -> DatasetXy:
     if X_test is not None:
         X_test = feature_eng(X_test, df_train)
 
-    X_train = add_original_cols(X_train)
-    X_valid = add_original_cols(X_valid)
+    df_pltpd = pl.read_csv(cfg.pltpd_path)
+    df_pltpd = df_pltpd.filter(pl.col("Episode_Length_minutes").is_not_null())
+    df_pltpd = df_pltpd.with_columns(
+        pl.col("Number_of_Ads").cast(pl.Float64),
+    )
+
+    df_pltpd = preprocess(df_pltpd)
+    df_pltpd = feature_eng(df_pltpd, df_train)
+
+    X_train = add_original_cols(X_train, df_pltpd)
+    X_valid = add_original_cols(X_valid, df_pltpd)
     if X_test is not None:
-        X_test = add_original_cols(X_test)
+        X_test = add_original_cols(X_test, df_pltpd)
 
     datasetX = add_te(y_train, X_train, X_valid, X_test)
     X_train, X_valid, X_test = datasetX.get()

@@ -44,10 +44,12 @@ def get_Xy(dfs: Dfs) -> DatasetXy:
     X_valid = df_valid.drop(target_col)
     X_test = df_test
 
-    breakpoint()
     df_pltpd = pl.read_csv(cfg.pltpd_path)
     df_pltpd = df_pltpd.filter(pl.col("Episode_Length_minutes").is_not_null())
-    df_pltpd = df_pltpd.with_columns(pl.col("Number_of_Ads").cast(pl.Float64), pl.lit(list(range(len(df_pltpd) + 100000))).alias("id"))
+    df_pltpd = df_pltpd.with_columns(
+        pl.col("Number_of_Ads").cast(pl.Float64),
+        pl.Series(range(1_000_000, 1_000_000 + len(df_pltpd))).alias("id"),
+    )
     df_pltpd = add_fold(df_pltpd)
     df_pltpd = preprocess(df_pltpd, df_train)
 
