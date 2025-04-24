@@ -32,7 +32,7 @@ selecteds = [
     "Episode_Length_minutes-HPperc_Dec",
 ]
 
-combinations_list = [
+default_combinations_list = [
     # 2-interaction
     ["Episode_Length_minutes", "Host_Popularity_percentage"],
     ["Episode_Length_minutes", "Guest_Popularity_percentage"],
@@ -402,6 +402,7 @@ def add_te(y_train: pl.Series, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_t
     before_encode_len = len(X_train.columns)
 
     if hasattr(cfg, "select") and cfg.select:
+        combinations_list = default_combinations_list.copy()
         combinations_list = [item.split("-") for item in selecteds]
     else:
         columns_to_encode = [
@@ -472,27 +473,7 @@ def add_original_cols(df: pl.DataFrame) -> pl.DataFrame:
     numeric_cols = df.select(cs.numeric()).columns
     numeric_cols.remove("id")
 
-    combinations_list = [[col] for col in numeric_cols] + [
-        # 2-interaction
-        ["Episode_Length_minutes", "Host_Popularity_percentage"],
-        ["Episode_Length_minutes", "Guest_Popularity_percentage"],
-        ["Episode_Length_minutes", "Number_of_Ads"],
-        ["Episode_Num", "Host_Popularity_percentage"],
-        ["Episode_Num", "Guest_Popularity_percentage"],
-        ["Episode_Num", "Number_of_Ads"],
-        ["Host_Popularity_percentage", "Guest_Popularity_percentage"],
-        ["Host_Popularity_percentage", "Number_of_Ads"],
-        ["Host_Popularity_percentage", "Episode_Sentiment"],
-        ["Episode_Length_minutes", "Podcast_Name"],
-        ["Episode_Num", "Podcast_Name"],
-        ["Guest_Popularity_percentage", "Podcast_Name"],
-        ["ELen_Int", "Episode_Num"],
-        ["ELen_Int", "Host_Popularity_percentage"],
-        ["ELen_Int", "Guest_Popularity_percentage"],
-        ["ELen_Dec", "Episode_Num"],
-        ["ELen_Dec", "Episode_Sentiment"],
-        ["ELen_Dec", "Publication_Day"],
-    ]
+    combinations_list = [[col] for col in numeric_cols] + default_combinations_list
 
     # combinations_list = [item.split("-") for item in selecteds]
     # combinations_list += [[col] for col in numeric_cols]
