@@ -305,10 +305,10 @@ def feature_eng(df, df_train):
         # df_update_part = df[idx_valid].with_columns(transformations)
 
         df_update_part = df[idx_valid]
-        df_update_part = df_update_part.with_columns(
-            pl.lit(stats["Listening_Time_minutes"]["mean"]).alias("Listening_Time_minutes_mean"),
-            pl.lit(stats["Listening_Time_minutes"]["std"]).alias("Listening_Time_minutes_std"),
-        )
+        # df_update_part = df_update_part.with_columns(
+        #     pl.lit(stats["Listening_Time_minutes"]["mean"]).alias("Listening_Time_minutes_mean"),
+        #     pl.lit(stats["Listening_Time_minutes"]["std"]).alias("Listening_Time_minutes_std"),
+        # )
 
         for col in categorical_cols:
             mean_target = df_train_part.group_by(col).agg(pl.col("Listening_Time_minutes").mean().alias(f"{col}_mean"))

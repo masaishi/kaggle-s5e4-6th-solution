@@ -48,6 +48,7 @@ for fold, (idx_train, idx_valid) in enumerate(group_kfold.split(df, groups=df["f
 
     datasetXy = get_Xy(Dfs(df_train=df_train, df_valid=df_valid, df_test=df_test))
     print(f"Fold {fold} - Train shape: {datasetXy.X_train.shape}")
+    print(datasetXy.X_train.columns)
     print(datasetXy.X_train)
 
     val_score, test_pred = train_model(fold, datasetXy)
