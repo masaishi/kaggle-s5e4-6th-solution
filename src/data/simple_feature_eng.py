@@ -311,9 +311,25 @@ def feature_eng(df, df_train, n_splits=GROUP_SPLIT):
         )
 
         for col in categorical_cols:
-            mean_target = df_train_part.group_by(col).agg(pl.col("Listening_Time_minutes").mean().alias(f"{col}_mean"))
+            # mean_target = df_train_part.group_by(col).agg(pl.col("Listening_Time_minutes").mean().alias(f"{col}_mean"))
 
-            df_update_part = df_update_part.join(mean_target, on=col, how="left").with_columns(
+            # df_update_part = df_update_part.join(mean_target, on=col, how="left").with_columns(
+            #     pl.col(f"{col}_mean").fill_null(stats["Listening_Time_minutes"]["mean"]).alias(f"{col}_mean")
+            # )
+            smoothing = np.random.randint(0, 15)
+            target_stats = df_train_part.group_by(col).agg(
+                pl.col("Listening_Time_minutes").mean().alias("mean"), pl.col("Listening_Time_minutes").count().alias("count")
+            )
+
+            global_mean = stats["Listening_Time_minutes"]["mean"]
+
+            target_stats = target_stats.with_columns(
+                ((pl.col("count") * pl.col("mean") + smoothing * global_mean) / (pl.col("count") + smoothing)).alias(f"{col}_mean")
+            )
+
+            target_stats = target_stats.select([col, f"{col}_mean"])
+
+            df_update_part = df_update_part.join(target_stats, on=col, how="left").with_columns(
                 pl.col(f"{col}_mean").fill_null(stats["Listening_Time_minutes"]["mean"]).alias(f"{col}_mean")
             )
 

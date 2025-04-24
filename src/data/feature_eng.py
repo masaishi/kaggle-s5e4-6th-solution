@@ -185,7 +185,7 @@ selecteds = [
 
 if hasattr(cfg, "eval") and cfg.eval:
     selecteds = [selecteds[i] for i in range(0, len(selecteds), 6)]
-selecteds = selecteds[:2]
+
 
 default_combinations_list = [
     # 2-interaction
