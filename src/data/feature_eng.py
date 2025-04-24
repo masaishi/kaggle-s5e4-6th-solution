@@ -578,9 +578,9 @@ def add_te(y_train: pl.Series, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_t
     datasetX = encode_target(y_train, encoded_columns, X_train, X_valid, X_test=X_test)
     X_train, X_valid, X_test = datasetX.get()
 
-    encoded_columns = [col for col in encoded_columns if col != "Episode_Length_minutes"]
-    datasetX = encode_target(X_train["Episode_Length_minutes"], encoded_columns, X_train, X_valid, X_test=X_test)
-    X_train, X_valid, X_test = datasetX.get()
+    # encoded_columns = [col for col in encoded_columns if col != "Episode_Length_minutes"]
+    # datasetX = encode_target(X_train["Episode_Length_minutes"], encoded_columns, X_train, X_valid, X_test=X_test)
+    # X_train, X_valid, X_test = datasetX.get()
 
     X_train = X_train.drop(encoded_columns)
     X_valid = X_valid.drop(encoded_columns)
