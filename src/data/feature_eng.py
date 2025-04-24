@@ -3,7 +3,6 @@ from itertools import combinations
 
 import numpy as np
 import polars as pl
-import polars.selectors as cs
 from sklearn.preprocessing import TargetEncoder
 from tqdm import tqdm
 
@@ -505,63 +504,36 @@ def add_original_cols(df: pl.DataFrame) -> pl.DataFrame:
     df_pltpd = preprocess(df_pltpd)
     df_pltpd = feature_eng(df_pltpd, df_pltpd)
 
-    numeric_cols = df.select(cs.numeric()).columns
-    combinations_list = [[col] for col in numeric_cols] + [
-        # 2-interaction
-        ["Episode_Length_minutes", "Host_Popularity_percentage"],
-        ["Episode_Length_minutes", "Guest_Popularity_percentage"],
-        ["Episode_Length_minutes", "Number_of_Ads"],
-        ["Episode_Num", "Host_Popularity_percentage"],
-        ["Episode_Num", "Guest_Popularity_percentage"],
-        ["Episode_Num", "Number_of_Ads"],
-        ["Host_Popularity_percentage", "Guest_Popularity_percentage"],
-        ["Host_Popularity_percentage", "Number_of_Ads"],
-        ["Host_Popularity_percentage", "Episode_Sentiment"],
-        ["Episode_Length_minutes", "Podcast_Name"],
-        ["Episode_Num", "Podcast_Name"],
-        ["Guest_Popularity_percentage", "Podcast_Name"],
-        ["ELen_Int", "Episode_Num"],
-        ["ELen_Int", "Host_Popularity_percentage"],
-        ["ELen_Int", "Guest_Popularity_percentage"],
-        ["ELen_Dec", "Episode_Num"],
-        ["ELen_Dec", "Episode_Sentiment"],
-        ["ELen_Dec", "Publication_Day"],
-    ]
-
-    # selected = [
-    #     "Episode_Num-Length_per_Guest",
-    #     "Length_per_Guest-HPperc_Dec",
-    #     "Length_per_Guest-HPperc_Int",
-    #     "Episode_Num-Length_per_Host",
-    #     "Length_per_Guest-Long_Term_Cycle_Sin",
-    #     "Length_per_Guest-Long_Term_Cycle_Cos",
-    #     "Length_per_Host-Long_Term_Cycle_Cos",
-    #     "Length_per_Host-Long_Term_Cycle_Sin",
-    #     "Episode_Length_minutes-Host_Popularity_percentage",
-    #     "Episode_Length_minutes-Length_per_Host",
-    #     "Host_Popularity_percentage-Length_per_Host",
-    #     "Length_per_Host-ELen_Int",
-    #     "Length_per_Host-HPperc_Int",
-    #     "Length_per_Host-HPperc_Dec",
-    #     "Length_per_Host-ELen_Dec",
-    #     "Length_per_Host-Length_per_Guest",
-    #     "Host_Popularity_percentage-Length_per_Guest",
-    #     "Podcast_Name-Length_per_Guest",
-    #     "Guest_Popularity_percentage-Length_per_Host",
-    #     "Episode_Length_minutes-HPperc_Dec",
+    # numeric_cols = df.select(cs.numeric()).columns
+    # combinations_list = [[col] for col in numeric_cols] + [
+    #     # 2-interaction
+    #     ["Episode_Length_minutes", "Host_Popularity_percentage"],
+    #     ["Episode_Length_minutes", "Guest_Popularity_percentage"],
+    #     ["Episode_Length_minutes", "Number_of_Ads"],
+    #     ["Episode_Num", "Host_Popularity_percentage"],
+    #     ["Episode_Num", "Guest_Popularity_percentage"],
+    #     ["Episode_Num", "Number_of_Ads"],
+    #     ["Host_Popularity_percentage", "Guest_Popularity_percentage"],
+    #     ["Host_Popularity_percentage", "Number_of_Ads"],
+    #     ["Host_Popularity_percentage", "Episode_Sentiment"],
+    #     ["Episode_Length_minutes", "Podcast_Name"],
+    #     ["Episode_Num", "Podcast_Name"],
+    #     ["Guest_Popularity_percentage", "Podcast_Name"],
+    #     ["ELen_Int", "Episode_Num"],
+    #     ["ELen_Int", "Host_Popularity_percentage"],
+    #     ["ELen_Int", "Guest_Popularity_percentage"],
+    #     ["ELen_Dec", "Episode_Num"],
+    #     ["ELen_Dec", "Episode_Sentiment"],
+    #     ["ELen_Dec", "Publication_Day"],
     # ]
-    # combinations_list = [item.split("-") for item in selecteds]
+
+    combinations_list = [item.split("-") for item in selecteds]
 
     m = df_pltpd["Listening_Time_minutes"].mean()
 
     for cols in combinations_list:
-        # Create a name for the new feature
         n = f"pte-{'_'.join(cols)}"
-
-        # Group by both columns and calculate mean listening time
         means = df_pltpd.group_by(cols).agg(pl.col("Listening_Time_minutes").mean().alias("mean_listening_time"))
-
-        # Join with original dataframe
         df = df.join(means, on=cols, how="left").with_columns(pl.col("mean_listening_time").fill_null(m).alias(n)).drop("mean_listening_time")
 
     return df
