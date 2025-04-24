@@ -438,12 +438,6 @@ def add_te(y_train: pl.Series, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_t
         #     "Episode_Length_minutes-HPperc_Dec",
         # ]
         selected = [
-            "Episode_Length_minutes_NaN-Guest_Popularity_percentage_NaN",
-            "Number_of_Ads",
-            "Number_of_Ads-Episode_Length_minutes_NaN",
-            "Number_of_Ads-Time_cos",
-            "Genre-Episode_Length_minutes_NaN",
-            "Publication_Day-Number_of_Ads",
             "ELen_Int",
             "ELen_Int-Is_Positive_Sentiment",
             "Episode_Sentiment-ELen_Int",
