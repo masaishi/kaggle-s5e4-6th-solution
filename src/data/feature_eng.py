@@ -239,7 +239,7 @@ def feature_eng(df: pl.DataFrame, df_train: pl.DataFrame) -> pl.DataFrame:
         interaction_transforms.append((pl.col(col1).pow(2) * pl.col(col2)).alias(f"{col1}_sq_{col2}"))
         interaction_transforms.append((pl.col(col1) * pl.col(col2).pow(2)).alias(f"{col1}_{col2}_sq"))
 
-    df = df.with_columns(interaction_transforms)
+    # df = df.with_columns(interaction_transforms)
 
     # Convert columns to categorical
     for col in ["Podcast_Name", "Genre", "Publication_Day", "Publication_Time", "Episode_Sentiment", "Episode_Num"]:
@@ -504,7 +504,9 @@ def add_original_cols(df: pl.DataFrame) -> pl.DataFrame:
     df_pltpd = preprocess(df_pltpd)
     df_pltpd = feature_eng(df_pltpd, df_pltpd)
 
-    # numeric_cols = df.select(cs.numeric()).columns
+    import polars.selectors as cs
+
+    numeric_cols = df.select(cs.numeric()).columns
     # combinations_list = [[col] for col in numeric_cols] + [
     #     # 2-interaction
     #     ["Episode_Length_minutes", "Host_Popularity_percentage"],
@@ -528,6 +530,7 @@ def add_original_cols(df: pl.DataFrame) -> pl.DataFrame:
     # ]
 
     combinations_list = [item.split("-") for item in selecteds]
+    combinations_list += [[col] for col in numeric_cols]
 
     m = df_pltpd["Listening_Time_minutes"].mean()
 
