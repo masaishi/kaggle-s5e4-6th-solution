@@ -18,7 +18,8 @@ class CFG:
     # Model parameters
     n_iter: int = 10000
     max_depth: int = -1
-    num_leaves: int = 1024
+    # num_leaves: int = 1024
+    num_leaves: int = 2048
     colsample_bytree: float = 0.5
     learning_rate: float = 0.04
 
@@ -34,8 +35,8 @@ class CFG:
     default_combinations: bool = True
 
     # debug: bool = True
-    # eval: bool = True
-    predict: bool = True
+    eval: bool = True
+    # predict: bool = True
 
     device: str = "cpu"
 
