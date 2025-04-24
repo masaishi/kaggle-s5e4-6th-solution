@@ -259,7 +259,7 @@ def preprocess(df, df_train=None):
     return df
 
 
-def feature_eng(df, df_train):
+def feature_eng(df, df_train, n_splits=GROUP_SPLIT):
     for col in ["Podcast_Name", "Genre", "Publication_Day", "Publication_Time", "Episode_Sentiment", "Episode_Num"]:
         df_train = df_train.with_columns(pl.col(col).cast(pl.Utf8).cast(pl.Categorical))
     df_train = df_train.with_columns(
@@ -285,7 +285,7 @@ def feature_eng(df, df_train):
         "Guest_Popularity_percentage_NaN",
     ]
 
-    group_kfold = GroupKFold(n_splits=GROUP_SPLIT)
+    group_kfold = GroupKFold(n_splits=n_splits)
     df_update = pl.DataFrame()
     for (_, idx_valid), (t_idx_train, _) in zip(group_kfold.split(df, groups=df["fold"]), group_kfold.split(df_train, groups=df_train["fold"])):
         df_train_part = df_train[t_idx_train]
