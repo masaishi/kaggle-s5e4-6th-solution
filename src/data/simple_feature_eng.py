@@ -297,13 +297,14 @@ def feature_eng(df, df_train):
             for col in numeric_cols
         }
 
-        transformations = []
-        transform_cols = [col for col in numeric_cols if col != "Listening_Time_minutes"]
-        for col in transform_cols:
-            transformations.append(((pl.col(col) - stats[col]["mean"]) / stats[col]["std"]).alias(f"{col}"))
-            # transformations.append((pl.col(col) - stats[col]["mean"]).alias(f"{col}"))
-        df_update_part = df[idx_valid].with_columns(transformations)
+        # transformations = []
+        # transform_cols = [col for col in numeric_cols if col != "Listening_Time_minutes"]
+        # for col in transform_cols:
+        #     transformations.append(((pl.col(col) - stats[col]["mean"]) / stats[col]["std"]).alias(f"{col}"))
+        #     # transformations.append((pl.col(col) - stats[col]["mean"]).alias(f"{col}"))
+        # df_update_part = df[idx_valid].with_columns(transformations)
 
+        df_update_part = df[idx_valid]
         df_update_part = df_update_part.with_columns(
             pl.lit(stats["Listening_Time_minutes"]["mean"]).alias("Listening_Time_minutes_mean"),
             pl.lit(stats["Listening_Time_minutes"]["std"]).alias("Listening_Time_minutes_std"),
