@@ -4,6 +4,10 @@ import polars.selectors as cs
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import GroupKFold
 
+from config import cfg
+from data.data_class import DatasetX
+from data.feature_eng import cols_encode, encode_target
+
 selecteds = [
     "Episode_Length_minutes-Host_Popularity_percentage-Publication_Day-Guest_Popularity_percentage",
     "Episode_Length_minutes-Host_Popularity_percentage-Guest_Popularity_percentage",
@@ -106,6 +110,8 @@ selecteds = [
     "Episode_Num-Episode_Length_minutes-Genre-Publication_Day",
     "Host_Popularity_percentage-Guest_Popularity_percentage-Episode_Sentiment",
 ]
+if hasattr(cfg, "eval") and cfg.eval:
+    selecteds = [selecteds[i] for i in range(0, len(selecteds), 5)]
 
 
 def calc_rmse(y_true, y_pred):
@@ -306,6 +312,41 @@ def feature_eng(df, df_train):
     df = df.with_columns(df_update)
     df = df.drop(categorical_cols)
     return df
+
+
+def add_te(y_train: pl.Series, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_test: pl.DataFrame = None) -> DatasetX:
+    before_encode_len = len(X_train.columns)
+
+    combinations_list = [item.split("-") for item in selecteds]
+
+    print("Combinations list length:", len(combinations_list))
+    print("Combinations list:", combinations_list)
+
+    X_train = cols_encode(X_train, combinations_list)
+    X_valid = cols_encode(X_valid, combinations_list)
+    if X_test is not None:
+        X_test = cols_encode(X_test, combinations_list)
+
+    encoded_columns = X_train.columns[before_encode_len:]
+    print("Length of train columns:", before_encode_len)
+
+    datasetX = encode_target(y_train, encoded_columns, X_train, X_valid, X_test=X_test)
+    X_train, X_valid, X_test = datasetX.get()
+
+    # encoded_columns = [col for col in encoded_columns if col != "Episode_Length_minutes"]
+    # datasetX = encode_target(X_train["Episode_Length_minutes"], encoded_columns, X_train, X_valid, X_test=X_test)
+    # X_train, X_valid, X_test = datasetX.get()
+
+    X_train = X_train.drop(encoded_columns)
+    X_valid = X_valid.drop(encoded_columns)
+    if X_test is not None:
+        X_test = X_test.drop(encoded_columns)
+
+    return DatasetX(
+        X_train=X_train,
+        X_valid=X_valid,
+        X_test=X_test,
+    )
 
 
 def add_original_cols(df: pl.DataFrame, df_pltpd: pl.DataFrame) -> pl.DataFrame:
