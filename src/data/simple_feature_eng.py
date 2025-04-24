@@ -321,7 +321,7 @@ def feature_eng(df, df_train):
 
     df_update = df_update.sort("id")
     df = df.with_columns(df_update)
-    df = df.drop(categorical_cols)
+    # df = df.drop(categorical_cols)
 
     return df
 
