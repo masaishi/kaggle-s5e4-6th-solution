@@ -197,7 +197,7 @@ re_dict["sent_dict"] = {"Negative": 0, "Neutral": 1, "Positive": 2}
 pl_i_type = pl.Int32
 pl_f_type = pl.Float32
 
-GROUP_SPLIT = 20
+GROUP_SPLIT = 10
 
 
 def cast_numeric_dtypes(df):
@@ -321,7 +321,7 @@ def feature_eng(df, df_train):
 
     df_update = df_update.sort("id")
     df = df.with_columns(df_update)
-    # df = df.drop(categorical_cols)
+    df = df.drop(categorical_cols)
 
     return df
 
