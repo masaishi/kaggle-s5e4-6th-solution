@@ -197,7 +197,7 @@ re_dict["sent_dict"] = {"Negative": 0, "Neutral": 1, "Positive": 2}
 pl_i_type = pl.Int32
 pl_f_type = pl.Float32
 
-GROUP_SPLIT = 10
+GROUP_SPLIT = 50
 
 
 def cast_numeric_dtypes(df):
