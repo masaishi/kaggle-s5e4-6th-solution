@@ -88,7 +88,7 @@ re_dict["sent_dict"] = {"Negative": 0, "Neutral": 1, "Positive": 2}
 pl_i_type = pl.Int32
 pl_f_type = pl.Float32
 
-GROUP_SPLIT = 10
+GROUP_SPLIT = 20
 
 
 def cast_numeric_dtypes(df):
@@ -181,8 +181,8 @@ def feature_eng(df, df_train):
         transformations = []
         transform_cols = [col for col in numeric_cols if col != "Listening_Time_minutes"]
         for col in transform_cols:
-            # transformations.append(((pl.col(col) - stats[col]["mean"]) / stats[col]["std"]).alias(f"{col}"))
-            transformations.append((pl.col(col) - stats[col]["mean"]).alias(f"{col}"))
+            transformations.append(((pl.col(col) - stats[col]["mean"]) / stats[col]["std"]).alias(f"{col}"))
+            # transformations.append((pl.col(col) - stats[col]["mean"]).alias(f"{col}"))
         df_update_part = df[idx_valid].with_columns(transformations)
 
         df_update_part = df_update_part.with_columns(
