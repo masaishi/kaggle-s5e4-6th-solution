@@ -401,34 +401,10 @@ def encode_target(
 def add_te(y_train: pl.Series, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_test: pl.DataFrame = None) -> DatasetX:
     before_encode_len = len(X_train.columns)
 
-    if hasattr(cfg, "select") and cfg.select:
+    if hasattr(cfg, "default_combinations") and cfg.default_combinations:
         combinations_list = default_combinations_list.copy()
-        combinations_list = [item.split("-") for item in selecteds]
     else:
-        columns_to_encode = [
-            "Host_Popularity_percentage",
-            "Guest_Popularity_percentage",
-            "Episode_Length_minutes",
-            "Episode_Num",
-            "Podcast_Name",
-            "Publication_Day",
-            "Publication_Time",
-            "Episode_Sentiment",
-            "Genre",
-            "Number_of_Ads",
-            "Episode_Length_minutes_NaN",
-            "Guest_Popularity_percentage_NaN",
-            "HPperc_Int",
-            "HPperc_Dec",
-            "ELen_Int",
-            "ELen_Dec",
-            "Length_per_Ads",
-        ]
-        pair_size = [2, 3, 4]
-        # pair_size = [2, 3]
-        if hasattr(cfg, "eval") and cfg.eval:
-            pair_size = [2, 3]
-        combinations_list = get_combinations(X_train, columns_to_encode, pair_size)
+        combinations_list = [item.split("-") for item in selecteds]
 
     print("Combinations list length:", len(combinations_list))
     print("Combinations list:", combinations_list)
