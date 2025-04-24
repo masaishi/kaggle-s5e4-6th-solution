@@ -3,6 +3,7 @@ import polars as pl
 from config import cfg
 from data.data_class import DatasetXy, Dfs
 from data.feature_eng import add_original_cols, add_te, feature_eng, preprocess
+from data.simple_feature_eng import feature_eng as simple_feature_eng
 
 _ = [DatasetXy, Dfs, add_te, feature_eng, preprocess, add_original_cols]
 
@@ -64,6 +65,11 @@ def get_Xy(dfs: Dfs) -> DatasetXy:
 
     datasetX = add_te(y_train, X_train, X_valid, X_test)
     X_train, X_valid, X_test = datasetX.get()
+
+    X_train = simple_feature_eng(X_train, df_train)
+    X_valid = simple_feature_eng(X_valid, df_train)
+    if X_test is not None:
+        X_test = simple_feature_eng(X_test, df_train)
 
     df_train = df_train.drop(["id", "fold"])
     df_valid = df_valid.drop(["id", "fold"])

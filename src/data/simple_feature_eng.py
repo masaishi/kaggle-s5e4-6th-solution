@@ -260,7 +260,17 @@ def preprocess(df, df_train=None):
 
 
 def feature_eng(df, df_train):
-    numeric_cols = df_train.select(cs.numeric()).columns
+    for col in ["Podcast_Name", "Genre", "Publication_Day", "Publication_Time", "Episode_Sentiment", "Episode_Num"]:
+        df_train = df_train.with_columns(pl.col(col).cast(pl.Utf8).cast(pl.Categorical))
+    df_train = df_train.with_columns(
+        pl.col("Episode_Num").cast(pl.Utf8).cast(pl.Categorical).alias("Episode_Num_Cat"),
+    )
+    df = df.with_columns(
+        pl.col("Episode_Num").cast(pl.Utf8).cast(pl.Categorical).alias("Episode_Num_Cat"),
+    )
+
+    # numeric_cols = df_train.select(cs.numeric()).columns
+    numeric_cols = ["Listening_Time_minutes", "Episode_Length_minutes", "Host_Popularity_percentage", "Guest_Popularity_percentage", "Number_of_Ads"]
     if "id" in numeric_cols:
         numeric_cols.remove("id")
 
@@ -269,8 +279,8 @@ def feature_eng(df, df_train):
         "Genre",
         "Publication_Day",
         "Publication_Time",
-        "Episode_Sentiment",
         "Episode_Num_Cat",
+        "Episode_Sentiment",
         "Episode_Length_minutes_NaN",
         "Guest_Popularity_percentage_NaN",
     ]
@@ -311,6 +321,7 @@ def feature_eng(df, df_train):
     df_update = df_update.sort("id")
     df = df.with_columns(df_update)
     df = df.drop(categorical_cols)
+
     return df
 
 

@@ -11,9 +11,9 @@ from sklearn.model_selection import GroupKFold
 import wandb
 from config import cfg
 from data.data_class import Dfs
+from data.data_process import add_fold, get_Xy
 
-# from data.data_process import add_fold, get_Xy
-from data.simple_data_process import add_fold, get_Xy
+# from data.simple_data_process import add_fold, get_Xy
 from models.lgb import train_model
 
 # from models.tabnet import train_model
@@ -48,6 +48,7 @@ for fold, (idx_train, idx_valid) in enumerate(group_kfold.split(df, groups=df["f
 
     datasetXy = get_Xy(Dfs(df_train=df_train, df_valid=df_valid, df_test=df_test))
     print(f"Fold {fold} - Train shape: {datasetXy.X_train.shape}")
+    print(datasetXy.X_train)
 
     val_score, test_pred = train_model(fold, datasetXy)
     test_preds += [test_pred]

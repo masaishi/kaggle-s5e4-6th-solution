@@ -210,7 +210,9 @@ default_combinations_list = [
     ["Host_Popularity_percentage", "Number_of_Ads", "Episode_Sentiment", "Podcast_Name"],
     ["Host_Popularity_percentage", "Number_of_Ads", "Publication_Day", "Podcast_Name"],
     ["Host_Popularity_percentage", "Number_of_Ads", "Publication_Time", "Podcast_Name"],
-][:30]
+]
+if hasattr(cfg, "eval") and cfg.eval:
+    default_combinations_list = [default_combinations_list[i] for i in range(0, len(default_combinations_list), 5)]
 
 re_dict = {}
 re_dict["podc_dict"] = {
