@@ -2,6 +2,7 @@ import numpy as np
 import polars as pl
 import polars.selectors as cs
 from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import GroupKFold
 
 
 def calc_rmse(y_true, y_pred):
@@ -84,9 +85,10 @@ re_dict["week_dict"] = {
 re_dict["time_dict"] = {"Morning": 10, "Afternoon": 14, "Evening": 17, "Night": 21}
 re_dict["sent_dict"] = {"Negative": 0, "Neutral": 1, "Positive": 2}
 
-
 pl_i_type = pl.Int32
 pl_f_type = pl.Float32
+
+GROUP_SPLIT = 10
 
 
 def cast_numeric_dtypes(df):
@@ -141,61 +143,65 @@ def preprocess(df, df_train=None):
         pl.col("Number_of_Ads").fill_null(n_median),
     )
 
+    df = df.with_columns(
+        pl.col("Episode_Num").cast(pl.Utf8).cast(pl.Categorical).alias("Episode_Num_Cat"),
+    )
+
     return df
 
 
 def feature_eng(df, df_train):
     numeric_cols = df_train.select(cs.numeric()).columns
-    stats = {
-        col: {
-            "mean": df_train.select(pl.col(col).mean()).item(),
-            "std": df_train.select(pl.col(col).std()).item(),
+    numeric_cols.remove("id")
+
+    df_train = df_train.with_columns(
+        pl.col("Episode_Num").cast(pl.Utf8).cast(pl.Categorical).alias("Episode_Num_Cat"),
+    )
+    categorical_cols = [
+        "Podcast_Name",
+        "Genre",
+        "Publication_Day",
+        "Publication_Time",
+        "Episode_Sentiment",
+        "Episode_Num_Cat",
+        "Episode_Length_minutes_NaN",
+        "Guest_Popularity_percentage_NaN",
+    ]
+
+    group_kfold = GroupKFold(n_splits=GROUP_SPLIT)
+    df_update = pl.DataFrame()
+    for _, (idx_train, idx_valid) in enumerate(group_kfold.split(df_train, groups=df_train["fold"])):
+        df_train_part = df_train[idx_train]
+        stats = {
+            col: {
+                "mean": df_train_part.select(pl.col(col).mean()).item(),
+                "std": df_train_part.select(pl.col(col).std()).item(),
+            }
+            for col in numeric_cols
         }
-        for col in numeric_cols
-    }
 
-    transformations = []
-    for col in numeric_cols:
-        transformations.append(((pl.col(col) - stats[col]["mean"]) / stats[col]["std"]).alias(f"{col}"))
-    df = df.with_columns(transformations)
+        transformations = []
+        for col in numeric_cols:
+            transformations.append(((pl.col(col) - stats[col]["mean"]) / stats[col]["std"]).alias(f"{col}"))
+        df_update_part = df_train[idx_valid].with_columns(transformations)
 
-    # Add std and mean of Listening_Time_minutes
-    df = df.with_columns(
-        (stats["Listening_Time_minutes"]["mean"]).alias("Listening_Time_minutes_mean"),
-        (stats["Listening_Time_minutes"]["std"]).alias("Listening_Time_minutes_std"),
-    )
+        df_update_part = df_update_part.with_columns(
+            pl.lit(stats["Listening_Time_minutes"]["mean"]).alias("Listening_Time_minutes_mean"),
+            pl.lit(stats["Listening_Time_minutes"]["std"]).alias("Listening_Time_minutes_std"),
+        )
 
-    # Cyclical features for day and time
-    df = df.with_columns(
-        # Day features
-        pl.col("Publication_Day").cast(pl_f_type).mul(2 * np.pi / 7).sin().alias("Day_sin"),
-        pl.col("Publication_Day").cast(pl_f_type).mul(2 * np.pi / 7).cos().alias("Day_cos"),
-        pl.col("Publication_Day").cast(pl_f_type).mul(4 * np.pi / 7).sin().alias("Day_sin2"),
-        pl.col("Publication_Day").cast(pl_f_type).mul(4 * np.pi / 7).cos().alias("Day_cos2"),
-        # Time features
-        pl.col("Publication_Time").cast(pl_f_type).mul(2 * np.pi / 4).sin().alias("Time_sin"),
-        pl.col("Publication_Time").cast(pl_f_type).mul(2 * np.pi / 4).cos().alias("Time_cos"),
-        pl.col("Publication_Time").cast(pl_f_type).mul(4 * np.pi / 24).sin().alias("Time_sin2"),
-        pl.col("Publication_Time").cast(pl_f_type).mul(4 * np.pi / 24).cos().alias("Time_cos2"),
-        # Ratio features
-        (pl.col("Episode_Length_minutes") / (pl.col("Number_of_Ads") + 1)).fill_null(0).alias("Length_per_Ads"),
-        (pl.col("Episode_Length_minutes") / (pl.col("Host_Popularity_percentage") + 1)).fill_null(0).alias("Length_per_Host"),
-        (pl.col("Episode_Length_minutes") / (pl.col("Guest_Popularity_percentage") + 1)).fill_null(0).alias("Length_per_Guest"),
-        # Episode length features
-        pl.col("Episode_Length_minutes").floor().alias("ELen_Int"),
-        (pl.col("Episode_Length_minutes") - pl.col("Episode_Length_minutes").floor()).alias("ELen_Dec"),
-        pl.col("Host_Popularity_percentage").floor().alias("HPperc_Int"),
-        (pl.col("Host_Popularity_percentage") - pl.col("Host_Popularity_percentage").floor()).alias("HPperc_Dec"),
-        # Sentiment features
-        (pl.col("Episode_Sentiment") == "2").cast(pl.Int8).alias("Is_Positive_Sentiment"),
-        pl.when(pl.col("Episode_Sentiment") == "2").then(0.75).otherwise(0.717).cast(pl_f_type).alias("Sentiment_Multiplier"),
-        # Squared features
-        (pl.col("Episode_Length_minutes") ** 2).alias("Episode_Length_squared"),
-        (pl.col("Episode_Length_minutes") ** 3).alias("Episode_Length_squared2"),
-    )
+        for col in categorical_cols:
+            mean_target = df_train_part.group_by(col).agg(pl.col("Listening_Time_minutes").mean().alias(f"{col}_mean"))
 
-    # Convert columns to categorical
-    for col in ["Podcast_Name", "Genre", "Publication_Day", "Publication_Time", "Episode_Sentiment", "Episode_Num"]:
-        df = df.with_columns(pl.col(col).cast(pl.Utf8).cast(pl.Categorical))
+            df_update_part = df_update_part.join(mean_target, on=col, how="left").with_columns(
+                pl.col(f"{col}_mean").fill_null(stats["Listening_Time_minutes"]["mean"]).alias(f"{col}_mean")
+            )
+
+        df_update = pl.concat([df_update, df_update_part], how="vertical")
+
+    df_update = df_update.sort("id")
+    df = df.with_columns(df_update)
+    df = df.drop(categorical_cols)
+    df = df.drop(["id", "fold"])
 
     return df
