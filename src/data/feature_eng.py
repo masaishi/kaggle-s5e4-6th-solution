@@ -239,6 +239,7 @@ default_combinations_list = [
 ]
 if hasattr(cfg, "eval") and cfg.eval:
     default_combinations_list = [default_combinations_list[i] for i in range(0, len(default_combinations_list), 5)]
+    # default_combinations_list = default_combinations_list[:20]
 
 re_dict = {}
 re_dict["podc_dict"] = {
