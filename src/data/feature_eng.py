@@ -239,7 +239,7 @@ def feature_eng(df: pl.DataFrame, df_train: pl.DataFrame) -> pl.DataFrame:
         interaction_transforms.append((pl.col(col1).pow(2) * pl.col(col2)).alias(f"{col1}_sq_{col2}"))
         interaction_transforms.append((pl.col(col1) * pl.col(col2).pow(2)).alias(f"{col1}_{col2}_sq"))
 
-    # df = df.with_columns(interaction_transforms)
+    df = df.with_columns(interaction_transforms)
 
     # Convert columns to categorical
     for col in ["Podcast_Name", "Genre", "Publication_Day", "Publication_Time", "Episode_Sentiment", "Episode_Num"]:
