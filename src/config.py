@@ -18,8 +18,7 @@ class CFG:
     # Model parameters
     n_iter: int = 10000
     max_depth: int = -1
-    # num_leaves: int = 1024
-    num_leaves: int = 2048
+    num_leaves: int = 1024
     colsample_bytree: float = 0.5
     learning_rate: float = 0.04
 
