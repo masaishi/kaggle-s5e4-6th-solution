@@ -10,6 +10,29 @@ from tqdm import tqdm
 from config import cfg
 from data.data_class import DatasetX
 
+selecteds = [
+    "ELen_Int",
+    "ELen_Int-Is_Positive_Sentiment",
+    "Episode_Sentiment-ELen_Int",
+    "Time_cos-ELen_Int",
+    "ELen_Dec",
+    "ELen_Dec-Is_Positive_Sentiment",
+    "Episode_Sentiment-ELen_Dec",
+    "Podcast_Name-ELen_Int",
+    "Episode_Length_minutes-Episode_Length_minutes_NaN",
+    "Length_per_Guest-HPperc_Dec",
+    "Episode_Num-Length_per_Guest",
+    "Length_per_Guest-HPperc_Int",
+    "Episode_Length_minutes-Host_Popularity_percentage",
+    "Length_per_Guest-ELen_Int",
+    "Length_per_Host",
+    "Guest_Popularity_percentage_NaN-Length_per_Guest",
+    "Length_per_Ads-Length_per_Guest",
+    "Length_per_Ads-HPperc_Dec",
+    "Episode_Length_minutes-HPperc_Dec",
+    "Episode_Length_minutes-Episode_Num",
+]
+
 re_dict = {}
 re_dict["podc_dict"] = {
     "Mystery Matters": 0,
@@ -146,6 +169,7 @@ def preprocess(df: pl.DataFrame, df_train: pl.DataFrame = None) -> pl.DataFrame:
 
 
 def feature_eng(df: pl.DataFrame, df_train: pl.DataFrame) -> pl.DataFrame:
+    global selected
     # Cyclical features for day and time
     df = df.with_columns(
         # Day features
@@ -181,27 +205,9 @@ def feature_eng(df: pl.DataFrame, df_train: pl.DataFrame) -> pl.DataFrame:
         (pl.col("Episode_Length_minutes") * pl.col("Sentiment_Multiplier")).alias("Expected_Listening_Time_Sentiment"),
     )
 
-    combinations_list = [
-        "Episode_Num-Length_per_Guest",
-        "Length_per_Guest-HPperc_Dec",
-        "Length_per_Guest-HPperc_Int",
-        "Length_per_Guest-Long_Term_Cycle_Cos",
-        "Episode_Num-Length_per_Host",
-        "Length_per_Guest-Long_Term_Cycle_Sin",
-        "Length_per_Host-Long_Term_Cycle_Cos",
-        "Length_per_Host-Long_Term_Cycle_Sin",
-        "Episode_Length_minutes-Length_per_Host",
-        "Episode_Length_minutes-Host_Popularity_percentage",
-        "Host_Popularity_percentage-Length_per_Host",
-        "Length_per_Host-ELen_Int",
-        "Length_per_Host-HPperc_Int",
-        "Length_per_Host-HPperc_Dec",
-        "Length_per_Host-ELen_Dec",
-        "Length_per_Host-Length_per_Guest",
-    ]
     interaction_transforms = []
 
-    for comb in combinations_list:
+    for comb in selecteds:
         col1, col2 = comb.split("-")
 
         interaction_transforms.append(pl.max_horizontal(pl.col(col1), pl.col(col2)).alias(f"{col1}_{col2}_max"))
@@ -415,45 +421,7 @@ def add_te(y_train: pl.Series, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_t
         #     ["Host_Popularity_percentage", "Number_of_Ads", "Publication_Time", "Podcast_Name"],
         # ]
 
-        # selected = [
-        #     "Episode_Num-Length_per_Guest",
-        #     "Length_per_Guest-HPperc_Dec",
-        #     "Length_per_Guest-HPperc_Int",
-        #     "Episode_Num-Length_per_Host",
-        #     "Length_per_Guest-Long_Term_Cycle_Sin",
-        #     "Length_per_Guest-Long_Term_Cycle_Cos",
-        #     "Length_per_Host-Long_Term_Cycle_Cos",
-        #     "Length_per_Host-Long_Term_Cycle_Sin",
-        #     "Episode_Length_minutes-Host_Popularity_percentage",
-        #     "Episode_Length_minutes-Length_per_Host",
-        #     "Host_Popularity_percentage-Length_per_Host",
-        #     "Length_per_Host-ELen_Int",
-        #     "Length_per_Host-HPperc_Int",
-        #     "Length_per_Host-HPperc_Dec",
-        #     "Length_per_Host-ELen_Dec",
-        #     "Length_per_Host-Length_per_Guest",
-        #     "Host_Popularity_percentage-Length_per_Guest",
-        #     "Podcast_Name-Length_per_Guest",
-        #     "Guest_Popularity_percentage-Length_per_Host",
-        #     "Episode_Length_minutes-HPperc_Dec",
-        # ]
-        selected = [
-            "ELen_Int",
-            "ELen_Int-Is_Positive_Sentiment",
-            "Episode_Sentiment-ELen_Int",
-            "ELen_Dec",
-            "Guest_Popularity_percentage_NaN-ELen_Dec",
-            "ELen_Dec-Is_Positive_Sentiment",
-            "Episode_Length_minutes",
-            "Length_per_Guest-HPperc_Dec",
-            "Episode_Num-Length_per_Guest",
-            "Episode_Length_minutes-Host_Popularity_percentage",
-            "Length_per_Host",
-            "Length_per_Ads-Length_per_Guest",
-            "Episode_Num-Length_per_Ads",
-            "Episode_Length_minutes-HPperc_Dec",
-        ]
-        combinations_list = [item.split("-") for item in selected]
+        combinations_list = [item.split("-") for item in selecteds]
     else:
         columns_to_encode = [
             "Host_Popularity_percentage",
@@ -563,7 +531,7 @@ def add_original_cols(df: pl.DataFrame) -> pl.DataFrame:
     #     "Guest_Popularity_percentage-Length_per_Host",
     #     "Episode_Length_minutes-HPperc_Dec",
     # ]
-    # combinations_list = [item.split("-") for item in selected]
+    # combinations_list = [item.split("-") for item in selecteds]
 
     m = df_pltpd["Listening_Time_minutes"].mean()
 
