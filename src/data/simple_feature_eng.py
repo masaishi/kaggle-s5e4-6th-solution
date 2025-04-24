@@ -317,7 +317,7 @@ def feature_eng(df, df_train, n_splits=GROUP_SPLIT):
             #     pl.col(f"{col}_mean").fill_null(stats["Listening_Time_minutes"]["mean"]).alias(f"{col}_mean")
             # )
 
-            smoothing = np.random.randint(0, 10)
+            smoothing = np.random.randint(0, 5)
             target_stats = df_train_part.group_by(col).agg(
                 pl.col("Listening_Time_minutes").mean().alias("mean"), pl.col("Listening_Time_minutes").count().alias("count")
             )
