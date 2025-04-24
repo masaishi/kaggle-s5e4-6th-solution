@@ -34,7 +34,7 @@ class CFG:
     select: bool = True
 
     # debug: bool = True
-    # eval: bool = True
+    eval: bool = True
     # predict: bool = True
 
     device: str = "cpu"
