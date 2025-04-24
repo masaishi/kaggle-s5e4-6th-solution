@@ -2,7 +2,7 @@ import polars as pl
 
 from config import cfg
 from data.data_class import DatasetXy, Dfs
-from data.feature_eng import add_te, feature_eng, preprocess
+from data.feature_eng import add_original_cols, add_te, feature_eng, preprocess
 
 _ = [DatasetXy, Dfs, add_te, feature_eng, preprocess]
 
@@ -36,11 +36,6 @@ def get_Xy(dfs: Dfs) -> DatasetXy:
     if df_test is not None:
         df_test = df_test.drop(["id"])
 
-    df_pltpd = pl.read_csv(cfg.pltpd_path)
-    df_pltpd = df_pltpd.filter(pl.col("Episode_Length_minutes").is_not_null())
-    df_pltpd = df_pltpd.with_columns(pl.col("Number_of_Ads").cast(pl.Float64))
-    df_train = pl.concat([df_train, df_pltpd], how="vertical")
-
     target_col = "Listening_Time_minutes"
     y_train = df_train[target_col]
     X_train = df_train.drop(target_col)
@@ -57,6 +52,11 @@ def get_Xy(dfs: Dfs) -> DatasetXy:
     X_valid = feature_eng(X_valid, df_train)
     if X_test is not None:
         X_test = feature_eng(X_test, df_train)
+
+    X_train = add_original_cols(X_train)
+    X_valid = add_original_cols(X_valid)
+    if X_test is not None:
+        X_test = add_original_cols(X_test)
 
     # datasetX = add_te(y_train, X_train, X_valid, X_test)
     # X_train, X_valid, X_test = datasetX.get()

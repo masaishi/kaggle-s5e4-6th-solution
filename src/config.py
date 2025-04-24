@@ -40,7 +40,7 @@ class CFG:
 
 cfg = CFG()
 
-if hasattr(cfg, "eval") and cfg.eval:
-    cfg.n_iter = 500
+# if hasattr(cfg, "eval") and cfg.eval:
+#     cfg.n_iter = 500
 if hasattr(cfg, "debug") and cfg.debug:
     cfg.n_iter = 5
