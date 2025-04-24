@@ -104,7 +104,7 @@ def cast_numeric_dtypes(df):
 
 
 def preprocess(df, df_train=None):
-    df = cast_numeric_dtypes(df)
+    # df = cast_numeric_dtypes(df)
     df = df.with_columns(pl.col("Episode_Title").str.slice(8).cast(pl.Int32).alias("Episode_Num")).drop("Episode_Title")
 
     # Convert categorical variables using mapping
@@ -152,11 +152,9 @@ def preprocess(df, df_train=None):
 
 def feature_eng(df, df_train):
     numeric_cols = df_train.select(cs.numeric()).columns
-    numeric_cols.remove("id")
+    if "id" in numeric_cols:
+        numeric_cols.remove("id")
 
-    df_train = df_train.with_columns(
-        pl.col("Episode_Num").cast(pl.Utf8).cast(pl.Categorical).alias("Episode_Num_Cat"),
-    )
     categorical_cols = [
         "Podcast_Name",
         "Genre",
@@ -170,8 +168,8 @@ def feature_eng(df, df_train):
 
     group_kfold = GroupKFold(n_splits=GROUP_SPLIT)
     df_update = pl.DataFrame()
-    for _, (idx_train, idx_valid) in enumerate(group_kfold.split(df_train, groups=df_train["fold"])):
-        df_train_part = df_train[idx_train]
+    for (_, idx_valid), (t_idx_train, _) in zip(group_kfold.split(df, groups=df["fold"]), group_kfold.split(df_train, groups=df_train["fold"])):
+        df_train_part = df_train[t_idx_train]
         stats = {
             col: {
                 "mean": df_train_part.select(pl.col(col).mean()).item(),
@@ -181,9 +179,11 @@ def feature_eng(df, df_train):
         }
 
         transformations = []
-        for col in numeric_cols:
-            transformations.append(((pl.col(col) - stats[col]["mean"]) / stats[col]["std"]).alias(f"{col}"))
-        df_update_part = df_train[idx_valid].with_columns(transformations)
+        transform_cols = [col for col in numeric_cols if col != "Listening_Time_minutes"]
+        for col in transform_cols:
+            # transformations.append(((pl.col(col) - stats[col]["mean"]) / stats[col]["std"]).alias(f"{col}"))
+            transformations.append((pl.col(col) - stats[col]["mean"]).alias(f"{col}"))
+        df_update_part = df[idx_valid].with_columns(transformations)
 
         df_update_part = df_update_part.with_columns(
             pl.lit(stats["Listening_Time_minutes"]["mean"]).alias("Listening_Time_minutes_mean"),
@@ -203,5 +203,4 @@ def feature_eng(df, df_train):
     df = df.with_columns(df_update)
     df = df.drop(categorical_cols)
     df = df.drop(["id", "fold"])
-
     return df
