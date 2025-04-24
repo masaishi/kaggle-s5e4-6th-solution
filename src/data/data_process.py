@@ -54,7 +54,6 @@ def get_Xy(dfs: Dfs) -> DatasetXy:
     df_pltpd = df_pltpd.with_columns(
         pl.col("Number_of_Ads").cast(pl.Float64),
     )
-
     df_pltpd = preprocess(df_pltpd)
     df_pltpd = feature_eng(df_pltpd, df_train)
 
@@ -71,9 +70,9 @@ def get_Xy(dfs: Dfs) -> DatasetXy:
     if X_test is not None:
         X_test = simple_feature_eng(X_test, df_train)
 
-    df_train = df_train.drop(["id", "fold"])
-    df_valid = df_valid.drop(["id", "fold"])
-    if df_test is not None:
-        df_test = df_test.drop(["id"])
+    X_train = X_train.drop(["id", "fold"])
+    X_valid = X_valid.drop(["id", "fold"])
+    if X_test is not None:
+        X_test = X_test.drop(["id"])
 
     return DatasetXy(X_train=X_train, y_train=y_train, X_valid=X_valid, y_valid=y_valid, X_test=X_test, y_test=None)
