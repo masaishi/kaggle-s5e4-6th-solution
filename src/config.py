@@ -31,9 +31,11 @@ class CFG:
     log_eval: int = 100
     early_stopping: int = 200
 
+    select: bool = True
+
     # debug: bool = True
-    eval: bool = True
-    predict: bool = True
+    # eval: bool = True
+    # predict: bool = True
 
     device: str = "cpu"
 
