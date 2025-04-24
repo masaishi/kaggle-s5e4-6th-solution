@@ -4,6 +4,109 @@ import polars.selectors as cs
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import GroupKFold
 
+selecteds = [
+    "Episode_Length_minutes-Host_Popularity_percentage-Publication_Day-Guest_Popularity_percentage",
+    "Episode_Length_minutes-Host_Popularity_percentage-Guest_Popularity_percentage",
+    "Episode_Length_minutes-Host_Popularity_percentage-Guest_Popularity_percentage-Episode_Sentiment",
+    "Episode_Length_minutes-Host_Popularity_percentage-Publication_Time-Guest_Popularity_percentage",
+    "Episode_Length_minutes-Host_Popularity_percentage-Guest_Popularity_percentage-Number_of_Ads",
+    "Episode_Num-Episode_Length_minutes-Host_Popularity_percentage-Guest_Popularity_percentage",
+    "Podcast_Name-Episode_Num-Episode_Length_minutes-Guest_Popularity_percentage",
+    "Episode_Length_minutes-Genre-Host_Popularity_percentage-Guest_Popularity_percentage",
+    "Episode_Num-Episode_Length_minutes-Publication_Day-Guest_Popularity_percentage",
+    "Podcast_Name-Episode_Length_minutes-Host_Popularity_percentage-Guest_Popularity_percentage",
+    "Podcast_Name-Episode_Num-Episode_Length_minutes-Host_Popularity_percentage",
+    "Episode_Num-Episode_Length_minutes-Guest_Popularity_percentage-Number_of_Ads",
+    "Episode_Num-Episode_Length_minutes-Publication_Time-Guest_Popularity_percentage",
+    "Podcast_Name-Episode_Length_minutes-Publication_Time-Guest_Popularity_percentage",
+    "Episode_Num-Episode_Length_minutes-Guest_Popularity_percentage-Episode_Sentiment",
+    "Episode_Num-Episode_Length_minutes-Host_Popularity_percentage-Publication_Day",
+    "Episode_Num-Episode_Length_minutes-Genre-Guest_Popularity_percentage",
+    "Episode_Num-Episode_Length_minutes-Genre-Host_Popularity_percentage",
+    "Podcast_Name-Episode_Length_minutes-Publication_Day-Guest_Popularity_percentage",
+    "Episode_Num-Episode_Length_minutes-Host_Popularity_percentage-Publication_Time",
+    "Podcast_Name-Episode_Length_minutes-Guest_Popularity_percentage-Number_of_Ads",
+    "Podcast_Name-Episode_Length_minutes-Host_Popularity_percentage-Publication_Day",
+    "Episode_Num-Episode_Length_minutes-Guest_Popularity_percentage",
+    "Episode_Num-Episode_Length_minutes-Host_Popularity_percentage-Number_of_Ads",
+    "Podcast_Name-Episode_Length_minutes-Guest_Popularity_percentage-Episode_Sentiment",
+    "Episode_Num-Episode_Length_minutes-Host_Popularity_percentage-Episode_Sentiment",
+    "Podcast_Name-Episode_Length_minutes-Host_Popularity_percentage-Publication_Time",
+    "Podcast_Name-Episode_Num-Host_Popularity_percentage-Guest_Popularity_percentage",
+    "Podcast_Name-Episode_Length_minutes-Host_Popularity_percentage-Number_of_Ads",
+    "Podcast_Name-Episode_Length_minutes-Host_Popularity_percentage-Episode_Sentiment",
+    "Episode_Num-Host_Popularity_percentage-Publication_Day-Guest_Popularity_percentage",
+    "Episode_Num-Host_Popularity_percentage-Guest_Popularity_percentage-Episode_Sentiment",
+    "Episode_Length_minutes-Genre-Publication_Day-Guest_Popularity_percentage",
+    "Episode_Num-Episode_Length_minutes-Host_Popularity_percentage",
+    "Podcast_Name-Episode_Length_minutes-Guest_Popularity_percentage",
+    "Podcast_Name-Episode_Length_minutes-Genre-Guest_Popularity_percentage",
+    "Episode_Length_minutes-Genre-Publication_Time-Guest_Popularity_percentage",
+    "Episode_Num-Host_Popularity_percentage-Publication_Time-Guest_Popularity_percentage",
+    "Episode_Num-Genre-Host_Popularity_percentage-Guest_Popularity_percentage",
+    "Episode_Length_minutes-Genre-Host_Popularity_percentage-Publication_Day",
+    "Episode_Length_minutes-Publication_Day-Publication_Time-Guest_Popularity_percentage",
+    "Episode_Length_minutes-Publication_Day-Guest_Popularity_percentage-Number_of_Ads",
+    "Episode_Length_minutes-Genre-Guest_Popularity_percentage-Number_of_Ads",
+    "Episode_Num-Host_Popularity_percentage-Guest_Popularity_percentage-Number_of_Ads",
+    "Episode_Length_minutes-Publication_Day-Guest_Popularity_percentage-Episode_Sentiment",
+    "Podcast_Name-Episode_Length_minutes-Host_Popularity_percentage",
+    "Podcast_Name-Episode_Length_minutes-Genre-Host_Popularity_percentage",
+    "Episode_Length_minutes-Genre-Host_Popularity_percentage-Publication_Time",
+    "Podcast_Name-Host_Popularity_percentage-Publication_Day-Guest_Popularity_percentage",
+    "Episode_Length_minutes-Genre-Guest_Popularity_percentage-Episode_Sentiment",
+    "Podcast_Name-Host_Popularity_percentage-Guest_Popularity_percentage-Number_of_Ads",
+    "Episode_Length_minutes-Publication_Time-Guest_Popularity_percentage-Number_of_Ads",
+    "Podcast_Name-Host_Popularity_percentage-Publication_Time-Guest_Popularity_percentage",
+    "Episode_Length_minutes-Host_Popularity_percentage-Publication_Day-Publication_Time",
+    "Episode_Length_minutes-Host_Popularity_percentage-Publication_Day-Number_of_Ads",
+    "Episode_Length_minutes-Genre-Host_Popularity_percentage-Number_of_Ads",
+    "Podcast_Name-Host_Popularity_percentage-Guest_Popularity_percentage-Episode_Sentiment",
+    "Episode_Length_minutes-Publication_Time-Guest_Popularity_percentage-Episode_Sentiment",
+    "Episode_Length_minutes-Host_Popularity_percentage-Publication_Day-Episode_Sentiment",
+    "Episode_Num-Host_Popularity_percentage-Guest_Popularity_percentage",
+    "Episode_Length_minutes-Guest_Popularity_percentage-Number_of_Ads-Episode_Sentiment",
+    "Episode_Length_minutes-Genre-Host_Popularity_percentage-Episode_Sentiment",
+    "Episode_Length_minutes-Host_Popularity_percentage-Publication_Time-Number_of_Ads",
+    "Episode_Length_minutes-Host_Popularity_percentage-Publication_Time-Episode_Sentiment",
+    "Episode_Length_minutes-Genre-Guest_Popularity_percentage",
+    "Episode_Length_minutes-Publication_Day-Guest_Popularity_percentage",
+    "Episode_Length_minutes-Host_Popularity_percentage-Number_of_Ads-Episode_Sentiment",
+    "Genre-Host_Popularity_percentage-Publication_Day-Guest_Popularity_percentage",
+    "Podcast_Name-Host_Popularity_percentage-Guest_Popularity_percentage",
+    "Podcast_Name-Genre-Host_Popularity_percentage-Guest_Popularity_percentage",
+    "Host_Popularity_percentage-Publication_Day-Publication_Time-Guest_Popularity_percentage",
+    "Genre-Host_Popularity_percentage-Publication_Time-Guest_Popularity_percentage",
+    "Episode_Length_minutes-Genre-Host_Popularity_percentage",
+    "Episode_Length_minutes-Host_Popularity_percentage-Publication_Day",
+    "Host_Popularity_percentage-Publication_Day-Guest_Popularity_percentage-Number_of_Ads",
+    "Episode_Length_minutes-Publication_Time-Guest_Popularity_percentage",
+    "Genre-Host_Popularity_percentage-Guest_Popularity_percentage-Number_of_Ads",
+    "Episode_Length_minutes-Guest_Popularity_percentage-Number_of_Ads",
+    "Host_Popularity_percentage-Publication_Day-Guest_Popularity_percentage-Episode_Sentiment",
+    "Genre-Host_Popularity_percentage-Guest_Popularity_percentage-Episode_Sentiment",
+    "Episode_Length_minutes-Guest_Popularity_percentage-Episode_Sentiment",
+    "Podcast_Name-Episode_Num-Episode_Length_minutes-Publication_Day",
+    "Episode_Length_minutes-Host_Popularity_percentage-Publication_Time",
+    "Host_Popularity_percentage-Publication_Time-Guest_Popularity_percentage-Number_of_Ads",
+    "Episode_Length_minutes-Host_Popularity_percentage-Number_of_Ads",
+    "Host_Popularity_percentage-Publication_Time-Guest_Popularity_percentage-Episode_Sentiment",
+    "Episode_Length_minutes-Host_Popularity_percentage-Episode_Sentiment",
+    "Host_Popularity_percentage-Guest_Popularity_percentage-Number_of_Ads-Episode_Sentiment",
+    "Podcast_Name-Episode_Num-Episode_Length_minutes-Publication_Time",
+    "Podcast_Name-Episode_Num-Episode_Length_minutes-Number_of_Ads",
+    "Podcast_Name-Episode_Num-Episode_Length_minutes-Episode_Sentiment",
+    "Host_Popularity_percentage-Publication_Day-Guest_Popularity_percentage",
+    "Episode_Length_minutes-Guest_Popularity_percentage",
+    "Genre-Host_Popularity_percentage-Guest_Popularity_percentage",
+    "Podcast_Name-Episode_Num-Publication_Day-Guest_Popularity_percentage",
+    "Episode_Length_minutes-Host_Popularity_percentage",
+    "Host_Popularity_percentage-Publication_Time-Guest_Popularity_percentage",
+    "Host_Popularity_percentage-Guest_Popularity_percentage-Number_of_Ads",
+    "Episode_Num-Episode_Length_minutes-Genre-Publication_Day",
+    "Host_Popularity_percentage-Guest_Popularity_percentage-Episode_Sentiment",
+]
+
 
 def calc_rmse(y_true, y_pred):
     rmse = np.sqrt(mean_squared_error(y_true, y_pred))
@@ -210,10 +313,11 @@ def add_original_cols(df: pl.DataFrame, df_pltpd: pl.DataFrame) -> pl.DataFrame:
     if "id" in numeric_cols:
         numeric_cols.remove("id")
 
-    combinations_list = [[col] for col in numeric_cols]
+    # combinations_list = [[col] for col in numeric_cols]
 
-    # combinations_list = [item.split("-") for item in selecteds]
-    # combinations_list += [[col] for col in numeric_cols]
+    # combinations_list = [item.split("-") for item in selecteds[:20]]
+    combinations_list = [item.split("-") for item in selecteds]
+    combinations_list += [[col] for col in numeric_cols]
 
     m = df_pltpd["Listening_Time_minutes"].mean()
 
