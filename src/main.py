@@ -14,11 +14,10 @@ from data.data_class import Dfs
 from data.data_process import add_fold, get_Xy
 
 # from data.simple_data_process import add_fold, get_Xy
-from models.lgb import train_model
-
+# from models.lgb import train_model
 # from models.tabnet import train_model
 # from models.svr import train_model
-# from models.xgb import train_model
+from models.xgb import train_model
 from utils import commit_results
 
 warnings.filterwarnings("ignore")
@@ -39,6 +38,18 @@ if hasattr(cfg, "predict") and cfg.predict:
     df_test = add_fold(df_test)
 
 
+def save_sub(test_preds):
+    if hasattr(cfg, "predict") and cfg.predict:
+        test_pred = np.array(test_preds).mean(axis=0)
+
+        test_df = pl.read_csv(cfg.test_path)
+        test_df = test_df.with_columns(pl.Series(test_pred).alias("Listening_Time_minutes"))
+        test_df = test_df[["id", "Listening_Time_minutes"]]
+        wandb_num = wandb_run.name.split("-")[-1]
+        test_df.write_csv(f"./data/submissions/sub-{wandb_num}.csv")
+        print(f"Test predictions saved to ./data/submissions/sub-{wandb_num}.csv")
+
+
 val_score = 999
 test_preds = []
 group_kfold = GroupKFold(n_splits=cfg.num_fold)
@@ -48,7 +59,6 @@ for fold, (idx_train, idx_valid) in enumerate(group_kfold.split(df, groups=df["f
 
     datasetXy = get_Xy(Dfs(df_train=df_train, df_valid=df_valid, df_test=df_test))
     print(f"Fold {fold} - Train shape: {datasetXy.X_train.shape}")
-    print(datasetXy.X_train.columns)
     print(datasetXy.X_train)
 
     val_score, test_pred = train_model(fold, datasetXy)
@@ -58,18 +68,12 @@ for fold, (idx_train, idx_valid) in enumerate(group_kfold.split(df, groups=df["f
     if hasattr(cfg, "eval") and cfg.eval and fold >= 0:
         break
 
+    save_sub(test_preds)
+
 git_info = commit_results(val_score, wandb_run.name)
 wandb.config.update(git_info)
 wandb.finish()
 
 gc.collect()
 
-if hasattr(cfg, "predict") and cfg.predict:
-    test_pred = np.array(test_preds).mean(axis=0)
-
-    test_df = pl.read_csv(cfg.test_path)
-    test_df = test_df.with_columns(pl.Series(test_pred).alias("Listening_Time_minutes"))
-    test_df = test_df[["id", "Listening_Time_minutes"]]
-    wandb_num = wandb_run.name.split("-")[-1]
-    test_df.write_csv(f"./data/submissions/sub-{wandb_num}.csv")
-    print(f"Test predictions saved to ./data/submissions/sub-{wandb_num}.csv")
+save_sub(test_preds)
