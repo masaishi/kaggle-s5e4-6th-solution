@@ -382,7 +382,7 @@ def cols_encode(df, combinations_list):
     return df
 
 
-def encode_target(X_train, X_valid, encode_columns, target, random_state=42):
+def encode_target(X_train, X_valid, encode_columns, target, random_state=cfg.random_state):
     """
     Encode columns using TargetEncoder
 
@@ -447,7 +447,7 @@ def get_dfs(cfg=cfg):
         df_train,
         y_train,
         test_size=0.2,  # 20% for validation
-        random_state=42,
+        random_state=cfg.random_state,
     )
 
     # Merge with df_podcast

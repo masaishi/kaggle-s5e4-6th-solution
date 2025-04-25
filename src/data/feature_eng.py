@@ -522,7 +522,7 @@ def cols_encode(df: pl.DataFrame, combinations_list: list) -> pl.DataFrame:
 
 
 def encode_target(
-    target: pl.Series, encode_columns: list, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_test: pl.DataFrame = None, random_state: int = 42
+    target: pl.Series, encode_columns: list, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_test: pl.DataFrame = None, random_state: int = cfg.random_state
 ) -> DatasetX:
     if isinstance(target, pl.Series):
         target_values = target.to_numpy()

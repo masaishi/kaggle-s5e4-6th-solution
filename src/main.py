@@ -16,8 +16,10 @@ from data.data_process import add_fold, get_Xy
 # from data.simple_data_process import add_fold, get_Xy
 # from models.lgb import train_model
 # from models.tabnet import train_model
+from models.hgbr import train_model
+
 # from models.svr import train_model
-from models.xgb import train_model
+# from models.xgb import train_model
 from utils import commit_results
 
 warnings.filterwarnings("ignore")
@@ -52,7 +54,7 @@ def save_sub(test_preds):
 
 val_score = 999
 test_preds = []
-group_kfold = GroupKFold(n_splits=cfg.num_fold)
+group_kfold = GroupKFold(n_splits=cfg.num_fold, shuffle=True, random_state=cfg.random_state)
 for fold, (idx_train, idx_valid) in enumerate(group_kfold.split(df, groups=df["fold"])):
     df_train = df[idx_train]
     df_valid = df[idx_valid]

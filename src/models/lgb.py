@@ -73,7 +73,7 @@ def train_model(fold: int, datasetXy: DatasetXy):
         objective=cfg.objective,
         metric=cfg.metric,
         verbosity=cfg.verbosity,
-        random_state=42,
+        random_state=cfg.random_state,
     )
 
     model.fit(

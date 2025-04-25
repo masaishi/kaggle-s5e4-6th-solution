@@ -31,16 +31,17 @@ class CFG:
     metric: str = "rmse"
     verbosity: int = -1
 
-    random_state: int = 42
+    # random_state: int = 42
+    random_state: int = 43
     shuffle: bool = True
     log_eval: int = 100
     early_stopping: int = 200
 
     # default_combinations: bool = True
 
-    # debug: bool = True
-    # eval: bool = True
-    predict: bool = True
+    debug: bool = True
+    eval: bool = True
+    # predict: bool = True
 
     device: str = "cpu"
 
