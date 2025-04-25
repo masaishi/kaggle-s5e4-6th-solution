@@ -9,7 +9,6 @@ from sklearn.metrics import mean_squared_error
 
 import wandb
 from data.data_class import DatasetXy
-from utils import commit_results
 
 warnings.filterwarnings("ignore")
 warnings.simplefilter("ignore")
@@ -77,29 +76,6 @@ def train_model(fold: int, datasetXy: DatasetXy):
     wandb.log({f"fold_{fold + 1}_val_score": val_score})
     wandb.summary["best_val_score"] = val_score
 
-    # Log feature importances
-    if hasattr(model, "feature_importances_"):
-        feature_names = X_train.columns
-        importances = model.feature_importances_
-        importance_dict = {name: imp for name, imp in zip(feature_names, importances)}
-
-        # Create wandb table for visualization
-        feature_importance_table = wandb.Table(columns=["Feature", "Importance"])
-        for feature, importance in sorted(importance_dict.items(), key=lambda x: x[1], reverse=True):
-            feature_importance_table.add_data(feature, importance)
-
-        # Log table and bar chart
-        wandb.log({"final_feature_importances": feature_importance_table})
-        wandb.log({"final_feature_importance_plot": wandb.plot.bar(feature_importance_table, "Feature", "Importance", title="Final Feature Importances")})
-
-        # Also log as simple key-value pairs for easy access
-        wandb.log({"final_importance/" + feature: importance for feature, importance in importance_dict.items()})
-
-    # Log results and clean up
-    git_info = commit_results(val_score, wandb_run.name)
-    wandb.config.update(git_info)
-    wandb.finish()
-
     # Make predictions on test set if required
     if X_test is not None:
         X_test = X_test.to_pandas()
@@ -109,10 +85,10 @@ def train_model(fold: int, datasetXy: DatasetXy):
         del X_train, y_train, X_valid, y_valid
         gc.collect()
 
-        return model, y_pred.tolist()
+        return val_score, y_pred.tolist()
 
     # Clean up memory
     del X_train, y_train, X_valid, y_valid
     gc.collect()
 
-    return model, None
+    return val_score, None
