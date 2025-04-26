@@ -387,7 +387,7 @@ selecteds = [
     "Episode_Sentiment-pte_Length_per_Ads-pte_Expected_Listening_Time_Sentiment",
 ]
 if hasattr(cfg, "eval") and cfg.eval:
-    before_fe_selecteds = random.sample(before_fe_selecteds, 20)
+    # before_fe_selecteds = random.sample(before_fe_selecteds, 20)
     selecteds = random.sample(selecteds, 20)
 
 
@@ -766,7 +766,7 @@ def add_te(y_train: pl.Series, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_t
     if hasattr(cfg, "default_combinations") and cfg.default_combinations:
         combinations_list = default_combinations_list.copy()
     else:
-        combinations_list = [item.split("-") for item in before_fe_selecteds]
+        combinations_list = [item.split("-") for item in random.sample(before_fe_selecteds, 20)]
 
     print("Combinations list length:", len(combinations_list))
 
