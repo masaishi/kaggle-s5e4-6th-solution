@@ -793,7 +793,7 @@ def add_te(y_train: pl.Series, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_t
     datasetX = encode_target(y_train, encoded_columns, X_train, X_valid, X_test=X_test)
     X_train, X_valid, X_test = datasetX.get()
 
-    encoded_columns = [col for col in encoded_columns if col not in "Episode_Length_minutes"]
+    # encoded_columns = [col for col in encoded_columns if col != "Episode_Length_minutes"]
     datasetX = encode_target(X_train["Episode_Length_minutes"], encoded_columns, X_train, X_valid, X_test=X_test)
     X_train, X_valid, X_test = datasetX.get()
 
@@ -816,7 +816,7 @@ def add_original_cols(df: pl.DataFrame, df_pltpd: pl.DataFrame) -> pl.DataFrame:
 
     combinations_list = []
     combinations_list += [item.split("-") for item in before_fe_selecteds]
-    # combinations_list += [[col] for col in numeric_cols]
+    combinations_list += [[col] for col in numeric_cols]
 
     m = df_pltpd["Listening_Time_minutes"].mean()
 
