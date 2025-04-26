@@ -813,7 +813,7 @@ def add_original_cols(df: pl.DataFrame, df_pltpd: pl.DataFrame) -> pl.DataFrame:
 
     combinations_list = []
     combinations_list += [item.split("-") for item in before_fe_selecteds]
-    combinations_list += [[col] for col in numeric_cols]
+    # combinations_list += [[col] for col in numeric_cols]
 
     m = df_pltpd["Listening_Time_minutes"].mean()
 
