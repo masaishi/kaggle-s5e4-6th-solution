@@ -335,7 +335,7 @@ def feature_eng(df, df_train, n_splits=GROUP_SPLIT):
 
     df_update = df_update.sort("id")
     df = df.with_columns(df_update)
-    df = df.drop(categorical_cols)
+    # df = df.drop(categorical_cols)
 
     return df
 
