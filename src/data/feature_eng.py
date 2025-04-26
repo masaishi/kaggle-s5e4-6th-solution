@@ -388,6 +388,7 @@ selecteds = [
 ]
 if hasattr(cfg, "eval") and cfg.eval:
     # selecteds = [selecteds[i] for i in range(0, len(selecteds), 6)]
+    before_fe_selecteds = random.sample(before_fe_selecteds, 20)
     selecteds = random.sample(selecteds, 20)
 
 
@@ -802,9 +803,8 @@ def add_original_cols(df: pl.DataFrame, df_pltpd: pl.DataFrame) -> pl.DataFrame:
     if "id" in numeric_cols:
         numeric_cols.remove("id")
 
-    # combinations_list = [[col] for col in numeric_cols] + default_combinations_list
-
-    combinations_list = [item.split("-") for item in before_fe_selecteds]
+    combinations_list = []
+    combinations_list += [item.split("-") for item in before_fe_selecteds]
     combinations_list += [[col] for col in numeric_cols]
 
     m = df_pltpd["Listening_Time_minutes"].mean()
