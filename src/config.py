@@ -19,6 +19,7 @@ class CFG:
     # Model parameters
     n_iter: int = 10000
     max_depth: int = -1
+
     num_leaves: int = 1024
     colsample_bytree: float = 0.5
     learning_rate: float = 0.04
@@ -49,6 +50,6 @@ class CFG:
 cfg = CFG()
 
 if hasattr(cfg, "eval") and cfg.eval:
-    cfg.n_iter = 500
+    cfg.n_iter = 2000
 if hasattr(cfg, "debug") and cfg.debug:
     cfg.n_iter = 5
