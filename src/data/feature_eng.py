@@ -721,7 +721,6 @@ def cols_encode(df: pl.DataFrame, combinations_list: list) -> pl.DataFrame:
 
         mem_usage = sum(df.estimated_size() for col in df.columns) / (1024 * 1024)
         print(f"Memory usage: {mem_usage:.2f} MB")
-        print(f"Total number of columns: {len(df.columns)}")
 
     return df
 
@@ -771,7 +770,6 @@ def add_te(y_train: pl.Series, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_t
         combinations_list = [item.split("-") for item in selecteds]
 
     print("Combinations list length:", len(combinations_list))
-    print("Combinations list:", combinations_list)
 
     X_train = cols_encode(X_train, combinations_list)
     X_valid = cols_encode(X_valid, combinations_list)
@@ -779,7 +777,6 @@ def add_te(y_train: pl.Series, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_t
         X_test = cols_encode(X_test, combinations_list)
 
     encoded_columns = X_train.columns[before_encode_len:]
-    print("Length of train columns:", before_encode_len)
 
     datasetX = encode_target(y_train, encoded_columns, X_train, X_valid, X_test=X_test)
     X_train, X_valid, X_test = datasetX.get()
