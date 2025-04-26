@@ -766,7 +766,6 @@ def add_te(y_train: pl.Series, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_t
     if hasattr(cfg, "default_combinations") and cfg.default_combinations:
         combinations_list = default_combinations_list.copy()
     else:
-        selecteds = random.sample(before_fe_selecteds, 20)
         combinations_list = [item.split("-") for item in selecteds]
 
     print("Combinations list length:", len(combinations_list))
