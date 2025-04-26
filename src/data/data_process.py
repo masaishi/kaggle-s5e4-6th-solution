@@ -66,10 +66,10 @@ def get_Xy(dfs: Dfs) -> DatasetXy:
     datasetX = add_te(y_train, X_train, X_valid, X_test)
     X_train, X_valid, X_test = datasetX.get()
 
-    X_train = simple_feature_eng(X_train, df_train)
-    X_valid = simple_feature_eng(X_valid, df_train)
-    if X_test is not None:
-        X_test = simple_feature_eng(X_test, df_train)
+    # X_train = simple_feature_eng(X_train, df_train)
+    # X_valid = simple_feature_eng(X_valid, df_train)
+    # if X_test is not None:
+    #     X_test = simple_feature_eng(X_test, df_train)
 
     X_train = X_train.drop(["id", "fold"])
     X_valid = X_valid.drop(["id", "fold"])
