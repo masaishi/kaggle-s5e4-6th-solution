@@ -33,16 +33,16 @@ class CFG:
     verbosity: int = -1
 
     # random_state: int = 42
-    random_state: int = 43
+    random_state: int = 44
     shuffle: bool = True
     log_eval: int = 100
     early_stopping: int = 200
 
-    # default_combinations: bool = True
+    default_combinations: bool = True
 
     # debug: bool = True
-    eval: bool = True
-    # predict: bool = True
+    # eval: bool = True
+    predict: bool = True
 
     device: str = "cpu"
 
