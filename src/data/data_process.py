@@ -51,6 +51,7 @@ def get_Xy(dfs: Dfs) -> DatasetXy:
 
     df_pltpd = pl.read_csv(cfg.pltpd_path)
     df_pltpd = df_pltpd.filter(pl.col("Episode_Length_minutes").is_not_null())
+    df_pltpd = df_pltpd.filter(pl.col("Episode_Length_minutes") != pl.col("Listening_Time_minutes"))
     df_pltpd = df_pltpd.with_columns(
         pl.col("Number_of_Ads").cast(pl.Float64),
     )
