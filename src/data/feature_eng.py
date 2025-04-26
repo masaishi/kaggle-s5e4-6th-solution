@@ -551,11 +551,11 @@ def feature_eng(df: pl.DataFrame, df_train: pl.DataFrame) -> pl.DataFrame:
         (pl.col("Episode_Length_minutes") / (pl.col("Number_of_Ads") + 1)).fill_null(0).alias("Length_per_Ads"),
         (pl.col("Episode_Length_minutes") / (pl.col("Host_Popularity_percentage") + 1)).fill_null(0).alias("Length_per_Host"),
         (pl.col("Episode_Length_minutes") / (pl.col("Guest_Popularity_percentage") + 1)).fill_null(0).alias("Length_per_Guest"),
-        # Episode length features
-        pl.col("Episode_Length_minutes").floor().alias("ELen_Int"),
-        (pl.col("Episode_Length_minutes") - pl.col("Episode_Length_minutes").floor()).alias("ELen_Dec"),
-        pl.col("Host_Popularity_percentage").floor().alias("HPperc_Int"),
-        (pl.col("Host_Popularity_percentage") - pl.col("Host_Popularity_percentage").floor()).alias("HPperc_Dec"),
+        # # Episode length features
+        # pl.col("Episode_Length_minutes").floor().alias("ELen_Int"),
+        # (pl.col("Episode_Length_minutes") - pl.col("Episode_Length_minutes").floor()).alias("ELen_Dec"),
+        # pl.col("Host_Popularity_percentage").floor().alias("HPperc_Int"),
+        # (pl.col("Host_Popularity_percentage") - pl.col("Host_Popularity_percentage").floor()).alias("HPperc_Dec"),
         # Sentiment features
         (pl.col("Episode_Sentiment") == "2").cast(pl.Int8).alias("Is_Positive_Sentiment"),
         pl.when(pl.col("Episode_Sentiment") == "2").then(0.75).otherwise(0.717).cast(pl_f_type).alias("Sentiment_Multiplier"),
@@ -563,6 +563,24 @@ def feature_eng(df: pl.DataFrame, df_train: pl.DataFrame) -> pl.DataFrame:
         (pl.col("Episode_Length_minutes") ** 2).alias("Episode_Length_squared"),
         (pl.col("Episode_Length_minutes") ** 3).alias("Episode_Length_squared2"),
     )
+
+    # Round loops
+    transforms = []
+    col = "Episode_Length_minutes"
+    transforms.append(pl.col(col).floor().alias("Elen_Int"))
+    transforms.append((pl.col(col) - pl.col(col).floor()).alias("Elen_Dec"))
+
+    col = "Host_Popularity_percentage"
+    transforms.append(pl.col(col).floor().alias("HPperc_Int"))
+    transforms.append((pl.col(col) - pl.col(col).floor()).alias("HPperc_Dec"))
+
+    # for col in ["Episode_Length_minutes", "Host_Popularity_percentage"]:
+    #     transforms.append(pl.col(col).floor().alias(f"{col}_Int"))
+    #     transforms.append((pl.col(col) - pl.col(col).floor()).alias(f"{col}_Dec"))
+    # for roun_num in [0, 1, 2, 3]:
+    #     transforms.append(pl.col(col).round(roun_num).alias(f"{col}_Round_{roun_num}"))
+    #     transforms.append((((pl.col(col) * 10 ** roun_num).floor()) - ((pl.col(col) * 10 ** (roun_num - 1)).floor() * 10)).alias(f"{col}_Round_{roun_num}_Dec"))
+    # df = df.with_columns(transforms)
 
     df = df.with_columns(
         (np.sin(2 * np.pi * pl.col("Episode_Num") / 100)).alias("Long_Term_Cycle_Sin"),
