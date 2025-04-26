@@ -814,9 +814,9 @@ def add_original_cols(df: pl.DataFrame, df_pltpd: pl.DataFrame) -> pl.DataFrame:
     if "id" in numeric_cols:
         numeric_cols.remove("id")
 
+    selecteds = random.sample(before_fe_selecteds, min(len(before_fe_selecteds), 50))
     combinations_list = []
-    combinations_list += [item.split("-") for item in before_fe_selecteds]
-    combinations_list += [[col] for col in numeric_cols]
+    combinations_list += [item.split("-") for item in selecteds]
 
     m = df_pltpd["Listening_Time_minutes"].mean()
 
