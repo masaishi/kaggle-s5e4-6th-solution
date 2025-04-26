@@ -32,8 +32,8 @@ class CFG:
     metric: str = "rmse"
     verbosity: int = -1
 
-    # random_state: int = 42
-    random_state: int = 44
+    random_state: int = 42
+    # random_state: int = 44
     shuffle: bool = True
     log_eval: int = 100
     early_stopping: int = 200
