@@ -184,7 +184,7 @@ before_fe_selecteds = [
     "Publication_Time-Number_of_Ads-ELen_Dec-Long_Term_Cycle_Cos",
 ]
 
-selecteds = [
+default_selecteds = [
     "ELen_Int-Is_Positive_Sentiment",
     "ELen_Dec",
     "ELen_Int-pte_Podcast_Name_Guest_Popularity_percentage_ELen_Dec_HPperc_Int-pte_Number_of_Ads",
@@ -386,10 +386,10 @@ selecteds = [
     "Episode_Sentiment-Expected_Listening_Time_Sentiment-pte_Number_of_Ads",
     "Episode_Sentiment-pte_Length_per_Ads-pte_Expected_Listening_Time_Sentiment",
 ]
+
 if hasattr(cfg, "eval") and cfg.eval:
-    # selecteds = [selecteds[i] for i in range(0, len(selecteds), 6)]
     before_fe_selecteds = random.sample(before_fe_selecteds, 20)
-    selecteds = random.sample(selecteds, 20)
+    default_selecteds = random.sample(default_selecteds, 20)
 
 
 default_combinations_list = [
@@ -672,6 +672,15 @@ def feature_eng(df: pl.DataFrame, df_train: pl.DataFrame) -> pl.DataFrame:
         (pl.col("Episode_Length_minutes") * pl.col("Sentiment_Multiplier")).alias("Expected_Listening_Time_Sentiment"),
     )
 
+    df = df.with_columns(
+        (
+            (pl.col("Episode_Length_minutes") - pl.col("Episode_Length_minutes").median()).pow(2)
+            + (pl.col("Host_Popularity_percentage") - pl.col("Host_Popularity_percentage").median()).pow(2)
+            + (pl.col("Guest_Popularity_percentage") - pl.col("Guest_Popularity_percentage").median()).pow(2)
+            + (pl.col("Number_of_Ads") - pl.col("Number_of_Ads").median()).pow(2)
+        ).alias("Diff_Squared")
+    )
+
     # Convert columns to categorical
     for col in ["Podcast_Name", "Genre", "Publication_Day", "Publication_Time", "Episode_Sentiment", "Episode_Num"]:
         df = df.with_columns(pl.col(col).cast(pl.Utf8).cast(pl.Categorical))
@@ -767,8 +776,7 @@ def add_te(y_train: pl.Series, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_t
     if hasattr(cfg, "default_combinations") and cfg.default_combinations:
         combinations_list = default_combinations_list.copy()
     else:
-        selecteds = random.sample(before_fe_selecteds, 20)
-        combinations_list = [item.split("-") for item in selecteds]
+        combinations_list = [item.split("-") for item in before_fe_selecteds]
 
     print("Combinations list length:", len(combinations_list))
 
