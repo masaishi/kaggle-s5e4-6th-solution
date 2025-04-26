@@ -386,9 +386,11 @@ selecteds = [
     "Episode_Sentiment-Expected_Listening_Time_Sentiment-pte_Number_of_Ads",
     "Episode_Sentiment-pte_Length_per_Ads-pte_Expected_Listening_Time_Sentiment",
 ]
-if hasattr(cfg, "eval") and cfg.eval:
-    # selecteds = [selecteds[i] for i in range(0, len(selecteds), 6)]
-    selecteds = random.sample(selecteds, 20)
+# Filter to get not includes pte
+selecteds = [s for s in selecteds if "pte_" not in s]
+# if hasattr(cfg, "eval") and cfg.eval:
+#     # selecteds = [selecteds[i] for i in range(0, len(selecteds), 6)]
+#     selecteds = random.sample(selecteds, 20)
 
 
 default_combinations_list = [
@@ -803,7 +805,8 @@ def add_original_cols(df: pl.DataFrame, df_pltpd: pl.DataFrame) -> pl.DataFrame:
 
     # combinations_list = [[col] for col in numeric_cols] + default_combinations_list
 
-    combinations_list = [item.split("-") for item in before_fe_selecteds]
+    selecteds = before_fe_selecteds[:20]
+    combinations_list = [item.split("-") for item in selecteds]
     combinations_list += [[col] for col in numeric_cols]
 
     m = df_pltpd["Listening_Time_minutes"].mean()
