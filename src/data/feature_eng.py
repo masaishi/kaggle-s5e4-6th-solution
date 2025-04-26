@@ -1,4 +1,5 @@
 import gc
+import random
 from itertools import combinations
 
 import numpy as np
@@ -184,7 +185,8 @@ selecteds = [
 ]
 
 if hasattr(cfg, "eval") and cfg.eval:
-    selecteds = [selecteds[i] for i in range(0, len(selecteds), 6)]
+    # selecteds = [selecteds[i] for i in range(0, len(selecteds), 6)]
+    selecteds = random.sample(selecteds, 20)
 
 
 default_combinations_list = [
@@ -291,8 +293,9 @@ default_combinations_list = [
     ["Host_Popularity_percentage", "Number_of_Ads", "Publication_Time", "Podcast_Name"],
 ]
 if hasattr(cfg, "eval") and cfg.eval:
-    default_combinations_list = [default_combinations_list[i] for i in range(0, len(default_combinations_list), 9)]
+    # default_combinations_list = [default_combinations_list[i] for i in range(0, len(default_combinations_list), 9)]
     # default_combinations_list = default_combinations_list[:20]
+    default_combinations_list = random.sample(default_combinations_list, 20)
 
 re_dict = {}
 re_dict["podc_dict"] = {

@@ -14,10 +14,10 @@ from data.data_class import Dfs
 from data.data_process import add_fold, get_Xy
 
 # from data.simple_data_process import add_fold, get_Xy
-# from models.lgb import train_model
-# from models.tabnet import train_model
-from models.hgbr import train_model
+from models.lgb import train_model
 
+# from models.tabnet import train_model
+# from models.hgbr import train_model
 # from models.svr import train_model
 # from models.xgb import train_model
 from utils import commit_results
@@ -52,7 +52,7 @@ def save_sub(test_preds):
         print(f"Test predictions saved to ./data/submissions/sub-{wandb_num}.csv")
 
 
-val_score = 999
+val_score = None
 test_preds = []
 # group_kfold = GroupKFold(n_splits=cfg.num_fold, shuffle=True, random_state=cfg.random_state)
 group_kfold = GroupKFold(n_splits=cfg.num_fold)

@@ -39,7 +39,7 @@ class CFG:
 
     # default_combinations: bool = True
 
-    debug: bool = True
+    # debug: bool = True
     eval: bool = True
     # predict: bool = True
 
