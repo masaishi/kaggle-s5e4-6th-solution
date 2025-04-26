@@ -777,6 +777,9 @@ def add_te(y_train: pl.Series, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_t
         combinations_list = default_combinations_list.copy()
     else:
         combinations_list = [item.split("-") for item in before_fe_selecteds]
+    combinations_list += default_combinations_list
+
+    combinations_list = list(set(tuple(sorted(combo)) for combo in combinations_list))
 
     print("Combinations list length:", len(combinations_list))
 
