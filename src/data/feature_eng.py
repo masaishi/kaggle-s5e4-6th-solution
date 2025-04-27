@@ -778,8 +778,8 @@ def add_te(y_train: pl.Series, X_train: pl.DataFrame, X_valid: pl.DataFrame, X_t
     else:
         combinations_list = [item.split("-") for item in before_fe_selecteds]
 
-    # combinations_list += default_combinations_list
-    # combinations_list = list(set(tuple(sorted(combo)) for combo in combinations_list))
+    combinations_list += default_combinations_list
+    combinations_list = list(set(tuple(sorted(combo)) for combo in combinations_list))
 
     print("Combinations list length:", len(combinations_list))
 
@@ -814,9 +814,9 @@ def add_original_cols(df: pl.DataFrame, df_pltpd: pl.DataFrame) -> pl.DataFrame:
     if "id" in numeric_cols:
         numeric_cols.remove("id")
 
-    selecteds = random.sample(before_fe_selecteds, min(len(before_fe_selecteds), 50))
+    # selecteds = random.sample(before_fe_selecteds, min(len(before_fe_selecteds), 50))
     combinations_list = []
-    combinations_list += [item.split("-") for item in selecteds]
+    combinations_list += [item.split("-") for item in before_fe_selecteds]
 
     m = df_pltpd["Listening_Time_minutes"].mean()
 

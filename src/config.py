@@ -23,16 +23,16 @@ class CFG:
     num_leaves: int = 1024
     colsample_bytree: float = 0.5
     learning_rate: float = 0.04
+    random_state: int = 42
 
     # num_leaves: int = 4096
     # colsample_bytree: float = 0.5
     # learning_rate: float = 0.02
-    # random_state: int = 42
+    # random_state: int = 44
 
     objective: str = "l2"
     metric: str = "rmse"
     verbosity: int = -1
-    random_state: int = 44
 
     shuffle: bool = True
     log_eval: int = 100
@@ -41,8 +41,8 @@ class CFG:
     # default_combinations: bool = True
 
     # debug: bool = True
-    # eval: bool = True
-    predict: bool = True
+    eval: bool = True
+    # predict: bool = True
 
     device: str = "cpu"
 
