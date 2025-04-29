@@ -1,10 +1,9 @@
-%%writefile models/tabnet.py
+import gc
 import os
 import warnings
 
 import numpy as np
 import polars as pl
-import gc
 import torch
 from pytorch_tabnet.callbacks import Callback
 from pytorch_tabnet.tab_model import TabNetRegressor
@@ -153,4 +152,3 @@ def train_model(fold: int, datasetXy: DatasetXy):
         return val_score, y_test.flatten().tolist()
 
     return val_score, None
-

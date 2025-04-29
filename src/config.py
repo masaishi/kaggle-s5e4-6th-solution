@@ -42,7 +42,7 @@ class CFG:
 
     # debug: bool = True
     eval: bool = True
-    # predict: bool = True
+    predict: bool = True
 
     device: str = "cpu"
 
