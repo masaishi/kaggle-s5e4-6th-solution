@@ -57,6 +57,9 @@ def get_Xy(dfs: Dfs) -> DatasetXy:
     df_pltpd = preprocess(df_pltpd)
     df_pltpd = feature_eng(df_pltpd, df_train)
 
+    X_pltpd = df_pltpd.drop(["Listening_Time_minutes"])
+    X_train = pl.concat([X_train, X_pltpd], how="vertical")
+
     X_train = add_original_cols(X_train, df_pltpd)
     X_valid = add_original_cols(X_valid, df_pltpd)
     if X_test is not None:
