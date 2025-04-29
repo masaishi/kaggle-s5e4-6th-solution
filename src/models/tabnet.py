@@ -1,16 +1,17 @@
-import gc
+%%writefile models/tabnet.py
 import os
 import warnings
 
 import numpy as np
 import polars as pl
+import gc
 import torch
 from pytorch_tabnet.callbacks import Callback
 from pytorch_tabnet.tab_model import TabNetRegressor
 
 import wandb
+from config import cfg
 from data.data_class import DatasetXy
-from utils import commit_results
 
 warnings.filterwarnings("ignore")
 warnings.simplefilter("ignore")
@@ -96,7 +97,8 @@ def train_model(fold: int, datasetXy: DatasetXy):
         # Other parameters
         "mask_type": "entmax",
         "verbose": 1,
-        "seed": 42,
+        "seed": cfg.random_state,
+        "device_name": cfg.device,
     }
     model = TabNetRegressor(**tabnet_params)
 
@@ -107,12 +109,16 @@ def train_model(fold: int, datasetXy: DatasetXy):
         eval_set=[(X_train_np, y_train_np), (X_valid_np, y_valid_np)],
         eval_name=["train", "valid"],
         eval_metric=["rmse", "rmse"],
-        max_epochs=200,
+        max_epochs=500,
         patience=10,
         batch_size=1024,
         virtual_batch_size=128,
         callbacks=[WandbCallback()],
     )
+
+    del X_train_np, y_train_np, X_valid_np, y_valid_np
+    gc.collect()
+    torch.cuda.empty_cache()
 
     # Get validation score
     val_score = min(model.history["valid_rmse"])
@@ -134,10 +140,17 @@ def train_model(fold: int, datasetXy: DatasetXy):
     # Also log as simple key-value pairs for easy access
     wandb.log({"importance/" + feature: importance for feature, importance in importance_dict.items()})
 
-    # Log results and clean up
-    git_info = commit_results(val_score, wandb_run.name)
-    wandb.config.update(git_info)
-    wandb.finish()
-    gc.collect()
+    if hasattr(cfg, "predict") and cfg.predict:
+        for col, mapping in category_mappings.items():
+            X_test = X_test.with_columns(pl.col(col).map_elements(lambda x: mapping.get(x, None)).alias(col))
+        X_test_np = X_test.to_numpy()
+        y_test = model.predict(X_test_np)
 
-    return model, None
+        del X_test_np
+        gc.collect()
+        torch.cuda.empty_cache()
+
+        return val_score, y_test.flatten().tolist()
+
+    return val_score, None
+

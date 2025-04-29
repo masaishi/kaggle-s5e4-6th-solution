@@ -54,8 +54,8 @@ def save_sub(test_preds):
 
 val_score = None
 test_preds = []
-group_kfold = GroupKFold(n_splits=cfg.num_fold, shuffle=True, random_state=cfg.random_state)
-# group_kfold = GroupKFold(n_splits=cfg.num_fold)
+# group_kfold = GroupKFold(n_splits=cfg.num_fold, shuffle=True, random_state=cfg.random_state)
+group_kfold = GroupKFold(n_splits=cfg.num_fold)
 for fold, (idx_train, idx_valid) in enumerate(group_kfold.split(df, groups=df["fold"])):
     df_train = df[idx_train]
     df_valid = df[idx_valid]
