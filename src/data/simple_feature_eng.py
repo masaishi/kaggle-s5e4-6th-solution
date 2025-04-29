@@ -1,8 +1,7 @@
-import numpy as np
 import polars as pl
 from sklearn.model_selection import GroupKFold
 
-GROUP_SPLIT = 50
+GROUP_SPLIT = 2
 
 
 def standardize(df: pl.DataFrame, df_train: pl.DataFrame, n_splits: int = GROUP_SPLIT) -> pl.DataFrame:
@@ -63,7 +62,7 @@ def standardize(df: pl.DataFrame, df_train: pl.DataFrame, n_splits: int = GROUP_
             #     pl.col(f"{col}_mean").fill_null(stats["Listening_Time_minutes"]["mean"]).alias(f"{col}_mean")
             # )
 
-            smoothing = np.random.randint(0, 5)
+            # smoothing = np.random.randint(0, 5)
             smoothing = 0
             target_stats = df_train_part.group_by(col).agg(
                 pl.col("Listening_Time_minutes").mean().alias("mean"), pl.col("Listening_Time_minutes").count().alias("count")
