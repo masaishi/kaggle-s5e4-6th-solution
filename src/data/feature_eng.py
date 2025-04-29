@@ -285,17 +285,23 @@ def get_combinations(df: pl.DataFrame, columns_to_encode: list, pair_sizes: list
     return list(unique_combinations)
 
 
-def cols_encode(df: pl.DataFrame, combinations_list: list) -> pl.DataFrame:
+def cols_encode(df: pl.DataFrame, combinations_list: list, round_num=2) -> pl.DataFrame:
     batch_size = 20
     for i in range(0, len(combinations_list), batch_size):
         batch = combinations_list[i : i + batch_size]
 
         for cols in tqdm(batch):
             new_col_name = "colen_" + "_".join(cols)
-            concat_expr = pl.col(cols[0]).cast(pl.Utf8)
+            if cols[0] in df.select(cs.numeric()).columns:
+                concat_expr = pl.col(cols[0]).round(round_num).cast(pl.Utf8)
+            else:
+                concat_expr = pl.col(cols[0]).cast(pl.Utf8)
 
             for col_name in cols[1:]:
-                concat_expr = concat_expr + "_" + pl.col(col_name).cast(pl.Utf8)
+                if col_name in df.select(cs.numeric()).columns:
+                    concat_expr = concat_expr + "_" + pl.col(col_name).round(round_num).cast(pl.Utf8)
+                else:
+                    concat_expr = concat_expr + "_" + pl.col(col_name).cast(pl.Utf8)
 
             df = df.with_columns(concat_expr.alias(new_col_name).cast(pl.Categorical))
 
