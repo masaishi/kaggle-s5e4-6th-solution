@@ -1,7 +1,7 @@
 import polars as pl
 from sklearn.model_selection import GroupKFold
 
-GROUP_SPLIT = 2
+GROUP_SPLIT = 200
 
 
 def standardize(df: pl.DataFrame, df_train: pl.DataFrame, n_splits: int = GROUP_SPLIT) -> pl.DataFrame:
