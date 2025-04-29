@@ -285,7 +285,7 @@ def get_combinations(df: pl.DataFrame, columns_to_encode: list, pair_sizes: list
     return list(unique_combinations)
 
 
-def cols_encode(df: pl.DataFrame, combinations_list: list, round_num=8) -> pl.DataFrame:
+def cols_encode(df: pl.DataFrame, combinations_list: list, round_num: int = 6) -> pl.DataFrame:
     batch_size = 20
     for i in range(0, len(combinations_list), batch_size):
         batch = combinations_list[i : i + batch_size]
