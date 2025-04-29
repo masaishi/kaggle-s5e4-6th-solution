@@ -64,6 +64,7 @@ def standardize(df: pl.DataFrame, df_train: pl.DataFrame, n_splits: int = GROUP_
             # )
 
             smoothing = np.random.randint(0, 5)
+            smoothing = 0
             target_stats = df_train_part.group_by(col).agg(
                 pl.col("Listening_Time_minutes").mean().alias("mean"), pl.col("Listening_Time_minutes").count().alias("count")
             )
