@@ -148,8 +148,8 @@ re_dict["time_dict"] = {"Morning": 10, "Afternoon": 14, "Evening": 17, "Night": 
 re_dict["sent_dict"] = {"Negative": 0, "Neutral": 1, "Positive": 2}
 
 
-pl_i_type = pl.Int32
-pl_f_type = pl.Float32
+pl_i_type = pl.Int64
+pl_f_type = pl.Float64
 
 
 def cast_numeric_dtypes(df: pl.DataFrame) -> pl.DataFrame:
