@@ -627,9 +627,9 @@ def preprocess(df: pl.DataFrame, df_train: pl.DataFrame = None) -> pl.DataFrame:
     n_median = df_train.select(pl.col("Number_of_Ads").median()).item()
 
     df = df.with_columns(
-        pl.col("Episode_Length_minutes").fill_null(e_median),
-        pl.col("Guest_Popularity_percentage").fill_null(g_median),
-        pl.col("Number_of_Ads").fill_null(n_median),
+        pl.col("Episode_Length_minutes").fill_null(-999.9),
+        pl.col("Guest_Popularity_percentage").fill_null(-999.9),
+        pl.col("Number_of_Ads").fill_null(-999.9),
     )
 
     return df
