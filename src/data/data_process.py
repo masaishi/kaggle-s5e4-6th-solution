@@ -62,8 +62,8 @@ def get_Xy(dfs: Dfs) -> DatasetXy:
         (pl.lit(1000000).cast(pl.Int64) + pl.arange(0, len(df_pltpd))).cast(pl.Int64).alias("id"),
     )
 
-    # y_train = pl.concat([y_train, df_pltpd["Listening_Time_minutes"]], how="vertical")
-    # X_train = pl.concat([X_train, df_pltpd.select(X_train.columns)], how="vertical")
+    y_train = pl.concat([y_train, df_pltpd["Listening_Time_minutes"]], how="vertical")
+    X_train = pl.concat([X_train, df_pltpd.select(X_train.columns)], how="vertical")
 
     X_train = add_original_cols(X_train, df_pltpd)
     X_valid = add_original_cols(X_valid, df_pltpd)
