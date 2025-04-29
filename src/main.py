@@ -6,7 +6,7 @@ from dataclasses import asdict
 import numpy as np
 import polars as pl
 from dotenv import load_dotenv
-from sklearn.model_selection import GroupKFold
+from sklearn.model_selection import KFold
 
 import wandb
 from config import cfg
@@ -21,6 +21,8 @@ from models.lgb import train_model
 # from models.svr import train_model
 # from models.xgb import train_model
 from utils import commit_results
+
+_all__ = ["train_model", "cfg", "wandb", "add_fold", "get_Xy", "GroupKFold", "KFold"]
 
 warnings.filterwarnings("ignore")
 warnings.simplefilter("ignore")
@@ -54,9 +56,11 @@ def save_sub(test_preds):
 
 val_score = None
 test_preds = []
-# group_kfold = GroupKFold(n_splits=cfg.num_fold, shuffle=True, random_state=cfg.random_state)
-group_kfold = GroupKFold(n_splits=cfg.num_fold)
-for fold, (idx_train, idx_valid) in enumerate(group_kfold.split(df, groups=df["fold"])):
+# # group_kfold = GroupKFold(n_splits=cfg.num_fold, shuffle=True, random_state=cfg.random_state)
+# group_kfold = GroupKFold(n_splits=cfg.num_fold)
+# for fold, (idx_train, idx_valid) in enumerate(group_kfold.split(df, groups=df["fold"])):
+kfold = KFold(n_splits=cfg.num_fold, shuffle=True, random_state=cfg.random_state)
+for fold, (idx_train, idx_valid) in enumerate(kfold.split(df)):
     df_train = df[idx_train]
     df_valid = df[idx_valid]
 
