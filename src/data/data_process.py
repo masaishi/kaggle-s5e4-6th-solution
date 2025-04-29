@@ -50,6 +50,7 @@ def get_Xy(dfs: Dfs) -> DatasetXy:
         X_test = feature_eng(X_test, df_train)
 
     df_pltpd = pl.read_csv(cfg.pltpd_path)
+    df_pltpd = df_pltpd.drop_nulls(subset=["Listening_Time_minutes"])
     df_pltpd = df_pltpd.filter(pl.col("Episode_Length_minutes").is_not_null())
     df_pltpd = df_pltpd.with_columns(
         pl.col("Number_of_Ads").cast(pl.Float64),
@@ -58,11 +59,11 @@ def get_Xy(dfs: Dfs) -> DatasetXy:
     df_pltpd = preprocess(df_pltpd)
     df_pltpd = feature_eng(df_pltpd, df_train)
     df_pltpd = df_pltpd.with_columns(
-        pl.lit(1000000).cast(pl.Int64) + pl.arange(0, len(df_pltpd)).cast(pl.Int64).alias("id"),
+        (pl.lit(1000000).cast(pl.Int64) + pl.arange(0, len(df_pltpd))).cast(pl.Int64).alias("id"),
     )
 
-    # X_pltpd = df_pltpd.drop(["Listening_Time_minutes"])
-    # X_train = pl.concat([X_train, X_pltpd], how="vertical")
+    # y_train = pl.concat([y_train, df_pltpd["Listening_Time_minutes"]], how="vertical")
+    # X_train = pl.concat([X_train, df_pltpd.select(X_train.columns)], how="vertical")
 
     X_train = add_original_cols(X_train, df_pltpd)
     X_valid = add_original_cols(X_valid, df_pltpd)
