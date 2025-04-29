@@ -514,14 +514,14 @@ def preprocess(df: pl.DataFrame, df_train: pl.DataFrame = None) -> pl.DataFrame:
     if df_train is None:
         df_train = df.clone()
 
-    e_median = df_train.select(pl.col("Episode_Length_minutes").median()).item()
-    g_median = df_train.select(pl.col("Guest_Popularity_percentage").median()).item()
-    n_median = df_train.select(pl.col("Number_of_Ads").median()).item()
+    # e_median = df_train.select(pl.col("Episode_Length_minutes").median()).item()
+    # g_median = df_train.select(pl.col("Guest_Popularity_percentage").median()).item()
+    # n_median = df_train.select(pl.col("Number_of_Ads").median()).item()
 
     df = df.with_columns(
-        pl.col("Episode_Length_minutes").fill_null(-5),
-        pl.col("Guest_Popularity_percentage").fill_null(-7),
-        pl.col("Number_of_Ads").fill_null(-3),
+        pl.col("Episode_Length_minutes").fill_null(-1.1),
+        pl.col("Guest_Popularity_percentage").fill_null(-1.1),
+        pl.col("Number_of_Ads").fill_null(-1.1),
     )
 
     return df
