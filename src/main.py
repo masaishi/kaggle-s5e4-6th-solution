@@ -59,7 +59,7 @@ test_preds = []
 # # group_kfold = GroupKFold(n_splits=cfg.num_fold, shuffle=True, random_state=cfg.random_state)
 # group_kfold = GroupKFold(n_splits=cfg.num_fold)
 # for fold, (idx_train, idx_valid) in enumerate(group_kfold.split(df, groups=df["fold"])):
-kfold = KFold(n_splits=cfg.num_fold, shuffle=True, random_state=cfg.random_state)
+kfold = KFold(n_splits=cfg.num_fold, shuffle=True)
 for fold, (idx_train, idx_valid) in enumerate(kfold.split(df)):
     df_train = df[idx_train]
     df_valid = df[idx_valid]
