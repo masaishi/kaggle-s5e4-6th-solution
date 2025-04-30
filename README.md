@@ -1,7 +1,7 @@
 # PS-S5E4: Podcast Listening Time Prediction
 
 ## Overview
-This repository contains a machine learning solution for [the Predict Podcast Listening Time competition](https://www.kaggle.com/competitions/playground-series-s5e4/overview) by kaggle.
+This repository contains a machine learning solution for the [Predict Podcast Listening Time competition](https://www.kaggle.com/competitions/playground-series-s5e4/overview) by kaggle.
 
 ## Features
 - Prediction of listener duration for podcasts
@@ -31,15 +31,15 @@ This repository contains a machine learning solution for [the Predict Podcast Li
 2. Run training using `src/main.py`
 3. Track experiments in Weights & Biases
 
-## Solution Post
-### TL;DR
+# Solution Post
+
+## TL;DR
 
 - Identified data leaks(?) and applied targeted corrections
 - Original Data as New Rows
-- Systematically evaluated feature combinations
-- Conducted over 1,000 experiments efficiently
+- Select feature combinations based on RMSE scores
 
-### Data Leak 1: More than 2 decimal digits in Episode_Length_minutes
+## Data Leak 1: More than 2 decimal digits in Episode_Length_minutes
 
 I verified the data leak originally shared by AngelosMar in [this discussion post](https://www.kaggle.com/competitions/playground-series-s5e4/discussion/574925#3187345). My own verification EDA can be found here: [Decimal Digits Analysis EDA](https://www.kaggle.com/code/masaishi/decimal-digits-analysis-eda?scriptVersionId=236025089)
 
@@ -155,7 +155,6 @@ for cols in combinations_list:
         n = f"pte_{'_'.join(cols)}"
         means = df_pltpd.group_by(cols).agg(pl.col("Listening_Time_minutes").mean().alias("mean_listening_time"))
         df = df.join(means, on=cols, how="left").with_columns(pl.col("mean_listening_time").fill_null(m).alias(n)).drop("mean_listening_time")
-
 ```
 
 ## Select Feature Combinations for Target Encoding
@@ -196,7 +195,6 @@ Here's the step-by-step process I implemented:
         pl.col("Listening_Time_minutes").mean().alias("mean_listening_time"),
         pl.col("Episode_Length_minutes").mean().alias("mean_episode_length"),
     )
-    
     ```
     
 5. Apply these group means to the validation set as predictions:
@@ -210,7 +208,6 @@ Here's the step-by-step process I implemented:
         on="group",
         how="left",
     )
-    
     ```
     
 6. Calculate RMSE and other statistics for each combination:
@@ -226,7 +223,6 @@ Here's the step-by-step process I implemented:
         "mean_std_listening_time": df_group["std_listening_time"].mean(),
         "rmse": calculate_rmse(df_valid["Listening_Time_minutes"], df_valid["mean_listening_time"]),
     })
-    
     ```
     
 7. Sort results by RMSE to find the best feature combinations:
@@ -283,7 +279,6 @@ src/
 │   ├── test.py
 │   └── xgb.py
 └── utils.py
-
 ```
 
 Each model followed a consistent interface with standardized input/output formats:
@@ -300,9 +295,22 @@ class DatasetXy:
     y_valid: pl.Series
     X_test: Optional[pl.DataFrame] = None
     y_test: Optional[pl.Series] = None
-
 ```
 
 This design made it easy for me to test new models or apply successful feature engineering techniques across different algorithms. My configuration system also allowed for quick switching between prediction and evaluation modes.
 
 While these details might seem minor, they significantly enhanced my ability to iterate efficiently throughout the competition.
+
+## Special Thanks to:
+
+- AngelosMar - https://www.kaggle.com/angelosmar1
+- Chris Deotte - https://www.kaggle.com/cdeotte
+- Panagiota Moraiti - https://www.kaggle.com/giotamoraiti
+- Pranshu Bahadur - https://www.kaggle.com/pranshubahadur
+- Spiritmilk - https://www.kaggle.com/act18l
+- Ravi Ramakrishnan - https://www.kaggle.com/ravi20076
+- Masaya Kawamata - https://www.kaggle.com/masayakawamata
+- Chinmaya - https://www.kaggle.com/chinmayadatt
+- Farukcan Saglam - https://www.kaggle.com/greysky
+- Carl McBride Ellis - https://www.kaggle.com/carlmcbrideellis
+- Thomas Meißner - https://www.kaggle.com/thomasmeiner
