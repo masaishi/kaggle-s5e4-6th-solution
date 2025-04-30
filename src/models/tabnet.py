@@ -1,5 +1,4 @@
 import gc
-import os
 import warnings
 
 import numpy as np
@@ -51,20 +50,13 @@ def train_model(fold: int, datasetXy: DatasetXy):
         X_train = X_train.with_columns(pl.col(col).map_elements(lambda x: mapping.get(x, None)).alias(col))
         X_valid = X_valid.with_columns(pl.col(col).map_elements(lambda x: mapping.get(x, None)).alias(col))
 
-    # Convert Polars DataFrames to numpy arrays
-    X_train_np = X_train.to_numpy()
-    X_valid_np = X_valid.to_numpy()
+    # Reshape X
+    X_train = X_train.to_numpy()
+    X_valid = X_valid.to_numpy()
 
-    # Reshape target variables
-    y_train_np = y_train.to_numpy().reshape(-1, 1) if hasattr(y_train, "to_numpy") else np.array(y_train).reshape(-1, 1)
-    y_valid_np = y_valid.to_numpy().reshape(-1, 1) if hasattr(y_valid, "to_numpy") else np.array(y_valid).reshape(-1, 1)
-
-    print(X_train_np.shape, y_train_np.shape, X_valid_np.shape, y_valid_np.shape)
-
-    # Initialize wandb
-    wandb.login(key=os.getenv("WANDB_API_KEY"))
-    config = {"learning_rate": 2e-2, "n_iter": 200, "early_stopping": 10, "metric": "rmse", "n_d": 64, "n_a": 64, "n_steps": 5}
-    wandb_run = wandb.init(project="playground-series-s5e4", config=config)
+    # Reshape y
+    y_train = y_train.to_numpy().reshape(-1, 1) if hasattr(y_train, "to_numpy") else np.array(y_train).reshape(-1, 1)
+    y_valid = y_valid.to_numpy().reshape(-1, 1) if hasattr(y_valid, "to_numpy") else np.array(y_valid).reshape(-1, 1)
 
     # Set up model with proper categorical indices and dimensions
     tabnet_params = {
@@ -103,11 +95,11 @@ def train_model(fold: int, datasetXy: DatasetXy):
 
     # Train the model with our proper callback class
     model.fit(
-        X_train=X_train_np,
-        y_train=y_train_np,
-        eval_set=[(X_train_np, y_train_np), (X_valid_np, y_valid_np)],
-        eval_name=["train", "valid"],
-        eval_metric=["rmse", "rmse"],
+        X_train=X_train,
+        y_train=y_train,
+        eval_set=[(X_valid, y_valid)],
+        eval_name=["valid"],
+        eval_metric=["rmse"],
         max_epochs=500,
         patience=10,
         batch_size=1024,
@@ -115,7 +107,7 @@ def train_model(fold: int, datasetXy: DatasetXy):
         callbacks=[WandbCallback()],
     )
 
-    del X_train_np, y_train_np, X_valid_np, y_valid_np
+    del X_train, y_train, X_valid, y_valid
     gc.collect()
     torch.cuda.empty_cache()
 
@@ -124,28 +116,28 @@ def train_model(fold: int, datasetXy: DatasetXy):
     print(f"Validation score: {val_score}")
     wandb.summary["best_val_score"] = val_score
 
-    feature_importances = model.feature_importances_
-    importance_dict = {col: imp for col, imp in zip(X_train.columns, feature_importances)}
+    # feature_importances = model.feature_importances_
+    # importance_dict = {col: imp for col, imp in zip(X_train.columns, feature_importances)}
 
-    # Log feature importances as a wandb Table
-    feature_importance_table = wandb.Table(columns=["Feature", "Importance"])
-    for feature, importance in sorted(importance_dict.items(), key=lambda x: x[1], reverse=True):
-        feature_importance_table.add_data(feature, importance)
+    # # Log feature importances as a wandb Table
+    # feature_importance_table = wandb.Table(columns=["Feature", "Importance"])
+    # for feature, importance in sorted(importance_dict.items(), key=lambda x: x[1], reverse=True):
+    #     feature_importance_table.add_data(feature, importance)
 
-    # Log the table and also as a bar chart for visualization
-    wandb.log({"feature_importances": feature_importance_table})
-    wandb.log({"feature_importance_plot": wandb.plot.bar(feature_importance_table, "Feature", "Importance", title="Feature Importances")})
+    # # Log the table and also as a bar chart for visualization
+    # wandb.log({"feature_importances": feature_importance_table})
+    # wandb.log({"feature_importance_plot": wandb.plot.bar(feature_importance_table, "Feature", "Importance", title="Feature Importances")})
 
-    # Also log as simple key-value pairs for easy access
-    wandb.log({"importance/" + feature: importance for feature, importance in importance_dict.items()})
+    # # Also log as simple key-value pairs for easy access
+    # wandb.log({"importance/" + feature: importance for feature, importance in importance_dict.items()})
 
     if hasattr(cfg, "predict") and cfg.predict:
         for col, mapping in category_mappings.items():
             X_test = X_test.with_columns(pl.col(col).map_elements(lambda x: mapping.get(x, None)).alias(col))
-        X_test_np = X_test.to_numpy()
-        y_test = model.predict(X_test_np)
+        X_test = X_test.to_numpy()
+        y_test = model.predict(X_test)
 
-        del X_test_np
+        del X_test
         gc.collect()
         torch.cuda.empty_cache()
 
