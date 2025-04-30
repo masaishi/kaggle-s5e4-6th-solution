@@ -72,10 +72,11 @@ for fold, (idx_train, idx_valid) in enumerate(kfold.split(df)):
     test_preds += [test_pred]
 
     gc.collect()
+    save_sub(test_preds)
+
     if hasattr(cfg, "eval") and cfg.eval and fold >= 0:
         break
 
-    save_sub(test_preds)
 
 git_info = commit_results(val_score, wandb_run.name)
 wandb.config.update(git_info)
