@@ -23,7 +23,7 @@ class CFG:
     num_leaves: int = 2048
     colsample_bytree: float = 0.5
     learning_rate: float = 0.04
-    random_state: int = 42
+    random_state: int = 242
 
     # num_leaves: int = 4096
     # colsample_bytree: float = 0.5

@@ -61,8 +61,8 @@ def train_model(fold: int, datasetXy: DatasetXy):
     # Set up model with proper categorical indices and dimensions
     tabnet_params = {
         # Architecture parameters
-        "n_d": 64,  # Width of the decision prediction layer (increased from default 8)
-        "n_a": 64,  # Width of the attention embedding for each step (increased from default 8)
+        "n_d": 8,  # Width of the decision prediction layer (increased from default 8)
+        "n_a": 8,  # Width of the attention embedding for each step (increased from default 8)
         "n_steps": 5,  # Number of steps in the architecture (increased from default 3)
         "gamma": 1.5,  # Coefficient for feature reusage in the masks
         # For categorical features from your feature engineering
@@ -101,9 +101,9 @@ def train_model(fold: int, datasetXy: DatasetXy):
         eval_name=["valid"],
         eval_metric=["rmse"],
         max_epochs=500,
-        patience=10,
-        batch_size=1024,
-        virtual_batch_size=128,
+        patience=3,
+        batch_size=1024 * 10,
+        virtual_batch_size=128 * 10,
         callbacks=[WandbCallback()],
     )
 
