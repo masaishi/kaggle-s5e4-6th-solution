@@ -1,7 +1,7 @@
 # PS-S5E4: Podcast Listening Time Prediction
 
 ## Overview
-This repository contains a machine learning solution for the [Predict Podcast Listening Time competition](https://www.kaggle.com/competitions/playground-series-s5e4/overview) by kaggle.
+This repository contains a machine learning solution for the [Predict Podcast Listening Time competition](https://www.kaggle.com/competitions/playground-series-s5e4/overview) by Kaggle.
 
 ## Features
 - Prediction of listener duration for podcasts
@@ -49,7 +49,7 @@ The analysis revealed that data points with more than 2 decimal digits in Episod
 df_train.filter(pl.col("Episode_Length_minutes_Decimal_Len") > 2)
 ```
 
-![Screenshot 2025-04-25 at 6.01.42 PM.png](attachment:e9b4f87b-f385-480f-88a5-36d2f59f97ab:Screenshot_2025-04-25_at_6.01.42_PM.png)
+<img width="709" alt="dataleak1" src="https://github.com/user-attachments/assets/77e64419-f89a-47a6-b229-8aa4b50364a2" />
 
 https://www.kaggle.com/code/masaishi/decimal-digits-analysis-eda?scriptVersionId=236025089&cellId=7
 
@@ -61,7 +61,7 @@ Normally, Number_of_Ads ranges from 0-3. However, I found 7 instances where this
 df_train.filter(pl.col("Number_of_Ads") > 3.0)
 ```
 
-![Screenshot 2025-04-25 at 6.01.57 PM.png](attachment:72cbe8dd-d686-4b74-8f67-cdff2d5be125:Screenshot_2025-04-25_at_6.01.57_PM.png)
+<img width="692" alt="dataleak2" src="https://github.com/user-attachments/assets/b33e2cd6-df6c-47b9-aafc-da4f96d38313" />
 
 https://www.kaggle.com/code/masaishi/decimal-digits-analysis-eda?scriptVersionId=236025089&cellId=8
 
@@ -80,7 +80,7 @@ The following four feature combinations showed significant LB improvement when o
 ]
 ```
 
-![Screenshot 2025-04-30 at 8.40.06 AM.png](attachment:f0540624-70d3-4b33-82c7-d8d38f174a77:Screenshot_2025-04-30_at_8.40.06_AM.png)
+<img width="741" alt="dataleak3" src="https://github.com/user-attachments/assets/746ede64-ce93-4c2b-a018-a21129b2302d" />
 
 ## Feature Engineering
 
@@ -234,7 +234,8 @@ Here's the step-by-step process I implemented:
 
 This approach is essentially a systematic way to perform target encoding across different feature combinations. The best combinations provide valuable insights about which podcast attributes most strongly influence listening time.
 
-![visualization.png](attachment:55a4b477-ffcb-4d94-aca6-a8dd18c94fac:visualization.png)
+![select](https://github.com/user-attachments/assets/125b31a1-e420-4e9f-8669-96e185b5b4ad)
+
 
 ## Model Ensemble
 
@@ -250,9 +251,10 @@ For my final submission, I created an ensemble combining several different regre
 
 Effective experiment management was crucial to my success in this competition. I tracked experiment parameters using Wandb, while implementing an automated commit system that included validation scores and Wandb experiment names in commit messages. This made it easy for me to identify which code changes produced the best results.
 
-![Screenshot 2025-04-30 at 7.13.19 AM.png](attachment:d18589c7-6a0d-44f6-931e-6c072365448b:Screenshot_2025-04-30_at_7.13.19_AM.png)
-
-![Screenshot 2025-04-30 at 7.13.00 AM.png](attachment:f1efb373-9542-4265-8715-0637855d2ccf:Screenshot_2025-04-30_at_7.13.00_AM.png)
+<div width="100% style="display: flex; justify-content: space-around; gap: 5rem;">
+  <img width="410" alt="manage0" src="https://github.com/user-attachments/assets/5e46e73e-2e46-45da-bb3e-7474c88f1b30" />
+  <img width="410" alt="manage1" src="https://github.com/user-attachments/assets/f2fb4b67-7d8a-42fa-8768-5114682c5214" />
+</div>
 
 With over 1,000 experiments conducted throughout the competition, establishing this structured environment from the beginning proved invaluable. The screenshot examples show how my tracking system organized results visually.
 
