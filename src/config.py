@@ -44,7 +44,7 @@ class CFG:
     eval: bool = True
     predict: bool = True
 
-    device: str = "cuda"
+    device: str = "cpu"
 
 
 cfg = CFG()

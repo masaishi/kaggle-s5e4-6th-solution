@@ -80,7 +80,3 @@ for fold, (idx_train, idx_valid) in enumerate(kfold.split(df)):
 git_info = commit_results(val_score, wandb_run.name)
 wandb.config.update(git_info)
 wandb.finish()
-
-gc.collect()
-
-save_sub(test_preds)
