@@ -20,15 +20,15 @@ class CFG:
     n_iter: int = 10000
     max_depth: int = -1
 
-    # num_leaves: int = 2048
-    # colsample_bytree: float = 0.5
-    # learning_rate: float = 0.04
-    # random_state: int = 42
-
-    num_leaves: int = 4096
+    num_leaves: int = 2048
     colsample_bytree: float = 0.5
-    learning_rate: float = 0.03
-    random_state: int = 47
+    learning_rate: float = 0.04
+    random_state: int = 42
+
+    # num_leaves: int = 4096
+    # colsample_bytree: float = 0.5
+    # learning_rate: float = 0.03
+    # random_state: int = 47
 
     objective: str = "l2"
     metric: str = "rmse"
@@ -42,9 +42,9 @@ class CFG:
 
     # debug: bool = True
     eval: bool = True
-    # predict: bool = True
+    predict: bool = True
 
-    device: str = "cpu"
+    device: str = "cuda"
 
 
 cfg = CFG()
