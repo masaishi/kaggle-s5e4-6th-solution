@@ -1,10 +1,10 @@
-# PS-S5E4: Podcast Listening Time Prediction
+# The 6th solution of Podcast Listening Time Prediction
 
 ## Overview
 This repository contains a machine learning solution for the [Predict Podcast Listening Time competition](https://www.kaggle.com/competitions/playground-series-s5e4/overview) by Kaggle.
 
 ## Features
-- Prediction of listener duration for podcasts
+- The 6th solution of Kaggle Playground Prediction Competition named [Predict Podcast Listening Time competition](https://www.kaggle.com/competitions/playground-series-s5e4/overview).
 - Feature engineering for podcast metadata and content attributes
 - Multiple model implementations (LightGBM, XGBoost, TabNet, HGBR, SVR)
 - Weights & Biases integration for experiment tracking
